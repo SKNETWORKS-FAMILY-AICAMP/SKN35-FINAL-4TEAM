@@ -1,0 +1,11 @@
+# vLLM 서빙 전용 환경. 메인 패키지와 버전이 충돌해 따로 둡니다.
+# Linux GPU 서버에서 이 폴더로 이동해 uv sync 실행
+[project]
+name = "skn35-final-4team-serving"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = ["vllm"]
+
+[tool.uv]
+package = false
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]

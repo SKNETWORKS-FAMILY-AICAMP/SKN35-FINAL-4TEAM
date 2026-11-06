@@ -1,0 +1,24 @@
+{
+  "name": "final_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SKNETWORKS-FAMILY-AICAMP/SKN35-FINAL-4TEAM.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SKNETWORKS-FAMILY-AICAMP/SKN35-FINAL-4TEAM/issues"
+  },
+  "homepage": "https://github.com/SKNETWORKS-FAMILY-AICAMP/SKN35-FINAL-4TEAM#readme",
+  "devDependencies": {
+    "promptfoo": "^0.125.1"
+  }
+}
