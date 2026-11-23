@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 import pathlib
-from functools import lru_cache
+from functools import cache, lru_cache
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -39,7 +39,7 @@ def schema_names() -> list[str]:
     return sorted(p.name.removesuffix(".schema.json") for p in SCHEMA_DIR.glob("*.schema.json"))
 
 
-@lru_cache(maxsize=None)
+@cache
 def _validator(name: str, part: str | None) -> Draft202012Validator:
     ref = BASE + f"{name}.schema.json" + (f"#/$defs/{part}" if part else "")
     return Draft202012Validator({"$ref": ref}, registry=_registry(), format_checker=FormatChecker())

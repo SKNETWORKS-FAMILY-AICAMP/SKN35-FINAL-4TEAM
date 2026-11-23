@@ -89,6 +89,24 @@
       "type": "string",
       "pattern": "^[A-Z][A-Za-z0-9_-]{0,15}$"
     },
+    "model_provider": {
+      "description": "모델 회사 (기획서 1.3 8.1). 같은 회사 안에서 버전만 바꿀 수 있음. 호출은 common/llm.py 어댑터 하나로",
+      "enum": ["anthropic", "openai", "google", "deepseek"]
+    },
+    "capability": {
+      "description": "도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*){1,3}$"
+    },
+    "write_mode": {
+      "description": "쓰기 도구 실행 방식 (기획서 1.3 5.8, 사용자가 고름). fake 가짜 도구로 대체(기록만) / exclude_tasks 이 도구가 필요한 문항 유형을 뺌 / test_space 러너가 사용자 테스트 공간에 실제로 씀 / dry_run API 연결의 드라이런. 연결 방식별 허용 값은 common.checks.WRITE_MODES",
+      "enum": ["fake", "exclude_tasks", "test_space", "dry_run"]
+    },
+    "template_scope": {
+      "description": "실행 전 범위 판정 (기획서 1.3 5.4) = experiment_candidates.template_scope. 문항 유형 code → in_scope / out_of_scope(1차 성공률에서 실패로 셈) / excluded_write(write_mode = exclude_tasks 라 실험에서 뺌). common.checks.template_scope 의 needs_review 는 사람이 정한 뒤에만 저장",
+      "type": "object",
+      "additionalProperties": { "enum": ["in_scope", "out_of_scope", "excluded_write"] }
+    },
     "tool_def": {
       "description": "모델에게 보이는 도구 하나. 함수 호출 형식(이름·설명·인자 JSON Schema)",
       "type": "object",
@@ -122,6 +140,15 @@
           "description": "mcp:<서버 이름> | custom | builtin",
           "type": "string",
           "pattern": "^(mcp:[a-z][a-z0-9_-]*|custom|builtin)$"
+        },
+        "capabilities": {
+          "description": "이 도구가 하는 일 (선택). 비어 있으면 범위 밖 판정에서 '사람 확인'으로 돌림 (common.checks.template_scope)",
+          "type": "array", "uniqueItems": true, "maxItems": 20,
+          "items": { "$ref": "#/$defs/capability" }
+        },
+        "write_mode": {
+          "description": "access = write 인 도구만. 비면 fake (API 연결은 dry_run 필수). 검사: common.checks.check_write_modes",
+          "$ref": "#/$defs/write_mode"
         },
         "fixed_responses": {
           "description": "직접 만든 도구(custom)만. 8주 안에는 정해 둔 가짜 응답으로 실행. 인자가 맞는 첫 항목을 돌려줌",

@@ -4,11 +4,12 @@
     "agent_version_id": 1,
     "slot_id": 1,
     "candidate_id": 2,
-    "agent_spec_hash": "sha256:4ef2031f73f92734774f3ad87e2de7a1693c34e54305f64ecd562363817e6bd3",
-    "component_spec_hash": "sha256:63c41a1916756f5f34f7bbc3458800ad83b9dbb1933070b60ee8aee05f0bcab6"
+    "agent_spec_hash": "sha256:fc437b6ea1cafd736fb32dc8c5e2393cf3ef765c8af131d118c11c6f03bae7d7",
+    "component_spec_hash": "sha256:95374f77f209283ea9bce8c09acb857ad104a2cf920b176243e97f7fc9bb3d51"
   },
   "model": {
     "name": "gpt-4.1-mini",
+    "provider": "openai",
     "temperature": 0.0
   },
   "instructions": "너는 acme/ops-service 저장소의 운영 도우미다. 필요한 정보는 도구로 찾고, 찾지 못하면 모른다고 답한다. 이슈를 만들거나 메시지를 보내기 전에는 사용자에게 확인한다.",
@@ -19,6 +20,10 @@
       "service": "github",
       "access": "write",
       "origin": "mcp:github",
+      "capabilities": [
+        "github.issues.write"
+      ],
+      "write_mode": "fake",
       "parameters": {
         "type": "object",
         "properties": {
@@ -45,6 +50,9 @@
       "service": "github",
       "access": "read",
       "origin": "mcp:github",
+      "capabilities": [
+        "github.releases.read"
+      ],
       "parameters": {
         "type": "object",
         "properties": {
@@ -67,6 +75,9 @@
       "service": "github",
       "access": "read",
       "origin": "mcp:github",
+      "capabilities": [
+        "github.actions.read"
+      ],
       "parameters": {
         "type": "object",
         "properties": {
@@ -93,6 +104,9 @@
       "service": "github",
       "access": "read",
       "origin": "mcp:github",
+      "capabilities": [
+        "github.actions.read"
+      ],
       "parameters": {
         "type": "object",
         "properties": {
@@ -118,6 +132,10 @@
       "service": "slack",
       "access": "write",
       "origin": "custom",
+      "capabilities": [
+        "slack.messages.write"
+      ],
+      "write_mode": "fake",
       "parameters": {
         "type": "object",
         "properties": {

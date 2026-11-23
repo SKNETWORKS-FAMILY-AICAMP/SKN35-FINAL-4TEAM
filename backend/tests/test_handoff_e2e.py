@@ -10,11 +10,11 @@ import json
 
 import psycopg
 import pytest
+from conftest import ROOT, load
 from psycopg.types.json import Jsonb
 
-from conftest import ROOT, load
 from slotagent.api.eng_errors import to_api_code
-from slotagent.common import db_names, checks, contracts, proposal
+from slotagent.common import checks, contracts, db_names, proposal
 from slotagent.common.hashing import agent_spec_hash, canonical_hash
 from slotagent.common.snapshot import HARNESS_VERSION, build_config_snapshot, trial_seed
 from slotagent.engine import advance
@@ -91,9 +91,9 @@ def test_1_intake(conn, ids):
     agent = one(cur, "INSERT INTO sa_agents(owner_id, name, expected_monthly_calls, domain_code) VALUES (%s, %s, %s, %s) RETURNING agent_id",
                 user, av["_agent"]["name"], av["_agent"]["expected_monthly_calls"], av["_agent"]["domain_code"])
     spec = contracts.validate("agent_spec", av["spec"])
-    av_id = one(cur, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, questions_used, control_level, model, temperature,
-                         instructions, spec, spec_hash) VALUES (%s,1,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING agent_version_id""",
-                agent, av["connection_type"], av["questions_used"], av["control_level"], av["model"], av["temperature"], av["instructions"],
+    av_id = one(cur, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, questions_used, model_provider, control_level, model,
+                         temperature, instructions, spec, spec_hash) VALUES (%s,1,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING agent_version_id""",
+                agent, av["connection_type"], av["questions_used"], av["model_provider"], av["control_level"], av["model"], av["temperature"], av["instructions"],
                 Jsonb(spec), agent_spec_hash(av["model"], av["temperature"], av["instructions"], spec))
     sc = load("slot_and_candidates.json")
     s = sc["slot"]
@@ -117,6 +117,11 @@ def test_1_intake(conn, ids):
     # 질문은 연결 방식이 아님 (11/23) — DB 에서도 막힘. 도구 검색 후보 C 는 위에서 들어감
     assert rejected(conn, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, control_level, model, instructions, spec, spec_hash)
                              VALUES (%s, 2, 'questions', 'C2', 'm', 'i', '{}', 'h')""", agent) is not None
+    assert rejected(conn, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, model_provider, control_level, model, instructions, spec, spec_hash)
+                             VALUES (%s, 3, 'spec_upload', 'mistral', 'C2', 'm', 'i', '{}', 'h')""", agent) is not None   # 모델 회사 4종만 (1.3)
+    # 러너 연결 토큰 (1.3 8.1): 해시만 저장, 토큰 없이 폐기 시각만 넣을 수 없음
+    assert rejected(conn, "UPDATE sa_agents SET runner_token_revoked_at = now() WHERE agent_id = %s", agent) is not None
+    cur.execute("UPDATE sa_agents SET runner_token_hash = %s WHERE agent_id = %s", ("sha256:" + "0" * 64, agent))
 
 
 # ---- 2. ② 평가팩 만들고 잠그기 -------------------------------------------
@@ -131,9 +136,10 @@ def test_2_pack(conn, ids):
         contracts.validate("pack", d["design"], part="data_design")
         cur.execute("""INSERT INTO sa_data_snapshots(pack_version_id, source_kind, location, design, content_hash, frozen_at)
                        VALUES (%s,%s,%s,%s,%s, now())""", (pack, d["source_kind"], d["location"], Jsonb(d["design"]), canonical_hash(d)))
-    tmpl = {t["code"]: one(cur, """INSERT INTO sa_templates(pack_version_id, code, question_pattern, is_representative, split)
-                                   VALUES (%s,%s,%s,%s,%s) RETURNING template_id""",
-                            pack, t["code"], t["question_pattern"], t["is_representative"], t["split"]) for t in p["templates"]}
+    tmpl = {t["code"]: one(cur, """INSERT INTO sa_templates(pack_version_id, code, question_pattern, is_representative, split, required_capabilities)
+                                   VALUES (%s,%s,%s,%s,%s,%s) RETURNING template_id""",
+                            pack, t["code"], t["question_pattern"], t["is_representative"], t["split"],
+                            Jsonb(t["required_capabilities"])) for t in p["templates"]}
     tasks, conds, template_of = [], {}, {}
     for t in p["tasks"]:
         checks.check_task_conditions(t["conditions"])
@@ -161,7 +167,7 @@ def test_3_experiment_draft(conn, ids):
     prereg = contracts.validate("prereg", ex["prereg"])
     assert prereg["margin_pp"] == json.loads(json.dumps(advance.latest_setting(conn, "ni_margin_pp")))   # 기본값은 settings
     plan = {k: v for k, v in json.loads(json.dumps(ex["plan"])).items() if k != "proposal"}   # ④가 보내는 plan 엔 proposal 없음
-    for item, real in zip(plan["tasks"], ids["tasks"]):   # 예시의 1,2,3 → 실제 문항 id
+    for item, real in zip(plan["tasks"], ids["tasks"], strict=True):   # 예시의 1,2,3 → 실제 문항 id
         item["task_id"] = real
     contracts.validate("plan", plan, part="body")
     checks.check_plan(plan, ids["template_of"], prereg)
@@ -180,16 +186,22 @@ def test_3_experiment_draft(conn, ids):
     exp = one(cur, """INSERT INTO sa_experiments(kind, agent_version_id, slot_id, pack_version_id, reps, prereg, plan, budget_krw, created_by)
                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING experiment_id""",
               ex["kind"], ids["av"], ids["slot"], ids["pack"], ex["reps"], Jsonb(prereg), Jsonb(plan), ex["budget_krw"], ids["user"])
-    rows = [dict(zip(["id", "slot_id", "label", "is_baseline"], r)) for r in cur.execute(
+    rows = [dict(zip(["id", "slot_id", "label", "is_baseline"], r, strict=True)) for r in cur.execute(
         "SELECT candidate_id, slot_id, label, is_baseline FROM sa_candidates WHERE candidate_id = ANY(%s)",
         ([ids["cand_by_example"][c] for c in ex["candidates"]],)).fetchall()]
     checks.check_experiment_candidates(rows)
-    ec = {}
+    ec, scopes = {}, {}
+    templates = load("pack.json")["templates"]
     for r in rows:                                                          # 역할·label 은 후보 행에서 (검토 32)
         snap, h = build_config_snapshot(conn, r["id"])                      # ①이 준 함수
-        ec[r["label"]] = one(cur, """INSERT INTO sa_experiment_candidates(experiment_id, candidate_id, label, role, config_snapshot, config_hash)
-                                     VALUES (%s,%s,%s,%s,%s,%s) RETURNING experiment_candidate_id""",
-                             exp, r["id"], r["label"], "baseline" if r["is_baseline"] else "candidate", Jsonb(snap), h)
+        scopes[r["label"]] = contracts.validate("common", checks.template_scope(snap["tools"], templates), part="template_scope")
+        ec[r["label"]] = one(cur, """INSERT INTO sa_experiment_candidates(experiment_id, candidate_id, label, role, config_snapshot, config_hash, template_scope)
+                                     VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING experiment_candidate_id""",
+                             exp, r["id"], r["label"], "baseline" if r["is_baseline"] else "candidate", Jsonb(snap), h, Jsonb(scopes[r["label"]]))
+    assert scopes["B"] == {"T1": "in_scope", "T2": "out_of_scope"}           # 실행 전 범위 판정 저장 (1.3 5.4)
+    # 사람이 정하기 전(needs_review)은 저장 못 함
+    assert rejected(conn, """INSERT INTO sa_experiment_candidates(experiment_id, candidate_id, label, role, config_snapshot, config_hash, template_scope)
+                             VALUES (%s,%s,'C','candidate','{}','h','{"T1": "needs_review"}')""", exp, ids["cand"]["C"]) is not None
     # 기준이 아닌 후보를 baseline 으로 넣으면 DB 가 막음
     assert rejected(conn, """INSERT INTO sa_experiment_candidates(experiment_id, candidate_id, label, role, config_snapshot, config_hash)
                              VALUES (%s,%s,'B','baseline','{}','h')""", exp, ids["cand"]["B"]) is not None
@@ -211,7 +223,7 @@ def test_4_lock_and_run(conn, ids):
     trials = cur.execute("""SELECT t.trial_id, ec.label, k.code, ec.config_snapshot, k.seed, t.rep FROM sa_trials t
                             JOIN sa_experiment_candidates ec ON ec.experiment_candidate_id = t.experiment_candidate_id JOIN sa_tasks k ON k.task_id = t.task_id
                             WHERE t.experiment_id=%s ORDER BY t.trial_id""", (ids["exp"],)).fetchall()
-    for tid, label, code, snap, task_seed, rep in trials:
+    for tid, _label, _code, snap, task_seed, rep in trials:
         advance.enqueue(conn, {"schema_version": 1, "kind": "run_trial", "trial_id": tid})
         contracts.validate("config_snapshot", snap)                          # 후보 구성은 이것만 보고 실행
         assert advance.check_budget(conn, ids["exp"])
@@ -260,7 +272,7 @@ def test_5_grade(conn, ids):
     contracts.validate("grading", judge, part="judge_settings")
     evidence = contracts.validate("grading", ex["grading.condition_evidence"][0], part="condition_evidence")
     metrics = contracts.validate("grading", ex["grading.trial_metrics"][0], part="trial_metrics")
-    task_of = dict(zip(["T1-0", "T1-1", "T2-0"], ids["tasks"]))
+    task_of = dict(zip(["T1-0", "T1-1", "T2-0"], ids["tasks"], strict=True))
     for tid, label, code, *_ in ids["trials"]:
         out_of_scope = label == "B" and code == "T2-0"                     # B 는 list_issues 를 뺌
         ok = not out_of_scope and not (label == "A" and code == "T1-1")
