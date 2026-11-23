@@ -3,6 +3,7 @@ name = "skn35-final-4team"
 version = "0.1.0"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "anthropic",
     "datasets>=5.1.0",
     "fastapi>=0.165.0",
     "httpx>=0.28.1",

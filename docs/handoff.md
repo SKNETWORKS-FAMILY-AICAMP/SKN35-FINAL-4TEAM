@@ -11,6 +11,100 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-23 · Codex · taemin (모델 3사 연결 — SDK 모의 응답까지)
+- 한 일: `common/llm.py`에 `ProviderModel(clients=..., clock=..., sleep=...)`을 추가해 provider로 네 회사를 선택합니다. 기존 `ChatModel.chat` 인자·`Reply`·`ModelError`와 OpenAI 전용 `OpenAIModel(client=...)`은 유지했습니다. 기존 OpenAI 테스트 본문은 바꾸지 않았습니다. 재시도 while 루프는 `_with_retries` 하나이며 모든 SDK 생성·요청에서 max_retries=0입니다. Google·DeepSeek은 OpenAI SDK, Anthropic은 anthropic SDK를 사용합니다. Anthropic system 분리·tool_use/tool_result·여러 도구 결과 병합·종료 이유 변환을 추가했습니다. 객체가 아닌 tool input은 JSON 문자열로 원래 값을 보존해 루프가 agent_invalid_tool_call로 돌려줍니다. 다음 Anthropic 요청에서는 API가 객체만 받는 tool_use 대신 해당 잘못된 호출과 오류 결과를 글 블록으로 보존해 모델이 수정할 수 있게 합니다(정상 호출은 tool_use/tool_result 그대로). Gemini의 빈 문자열·null·누락·공백 ID는 기존 대화와 현재 응답 ID에 겹치지 않게 생성하며 다음 요청의 tool_call_id와 같습니다.
+- 의존성: pyproject에 anthropic만 추가했습니다. uv.lock은 anthropic 2.12.0과 전이 의존성 docstring-parser 0.18.0만 추가됐고 기존 패키지 버전은 유지했습니다. scripts/test.ps1에는 --with anthropic만 추가했습니다(이전 작업의 --with openai 유지).
+- 검증: `scripts/test.ps1` 전체 **216 passed**(기존 101 + 새 모의 검사 115), backend 전체 `uv run ruff check .` 0건, 수정 Python 두 파일 `ruff format --check` 통과, `uv lock --check --offline` 235 packages 일치, `git diff --check` 통과. 모든 llm 테스트에서 실제 SDK 생성자를 차단하고 주입한 모의 클라이언트만 사용했습니다. 키 관련 검사는 모의 환경 값·빈 dotenv를 사용하므로 로컬 OpenAI 키도 호출하지 않았습니다. 기존 테스트 외에 네 회사의 아래 표·SDK 오류 원문/키의 메시지 및 traceback 비노출·SDK 생성 옵션·메시지 왕복·Gemini ID 충돌 회피·Anthropic 비객체 인자 및 정상/비정상 혼합 호출 피드백을 확인했습니다.
+
+### 회사별 실패 상황 표 (SDK 모의 응답)
+
+각 요청은 0.1초, 재시도 상한 R=2, 대기는 1초→2초입니다. 측정값은 `api_retries / wait_sec / duration_sec` 순이며 duration은 대기를 제외합니다. ValueError에는 기존 인터페이스대로 이 필드가 없습니다. 대기 후 실제 요청을 못 했어도 기존 동작대로 api_retries가 증가합니다.
+
+| 상황 | OpenAI | Google | DeepSeek | Anthropic | 측정값 |
+|---|---|---|---|---|---|
+| 429가 3회 계속됨 | ModelError(llm_api_429) | 같음 | 같음 | 같음 | 2 / 3 / 0.3 |
+| 5xx·529 후 성공 | Reply | 같음 | 같음 | 같음 | 1 / 1 / 0.2 |
+| 연결 오류 후 성공 | Reply | 같음 | 같음 | 같음 | 1 / 1 / 0.2 |
+| 5xx가 3회 계속됨 | ModelError(env_llm_api_5xx) | 같음 | 같음 | 같음 | 2 / 3 / 0.3 |
+| timeout_sec=0.5, 첫 오류 뒤 대기 중 소진 | ModelError(timeout_wall_clock) | 같음 | 같음 | 같음 | 1 / 0.4 / 0.1, 두 번째 요청 없음 |
+| SDK 시간 초과 | ModelError(timeout_wall_clock) | 같음 | 같음 | 같음 | 0 / 0 / 0.1 |
+| 요청 전 제한 시간 소진 | ModelError(timeout_wall_clock) | 같음 | 같음 | 같음 | 0 / 0 / 0, 요청 없음 |
+| 성공 응답이 제한 시간을 넘어 도착 | ModelError(timeout_wall_clock) | 같음 | 같음 | 같음 | 0 / 0 / 실제 경과, 모의 검사는 0.1 |
+| 400·401·403 | ValueError | 같음 | 같음 | 같음 | 필드 없음, 모의 경과 0.1·1회 요청 |
+| 사용량 또는 입력/출력 토큰 수 누락 | ValueError | 같음 | 같음 | 같음 | 필드 없음, 모의 경과 0.1·1회 요청 |
+| 빈 객체 도구 인자 | Reply, arguments="{}" | 같음 | 같음 | input={} → arguments="{}" | 0 / 0 / 0.1 |
+| 빈 문자열 도구 인자 | Reply, arguments="" 그대로 | 같음 | 같음 | input="" → JSON 문자열 '\"\"', 비객체 값도 그대로 JSON 직렬화 | 0 / 0 / 0.1, 루프가 잘못된 인자로 기록·모델에 피드백 |
+| 텍스트+도구 호출 | 둘 다 보존한 Reply | 같음 | 같음 | 같음 | 0 / 0 / 0.1 |
+| 키 없음 | 요청 전 ValueError | 같음 | 같음 | 같음 | 필드 없음, 경과 0·요청 0회 |
+| 출력 토큰 한도로 잘림 | Reply(length) | 같음 | 같음 | max_tokens → length | 0 / 0 / 0.1 |
+| 비어 있는 도구 호출 ID | 기존 동작 유지 | 겹치지 않는 ID를 채운 Reply, 다음 tool_call_id 일치 | 기존 동작 유지 | 기존 동작 유지 | Google 0 / 0 / 0.1, 별도 대기·재호출 없음 |
+
+### 보내지 않은 인자·변환 표
+
+| 회사 | 보내지 않는 값 | 보내는 형태·이유 |
+|---|---|---|
+| OpenAI | max_tokens=None일 때 출력 상한, 비어 있는 tools | 기존 seed·temperature·max_completion_tokens 동작 유지 |
+| Google | seed, max_completion_tokens | seed 명시 지원을 공식 호환 문서에서 확인하지 못해 생략. 상한이 있으면 max_tokens, 없으면 생략 |
+| DeepSeek | seed, max_completion_tokens | 공식 Chat Completions 인자 목록에 seed 없음. 상한이 있으면 max_tokens, 없으면 생략 |
+| Anthropic | seed, OpenAI 형식의 system 메시지·tool_calls·tool 역할·parameters·max_completion_tokens | system은 최상위, tool_use/tool_result, input_schema, 필수 max_tokens로 변환. max_tokens=None은 요청 전 ValueError |
+| 공통 | 도구 정의의 access·origin·capabilities 등 내부 속성, price·max_api_retries·timeout_sec라는 API 본문 필드 | 이름·설명·입력 스키마만 전달. 가격은 로컬 계산, 재시도는 공용 루프, 남은 시간은 SDK timeout 옵션 |
+
+공식 확인: [Gemini 호환 주소](https://aistudio.google.com/docs/openai?hl=ko) = `https://generativelanguage.googleapis.com/v1beta/openai/`, [DeepSeek 주소](https://api-docs.deepseek.com/) = `https://api.deepseek.com`, [DeepSeek 인자](https://api-docs.deepseek.com/api/create-chat-completion/), [Anthropic Messages](https://platform.claude.com/docs/en/api/messages/create), [Anthropic 오류·529](https://platform.claude.com/docs/en/api/errors), [Anthropic tool_result 선행 순서](https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls). seed를 생략한 회사에서는 같은 seed에 따른 재현성을 보장하지 않습니다.
+
+### 새 raise가 워커까지 전달될 때
+
+| 위치·발생 조건 | 최종 처리 |
+|---|---|
+| 공용 재시도: 요청 전 시간 소진 | ModelError(timeout_wall_clock) → loop가 풀이 결과로 기록 |
+| 공용 재시도: SDK timeout·429/5xx/연결 오류 재시도 소진 | ModelError(기존 이유) → loop가 prereg에 따라 풀이 결과로 기록 |
+| 공용 재시도: 제한 시간을 넘어 도착한 성공 | ModelError(timeout_wall_clock) → loop가 풀이 결과로 기록 |
+| 공용 재시도: 인증·요청 4xx | ValueError → worker가 현재 풀이 복구, eng_main이 작업 failed |
+| _api_key: 회사 키 없음·빈 값 | ValueError → 현재 풀이 복구·작업 failed, API 요청 없음 |
+| _tokens: 사용량 누락·음수·정수 아님 | ValueError → 현재 풀이 복구·작업 failed |
+| _openai_reply: 응답·사용량 모양 부족 | 원문 없는 ValueError → 현재 풀이 복구·작업 failed |
+| _anthropic_reply: 응답·사용량 모양 부족 | 원문 없는 ValueError → 현재 풀이 복구·작업 failed. JSON 비객체 인자는 예외가 아님 |
+| anthropic_messages: 알 수 없는 메시지 역할 | ValueError → 현재 풀이 복구·작업 failed |
+| ProviderModel: 지원하지 않는 provider | NotImplementedError → 현재 풀이 복구·작업 failed |
+| ProviderModel: Anthropic max_tokens=None | ValueError → 현재 풀이 복구·작업 failed, API 요청 없음 |
+| OpenAIModel: OpenAI 외 provider | 기존 전용 클래스의 NotImplementedError 유지 → 현재 풀이 복구·작업 failed |
+
+`engine/loop.py`의 chat 호출·Reply.message·도구 JSON 검사·ModelError 처리와 `engine/worker.py`의 예외 복구, `workers/eng_main.py`의 즉시 실패 분기를 읽기 전용으로 재확인했습니다. engine·workers는 수정하지 않았습니다.
+
+### 남은 빈틈·의문점
+
+- 중요: 실제 API는 호출하지 않았습니다. 현재 로컬 키는 OpenAI만 있다는 사용자 설명을 기준으로 하며 추가 키를 요구하거나 읽어 출력하지 않았습니다. SDK 모의 성공은 실제 모델 호환성을 보장하지 않습니다. 체크리스트의 실제 API 확인은 미완료로 유지합니다.
+- 중요: 입력이 너무 길어 발생하는 400(context 초과)도 현재 ValueError → 작업 failed입니다. 사용자 지시대로 이번에는 바꾸지 않았습니다. 비용이 발생한 뒤 사용량이 없는 경우·예외로 중단된 호출의 과금 보존도 기존 한계입니다.
+- 중요: Anthropic은 max_tokens가 필수라 공통 runtime의 "비우면 모델 기본값"을 구현할 수 없습니다. 사용자 지시대로 기본값을 만들지 않고 ValueError로 막았습니다. 계약 변경 없음, 설정에서 명시 필요.
+- 중요: 일부 모델이 요구하는 Gemini thought signature·DeepSeek reasoning_content 등 공급자 확장 필드는 현재 Reply 모양으로 왕복하지 않습니다. 이번에는 인터페이스를 변경하지 않았고 해당 모델의 실제 다중 도구 호출 호환성은 남았습니다.
+- 작음: length는 Reply에 보존하지만 현재 loop가 별도 실패로 분류하지 않습니다. Anthropic cache 입력 토큰은 전체 입력에 합산하고 caller의 단일 입력 단가로 계산합니다. 캐시 할인·생성 할증 등 별도 단가와 확장 stop_reason 정책은 지원하지 않습니다.
+- 의문점: Anthropic 출력 상한 생략과 공급자별 seed 지원 차이는 위와 같습니다. 계약·마이그레이션·engine·workers 변경, 커밋·push 없음.
+
+## 2026-11-23 · Claude · taemin (실패 작업 무한 재시도 막기)
+- 한 일: `workers/eng_main.run_once`가 예외마다 `retry=True`로 돌려 보내, 같은 이유로 실패하는 작업(해시 불일치·가격표 없음·검색 후보·쓰기 도구 호출)이 끝없이 다시 임대되던 문제를 고쳤습니다. `should_retry`: ValueError·TypeError·NotImplementedError(ContractError 포함)는 바로 작업 `failed`, 그 밖은 작업 attempts 가 `max_attempts`(기본 3) 미만일 때만 다시 넣습니다. `queue.reclaim(max_attempts=)`도 같은 상한으로 만료 임대를 `failed`로 둡니다(매번 프로세스를 죽이는 작업 대비). 풀이는 후보 실패로 기록하지 않고 pending 으로 남깁니다.
+- 검증: 전체 **101 passed**, Ruff 0건. 새 검사 3개(영구 오류 즉시 failed·다시 안 빌림, 일시 오류 상한에서 failed, 회수 상한).
+- 안 한 일 / 남은 일: 실패한 작업의 풀이는 pending 으로 남아 실험이 끝나지 않습니다 — 원인을 고친 뒤 작업을 다시 넣는 운영 절차(또는 API)가 필요합니다. 재시도 간격(백오프) 없음. 상한은 코드 상수이며 settings 계약에 `queue.max_attempts`를 넣을지는 4명 확인 사항입니다. 계약·DB 변경, 커밋·push 없음.
+- 의문점: 없음.
+
+## 2026-11-23 · Codex · taemin (큐 임대·회수·실험 잠금)
+- 한 일: `common/queue.py`에 우선순위·SKIP LOCKED 임대, settings 임대 시간, attempts·leased_by·만료 검사, 연장·완료·실패·만료 회수를 구현했습니다. 실행 중 풀이를 pending으로 반환하면서 attempt를 증가시키고, 중단된 실험이면 cancelled로 바꾸는 것까지 작업 반환과 같은 트랜잭션입니다. 만료된 이전 워커는 회수 전에도 결과·비용을 저장할 수 없습니다. `run_trial(job=...)`의 최종 기록·비용·advance·작업 완료를 함께 커밋하며, 동시 완료가 채점 생성을 누락하지 않게 실험 행을 먼저 잠급니다. `lock_and_enqueue`는 DB 잠금·풀이·작업 생성·running 전환을 원자화하고 반복 요청 때 중복 생성하지 않습니다. `workers/eng_main.run_once`는 명시적 deps·연결 팩터리로 풀이 하나를 처리하고 별도 연결에서 기본 20초마다 연장합니다(최소 임대 60초 대응). 잡을 수 있는 오류는 작업을 반환하고 원래 예외를 올립니다.
+- 검증: 전체 **98 passed**, backend 전체 Ruff 0건. 새 통합 검사 10개에서 잠긴 작업 건너뛰기·토큰 재발급·이전 토큰 거부, 별도 프로세스의 os._exit 비정상 종료, pg_terminate_backend DB 연결 종료 후 새 연결의 회수·재실행, 회수 후 이전 워커의 늦은 저장 차단, 중단된 풀이 취소, 별도 연결 연장·오류 반환, 동시 완료의 채점 실행 하나, 큐 완료 저장 실패 시 spans·장부 롤백, 잠금 중 작업 등록 실패의 전체 롤백·중복 요청을 확인했습니다. 가짜 모델·임시 DB 기준이며 실제 API나 실제 채점 완료를 의미하지 않습니다.
+- 안 한 일 / 남은 일: `write_proxy.py`·`tool_search.py`, 풀이별 Docker/MCP와 환경 검사, 나머지 모델 3사 및 실제 API 검증, 실제 채점 완료는 남았습니다. P-05의 문항별 답 계약·승인 대상 비교 규칙은 ①② 협의가 필요합니다. `grading/eng_pipeline.py`도 미구현이라 채점 작업 생성까지 검증했습니다. 배포용 반복 실행 진입점·오류 후 재시도 간격/상한은 정하지 않았고 기존 registry는 변경하지 않았습니다. 큐 경로를 쓸 때는 새 run_once 또는 job을 넘기는 run_trial을 사용해야 하며, job 생략은 기존 독립 실행 검증용입니다. 중단 직전 메모리의 trace·과금 보존과 블로킹 외부 호출 강제 중단은 여전히 남았습니다. 기존 변경을 보존했고 계약·DB 정의·의존성 선언·브랜치 변경, 커밋·push 없음.
+- 의문점 (계약·미정 사항과 부딪힌 곳): P-05의 미구현 계약을 임의로 추가하지 않았습니다. 재시도 운영 정책과 실제 채점 연결을 끝내기 전에는 체크리스트의 워커·advance 전체 완료로 표시하지 않았습니다.
+
+## 2026-11-23 · Codex · taemin (예외 후 풀이 복구·오류 칼럼 수정)
+- 한 일: `worker.run_trial`의 시작 이후 실행·trace 검사·최종 저장 전부를 예외 복구로 감쌌습니다. 현재 status=running과 시작한 attempt가 모두 같을 때만 pending으로 반환하고 attempt를 1 올리며 started_at을 비웁니다. 넘겨받은 다른 워커나 완료 상태는 수정하지 않습니다. 이미 중단된 실험이면 DB 규칙에 따라 pending 반환 후 cancelled로 처리합니다. 원래 예외는 그대로 다시 던지며 자동 모델 재호출은 하지 않습니다. 복구 자체가 실패하면 원문 DB 오류를 노출하지 않는 복구 실패 안내를 원래 예외에 붙입니다. `sa_spans.error`가 존재하는 것을 확인하고 INSERT의 전용 error 칼럼에 기록하도록 수정했습니다(이전 attributes 저장은 잘못된 구현이었습니다).
+- 검증: 전체 **88 passed**, backend 전체 Ruff 0건. 쓰기 미지원·인증/미지원 공급자/응답 부족에 해당하는 모델 예외·취소·최종 인계 실패에서 상태 복구를 확인했습니다. 인계 실패 시 spans와 장부 롤백 후 attempt 2로 재실행이 완료됩니다. 다른 워커 attempt 보존, 중단된 실험의 취소, 복구 실패 시 원래 예외 보존, 도구 오류의 error 칼럼 저장도 임시 DB에서 확인했습니다. 기존 테스트의 running 잔류 기대값을 새 복구 동작과 실제 재실행 확인으로 갱신했습니다.
+- 안 한 일 / 남은 일: 이 복구는 Python이 예외를 처리하고 DB 연결이 사용 가능할 때 작동합니다. 프로세스 강제 종료·DB 단절의 복구는 큐 임대/회수 단계에서 구현해야 합니다. 중간 비용 보존도 이전 기록대로 남아 있습니다. 쓰기 도구는 여전히 미지원이며 부르면 안전하게 예외·상태 복구됩니다. 스키마 자체 검증·length 응답 정책은 변경하지 않았습니다. max_steps의 모델+도구 합산 설명은 이미 common.schema.json의 runtime.max_steps에 있으므로 계약을 고치지 않았습니다. 계약·DB 정의·브랜치 변경, 커밋·push 없음.
+- 의문점 (계약·미정 사항과 부딪힌 곳): 없음. 앞선 기록의 “예외가 나면 running에 머물 수 있음”은 위의 잡을 수 없는 종료/연결 장애에 한정됩니다.
+
+## 2026-11-23 · Codex · taemin (실행 코어 1~3: 읽기 경로)
+- 한 일: DB 없는 `engine/loop.py`와 `engine/tracing.py`, 모델 공통 경로 `common/llm.py`를 구현했습니다. `OpenAIModel.chat`과 `FakeModel.chat`은 같은 `Reply`(글·도구 호출·사용량·실제 모델 이름·비용·시간·재시도)를 반환합니다. OpenAI SDK 자동 재시도를 끄고 runtime 횟수·남은 시간으로 제어합니다. 출력 토큰 상한을 비우면 계약대로 제공자 기본값을 쓰며, `max_steps`는 모델 호출과 각 도구 호출을 합산합니다. 잘못된 도구 인자는 실행하지 않고 모델에 오류로 돌려줍니다. 오류 분류는 기존 `checks.run_outcome_for`와 prereg를 그대로 따릅니다.
+- 연결 모양: `run_agent(snap, task_prompt, seed, Dependencies(model, call_tool), prereg=prereg)` → `RunResult.trace`. `call_tool(name, args, timeout_sec)`는 문자열을 반환하고 환경 장애는 `ToolEnvironmentError`로 알립니다. 모델 호출은 `common/llm.py`를 통하며 DB는 직접 읽지 않습니다. 호출자는 `Price`로 가격을 넘기고 반환된 비용을 자기 문맥에서 저장합니다. 워커는 settings의 현재 `price.<모델>`을 읽고 실제 모델에 가격표가 없으면 실행하지 않습니다.
+- DB 연결: `run_trial(conn, trial_id, deps=...)`가 스냅샷 해시·예산·현재 상태를 확인하고, 모델/도구 호출 동안 DB 트랜잭션을 유지하지 않습니다. 최종 spans·호출별 비용 장부·trial 결과·`advance.on_trial_finished`를 한 트랜잭션으로 저장합니다. attempt가 달라지면 저장을 거부합니다. 취소는 후보 실패로 저장하지 않고 `RunCancelled`로 올립니다. 도구 설명 토큰은 측정할 수 없어 trace에서 생략하고 DB에는 NULL로 둡니다. 기본 deps는 없으므로 등록된 기존 작업 핸들러만으로 유료 모델이 실행되지 않습니다.
+- 검증: 새 테스트 26개 포함 전체 **80 passed** (`scripts/test.ps1`), backend 전체 Ruff 0건·추가/수정한 Python 7개 포맷 검사·diff 공백 검사 통과. OpenAI는 SDK 모의 응답으로 확인했습니다. 가짜 모델이 T2-0 조회 → 답변 → 실제 임시 DB 저장까지 돌고, 두 풀이 완료 후 채점 작업 하나가 생기는 것을 확인했습니다. 예산 소진 시 호출 차단·저장 중 인계 실패 시 전체 최종 기록 롤백·오래된 attempt 저장 거부도 확인했습니다. 새 워커 테스트는 기존 E2E와 별도 임시 DB를 사용해 전역 집계에 영향을 주지 않습니다. 테스트 실행 스크립트에 이미 선언돼 있던 openai를 추가했으며 의존성 선언·lock·계약은 변경하지 않았습니다.
+- 안 한 일 / 남은 일: 실제 API 호출, 나머지 3개 회사, Docker/MCP·시작 전 환경 검사, 확인 도구·쓰기 프록시·쓰기 기록, 검색·재생, 채점기 구현은 다음 단계입니다. 쓰기·확인·검색은 미지원 예외로 막습니다. 큐 임대·연장·회수·임대 토큰 펜싱·워커 메인도 아직 없습니다. 실행 중 취소/예외/프로세스 종료로 최종 저장에 도달하지 못하면 메모리의 trace와 비용이 남지 않고 trial이 running에 머물 수 있어, 실사용 전에 큐 복구와 중간 비용 보존을 연결해야 합니다. 도구 콜백에는 남은 시간을 전달하지만 블로킹 호출을 강제 중단하는 기능은 아직 없습니다. 가짜 실행 결과는 테스트용이며 실제 ML/DL 학습 성능의 근거로 사용하지 않습니다. 커밋·푸시 없음.
+- 의문점 (계약·미정 사항과 부딪힌 곳): 계약 변경 없음. P-02의 429 분류는 prereg의 기존 값대로 유지했습니다. P-05의 문항별 답 계약은 이번 범위에 포함하지 않았습니다.
+
 ## 2026-11-23 · Codex · taemin (공통 DB 연결)
 - 한 일: common/db.py에 get_database_url·connect를 구현했습니다. 환경 변수 우선, 없으면 저장소 루트 .env를 읽되 프로세스 환경은 변경하지 않습니다. URL·포트·접속 제한 시간을 확인하고 기본 tuple 행·트랜잭션 연결, 선택적 autocommit을 제공합니다. 새 test_eng_db.py에서 설정 우선순위·잘못된 설정의 비밀값 비노출·조회·커밋·롤백·연결 종료·autocommit을 확인했습니다. 기존 선언된 python-dotenv를 테스트 실행 환경에 추가하고 test.ps1이 실패 코드를 전달하게 수정했습니다. 전체 54 passed, Ruff·추가한 두 파일 포맷 검사 통과.
 - 안 한 일 / 남은 일: 큐·워커·API 통합은 아직 구현하지 않았습니다. 로컬 PostgreSQL 서비스를 기동했고 기존 볼륨은 app 계정/빈 app DB여서 그대로 보존한 채 별도 slotagent DB를 만들고 빈 DB에만 0001~0003을 적용했습니다. 예시에서 로컬 .env를 처음 만들고 기존 초기 계정 app에 맞췄습니다(실제 API 키 없음, Git 제외). 공통 connect로 PostgreSQL 17.11·제품 테이블 33개·template_scope 존재를 조회 확인했습니다. DB 서비스는 개발용으로 실행 중입니다. 계약·의존성 선언·lock 변경, 커밋·푸시 없음. 생성 캐시·임시 파일은 정리했습니다.
