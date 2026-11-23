@@ -29,9 +29,9 @@ def test_reference_matches_pack_and_contracts():
         for condition in task["conditions"]:
             contracts.validate("answer_condition", condition["spec"], part=condition["kind"])
         checks.check_task_conditions(task["conditions"])
-    assert len(pack["templates"]) == 12
-    assert len(pack["tasks"]) == 38
-    assert len({task["code"] for task in pack["tasks"]}) == 38
+    assert len(pack["templates"]) == 15
+    assert len(pack["tasks"]) == 47
+    assert len({task["code"] for task in pack["tasks"]}) == 47
     template_codes = {t["code"] for t in pack["templates"]}
     assert all(task["template"] in template_codes for task in pack["tasks"])
     assert reference.verify_pack() == {

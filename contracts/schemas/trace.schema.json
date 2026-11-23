@@ -137,7 +137,7 @@
           "user_confirmed": {
             "type": "boolean",
             "default": false,
-            "description": "⚠ 자동 실행에서는 확인해 줄 사용자가 없음 → 결정 전까지 항상 false (docs/decisions_pending.md P-05)"
+            "description": "P-05: 확인 도구의 승인 행동과 실제 쓰기를 엔진이 비교한 결과. boolean 자체를 승인 증거로 신뢰하지 않고 확인 span을 재검증한다."
           }
         }
       }

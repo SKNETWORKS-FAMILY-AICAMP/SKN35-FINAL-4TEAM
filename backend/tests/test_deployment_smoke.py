@@ -14,10 +14,10 @@ spec.loader.exec_module(smoke)
 
 def test_smoke_matrix_and_evidence(tmp_path):
     report = smoke.run(tmp_path)
-    assert report["runs"] == 190
+    assert report["runs"] == 235
     assert report["unsupported_templates"] == []
     assert report["all_matched"]
-    assert len(list(tmp_path.glob("*.trace.json"))) == 190
+    assert len(list(tmp_path.glob("*.trace.json"))) == 235
     tasks = {t["code"]: t for t in json.loads((PACK_DIR / "pack.json").read_text(encoding="utf-8"))["tasks"]}
     for result in report["results"]:
         conditions = {c["seq"]: c for c in result["conditions"]}

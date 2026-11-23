@@ -10,6 +10,7 @@ CODES = (
     "DEPLOY_FAILURES_PERIOD", "DEPLOY_SLOW_RUNS", "DEPLOY_DAILY_COUNTS", "DEPLOY_RECOVERY",
     "DEPLOY_ENV_COMPARE", "ISSUES_ASSIGNED_OPEN", "ISSUES_STALE_UNASSIGNED",
     "ISSUES_CLOSED_PERIOD", "ISSUES_LABEL_COUNTS", "DEPLOY_RELEASE_LINK",
+    "DEPLOY_FAILURE_STREAK", "ISSUES_UNLABELED_OPEN", "DEPLOY_UNDEPLOYED_RELEASES",
 )
 
 
@@ -25,6 +26,20 @@ def calculate(code, values, data):
     repo = values["repo"]
     runs = [r for r in data["runs"] if r["repo"] == repo]
     issues = [r for r in data["issues"] if r["repo"] == repo]
+    if code == "ISSUES_UNLABELED_OPEN":
+        return {"issue_ids": sorted(r["id"] for r in issues if r["state"] == "open" and r["labels"] == [])}
+    if code in {"DEPLOY_FAILURE_STREAK", "DEPLOY_UNDEPLOYED_RELEASES"}:
+        runs = [r for r in runs if r["environment"] == values["environment"]]
+        if code == "DEPLOY_UNDEPLOYED_RELEASES":
+            deployed = {r["sha"] for r in runs if r["status"] == "success"}
+            return {"release_tags": sorted(r["tag"] for r in data["releases"]
+                                           if r["repo"] == repo and r["sha"] not in deployed)}
+        count = 0
+        for row in sorted(runs, key=lambda r: stamp(r["finished_at"]), reverse=True):
+            if row["status"] != "failure":
+                break
+            count += 1
+        return {"failure_streak": count}
     if code in CODES[:4] or code == "DEPLOY_RELEASE_LINK":
         runs = [r for r in runs if r["environment"] == values["environment"]]
     if code == "DEPLOY_FAILURES_PERIOD":

@@ -19,6 +19,8 @@ def respond(code, values, data_path, alternate, record):
 
     if code.startswith("ISSUES_"):
         rows = query("issues", "list_operation_issues")
+        if code == "ISSUES_UNLABELED_OPEN":
+            return {"issue_ids": sorted({r["id"] for r in rows if not r["labels"] and r["state"] == "open"})}
         if code == "ISSUES_LABEL_COUNTS":
             return {f"{label}_count": len([r for r in rows if r["state"] == "open" and label in r["labels"]])
                     for label in ("bug", "urgent")}
@@ -39,6 +41,14 @@ def respond(code, values, data_path, alternate, record):
             [r for r in rows if r["environment"] == env and r["status"] == "success"],
             key=lambda r: time(r["finished_at"]), reverse=True)[0]["version"] for env in ("production", "staging")}
     rows = [r for r in rows if r["environment"] == values["environment"]]
+    if code == "DEPLOY_FAILURE_STREAK":
+        ordered = sorted(rows, key=lambda r: time(r["finished_at"]), reverse=True)
+        last_success = next((i for i, r in enumerate(ordered) if r["status"] == "success"), len(ordered))
+        return {"failure_streak": last_success}
+    if code == "DEPLOY_UNDEPLOYED_RELEASES":
+        releases = query("releases", "list_operation_releases")
+        return {"release_tags": sorted({r["tag"] for r in releases
+                                       if not any(d["status"] == "success" and d["sha"] == r["sha"] for d in rows)})}
     if code == "DEPLOY_DAILY_COUNTS":
         rows = [r for r in rows if time(r["finished_at"]).date().isoformat() == values["date"]]
         return {f"{status}_count": len([r for r in rows if r["status"] == status]) for status in ("success", "failure")}

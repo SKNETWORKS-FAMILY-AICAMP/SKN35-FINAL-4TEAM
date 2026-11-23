@@ -49,15 +49,15 @@ def build():
         ])
     path = PACK_DIR / "pack.json"
     pack = json.loads(path.read_text(encoding="utf-8"))
-    pack["templates"] = [t for t in pack["templates"] if t["code"] not in CODES]
-    pack["tasks"] = [t for t in pack["tasks"] if t["template"] not in CODES]
+    pack["templates"] = [t for t in pack["templates"] if t["code"] not in CODES[:10]]
+    pack["tasks"] = [t for t in pack["tasks"] if t["template"] not in CODES[:10]]
     pack["data_snapshots"] = [s for s in pack["data_snapshots"] if s["location"] != "data/operations.json"]
     pack["data_snapshots"].append({"source_kind": "repo", "location": "data/operations.json",
                                     "design": {"notes": ["합성 데이터. 세 저장소별 배포·이슈·릴리스 스냅샷",
                                     "기간은 시작 포함·끝 제외, 오래됨은 cutoff 미만, 소요 시간은 threshold 초과",
                                     "라벨 중복 소속은 각 라벨에 따로 집계. 연결은 저장소와 커밋 SHA 모두 일치해야 함"]}})
     catalog = ["# 추가 템플릿 10개 / 문항 30개", "", "모두 개발용 합성 데이터이며 실제 모델 성능 검증 전이다.", ""]
-    for code, title in zip(CODES, TITLES, strict=True):
+    for code, title in zip(CODES[:10], TITLES, strict=True):
         capability = "github.issues.read" if code.startswith("ISSUES_") else "github.actions.read"
         capabilities = [capability] + (["github.releases.read"] if code == "DEPLOY_RELEASE_LINK" else [])
         prompts = []

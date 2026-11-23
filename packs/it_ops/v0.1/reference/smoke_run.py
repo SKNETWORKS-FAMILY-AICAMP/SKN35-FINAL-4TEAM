@@ -113,7 +113,7 @@ def grade_smoke(task: dict, trace: dict) -> dict:
             except (KeyError, ValueError):
                 continue
         required = {"issues"} if task["template"].startswith("ISSUES_") else {"runs"}
-        if task["template"] == "DEPLOY_RELEASE_LINK":
+        if task["template"] in {"DEPLOY_RELEASE_LINK", "DEPLOY_UNDEPLOYED_RELEASES"}:
             required.add("releases")
         if required <= observed.keys():
             try:

@@ -40,7 +40,7 @@ COLUMNS: dict[str, dict[str, str]] = {
     'pack_versions': {'pack_version_id': 'pack_version_id', 'domain_code': 'domain_code', 'pack_code': 'pack_code', 'version': 'version', 'status': 'status', 'premises': 'premises', 'locked_at': 'locked_at', 'created_at': 'created_at'},
     'data_snapshots': {'data_snapshot_id': 'data_snapshot_id', 'pack_version_id': 'pack_version_id', 'source_kind': 'source_kind', 'location': 'location', 'design': 'design', 'content_hash': 'content_hash', 'frozen_at': 'frozen_at'},
     'templates': {'template_id': 'template_id', 'pack_version_id': 'pack_version_id', 'code': 'code', 'question_pattern': 'question_pattern', 'value_rule': 'value_rule', 'is_representative': 'is_representative', 'split': 'split', 'required_capabilities': 'required_capabilities'},
-    'tasks': {'task_id': 'task_id', 'template_id': 'template_id', 'code': 'code', 'prompt': 'prompt', 'slot_values': 'slot_values', 'seed': 'seed'},
+    'tasks': {'task_id': 'task_id', 'template_id': 'template_id', 'code': 'code', 'prompt': 'prompt', 'slot_values': 'slot_values', 'seed': 'seed', 'confirmation': 'confirmation'},
     'answer_conditions': {'answer_condition_id': 'answer_condition_id', 'task_id': 'task_id', 'seq': 'seq', 'kind': 'kind', 'spec': 'spec', 'spec_schema_version': 'spec_schema_version'},
     'golden_trajectories': {'golden_trajectory_id': 'golden_trajectory_id', 'template_id': 'template_id', 'kind': 'kind', 'trace': 'trace', 'expected': 'expected'},
     'env_checks': {'env_check_id': 'env_check_id', 'pack_version_id': 'pack_version_id', 'kind': 'kind', 'target': 'target', 'result': 'result', 'detail': 'detail', 'checked_by': 'checked_by', 'checked_at': 'checked_at'},

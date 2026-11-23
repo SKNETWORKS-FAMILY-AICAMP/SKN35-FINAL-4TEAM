@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:01Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "고정 시나리오로 정보를 조회합니다."
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_operation_runs",
+      "started_at": "2026-11-23T00:00:02Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {
+        "repo": "acme/catalog-service"
+      },
+      "tool_result": "[{\"id\": \"201\", \"repo\": \"acme/catalog-service\", \"environment\": \"production\", \"status\": \"failure\", \"started_at\": \"2026-11-16T08:00:00+09:00\", \"finished_at\": \"2026-11-16T08:10:00+09:00\", \"version\": \"v2.0.0\", \"sha\": \"repo2-old\"}, {\"id\": \"202\", \"repo\": \"acme/catalog-service\", \"environment\": \"production\", \"status\": \"success\", \"started_at\": \"2026-11-16T08:20:00+09:00\", \"finished_at\": \"2026-11-16T08:25:00+09:00\", \"version\": \"v2.0.1\", \"sha\": \"repo2-fix\"}, {\"id\": \"203\", \"repo\": \"acme/catalog-service\", \"environment\": \"production\", \"status\": \"success\", \"started_at\": \"2026-11-16T10:00:00+09:00\", \"finished_at\": \"2026-11-16T10:20:00+09:00\", \"version\": \"v2.2.0\", \"sha\": \"repo2-latest\"}, {\"id\": \"204\", \"repo\": \"acme/catalog-service\", \"environment\": \"staging\", \"status\": \"success\", \"started_at\": \"2026-11-16T11:00:00+09:00\", \"finished_at\": \"2026-11-16T11:03:00+09:00\", \"version\": \"v3.2.0-rc1\", \"sha\": \"repo2-staging\"}, {\"id\": \"205\", \"repo\": \"acme/catalog-service\", \"environment\": \"production\", \"status\": \"failure\", \"started_at\": \"2026-11-16T23:50:00+09:00\", \"finished_at\": \"2026-11-16T23:59:00+09:00\", \"version\": \"v9.0.0\", \"sha\": \"repo2-bad\"}, {\"id\": \"206\", \"repo\": \"acme/catalog-service\", \"environment\": \"production\", \"status\": \"failure\", \"started_at\": \"2026-11-16T23:59:00+09:00\", \"finished_at\": \"2026-11-16T15:00:00Z\", \"version\": \"v9.0.1\", \"sha\": \"boundary\"}]"
+    },
+    {
+      "seq": 3,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:03Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "{\"failure_streak\": 3}"
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"failure_streak\": 3}",
+  "run_outcome": "completed"
+}
