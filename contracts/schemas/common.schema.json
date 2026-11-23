@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/common.schema.json",
+  "title": "공통 정의",
+  "description": "여러 스키마가 함께 쓰는 작은 모양. 직접 저장하지 않음.",
+  "$defs": {
+    "schema_version": {
+      "description": "형식 버전. JSON 안의 이 값이 기준. DB 에 *_schema_version 칸이 있는 4곳(agent_versions.spec, candidates.component_spec, answer_conditions.spec, experiments.prereg)만 그 칸도 같은 값. 바뀌면 숫자만 올림",
+      "type": "integer",
+      "minimum": 1
+    },
+    "hash": {
+      "description": "common.hashing.canonical_hash() 결과",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "id": {
+      "description": "DB 내부 번호 (bigint)",
+      "type": "integer",
+      "minimum": 1
+    },
+    "tool_name": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_.-]{0,63}$"
+    },
+    "access": {
+      "type": "string",
+      "enum": [
+        "read",
+        "write"
+      ]
+    },
+    "service_code": {
+      "description": "github, slack, postgres ...",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{1,31}$"
+    },
+    "krw": {
+      "description": "원 단위 금액 (0 이상)",
+      "type": "number",
+      "minimum": 0
+    },
+    "krw_positive": {
+      "description": "원 단위 금액 (0 초과). 예산처럼 DB 가 > 0 을 요구하는 칸",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "metric": {
+      "description": "지표 이름 한 목록. prereg.secondary_metrics · comparisons.metric(DB CHECK, 0003) 이 같은 목록을 씀. 회귀율은 지표가 아니라 comparisons.regression_rate 칸 하나에만 둠 (3차 8)",
+      "enum": [
+        "success_rate",
+        "cost_per_success_krw",
+        "latency_p50_sec",
+        "tool_calls_mean",
+        "completion_rate"
+      ]
+    },
+    "result_class": {
+      "description": "결과 3분류 (trial_grades.result_class·labels.human_result_class DB CHECK 와 같은 목록, 3차 3)",
+      "enum": ["correct", "wrong_assertion", "ask_or_giveup"]
+    },
+    "first_fail_type": {
+      "description": "첫 실패 단계 9가지 (trial_grades.first_fail_type DB CHECK 와 같은 목록, 3차 3). 리포트 detail.fail_types 의 키",
+      "enum": ["intent", "plan_missing", "tool_choice", "argument", "tool_error", "info_missing", "order", "forbidden", "final_answer"]
+    },
+    "question_kind": {
+      "description": "LLM 판정기 질문 종류 (judge_settings.questions · llm_votes.question_kind DB CHECK 0003 과 같은 목록, 3차 3)",
+      "enum": ["plan_steps", "grounded", "appropriate", "result_class"]
+    },
+    "outcome_reason": {
+      "description": "trials.outcome_reason 값 목록 (DB CHECK, 0003). 앞말이 원인 쪽: env_ = 우리 환경, agent_ = 후보, timeout_ = 시간. llm_api_429 는 어느 쪽인지 팀 확정 전 → prereg.outcome_rules.env_error_reasons 에 넣으면 환경 탓. run_outcome 정하는 규칙 (3차 6): outcome_reason 이 prereg.outcome_rules.env_error_reasons 에 있으면 env_error, timeout_ 으로 시작하면 timeout, 나머지는 agent_error",
+      "enum": [
+        "env_mcp_server_down",
+        "env_practice_repo_unreachable",
+        "env_practice_db_unreachable",
+        "env_llm_api_5xx",
+        "env_worker_lost",
+        "env_write_proxy_error",
+        "llm_api_429",
+        "agent_max_steps",
+        "agent_invalid_tool_call",
+        "agent_llm_refused",
+        "agent_crash",
+        "timeout_wall_clock"
+      ]
+    },
+    "label": {
+      "description": "후보 표시 A, B, C (변형은 C-noH 등)",
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9_-]{0,15}$"
+    },
+    "tool_def": {
+      "description": "모델에게 보이는 도구 하나. 함수 호출 형식(이름·설명·인자 JSON Schema)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "description",
+        "parameters",
+        "service",
+        "access",
+        "origin"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/tool_name"
+        },
+        "description": {
+          "type": "string"
+        },
+        "parameters": {
+          "description": "인자 JSON Schema (그대로 모델에 전달)",
+          "type": "object"
+        },
+        "service": {
+          "$ref": "#/$defs/service_code"
+        },
+        "access": {
+          "$ref": "#/$defs/access"
+        },
+        "origin": {
+          "description": "mcp:<서버 이름> | custom | builtin",
+          "type": "string",
+          "pattern": "^(mcp:[a-z][a-z0-9_-]*|custom|builtin)$"
+        },
+        "fixed_responses": {
+          "description": "직접 만든 도구(custom)만. 8주 안에는 정해 둔 가짜 응답으로 실행. 인자가 맞는 첫 항목을 돌려줌",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "when",
+              "result"
+            ],
+            "properties": {
+              "when": {
+                "description": "인자 일부가 같으면 맞음. {} 는 항상 맞음",
+                "type": "object"
+              },
+              "result": {
+                "description": "모델이 받는 결과 문자열",
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "$comment": "custom 도구는 가짜 응답이 있어야 실행할 수 있고, 다른 도구에는 가짜 응답을 두지 않음 (11/22 검토 30-f)",
+      "if": {
+        "properties": {
+          "origin": {
+            "const": "custom"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "fixed_responses"
+        ],
+        "properties": {
+          "fixed_responses": {
+            "minItems": 1
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "fixed_responses"
+          ]
+        }
+      }
+    },
+    "mcp_server": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "package": {
+          "description": "github-mcp-server 등 배포 이름",
+          "type": "string"
+        },
+        "version": {
+          "description": "서버 버전. 바뀌면 다른 구성(재현성)",
+          "type": "string"
+        },
+        "transport": {
+          "type": "string",
+          "enum": [
+            "stdio",
+            "http"
+          ]
+        },
+        "image_digest": {
+          "description": "컨테이너로 띄우면 이미지 digest",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_steps",
+        "timeout_sec"
+      ],
+      "properties": {
+        "max_steps": {
+          "description": "LLM 호출 + 도구 호출 상한",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        },
+        "timeout_sec": {
+          "description": "풀이 하나 제한 시간 (ERD 확정: 5분)",
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 3600
+        },
+        "max_api_retries": {
+          "description": "LLM API 일시 오류 재시도 (trials.api_retries 로 기록)",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "max_output_tokens": {
+          "description": "LLM 호출 한 번의 출력 토큰 상한. 비우면 모델 기본값",
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "stop_reason": {
+      "description": "experiments.stop_reason 값 목록 (DB CHECK, 0003). budget = 예산 도달, interim = 중간 분석에서 ③이 멈춤 판정, user = 사용자가 멈춤, job_failed = 채점·분석 작업이 끝내 실패(failed)",
+      "enum": [
+        "budget",
+        "interim",
+        "user",
+        "job_failed"
+      ]
+    }
+  }
+}

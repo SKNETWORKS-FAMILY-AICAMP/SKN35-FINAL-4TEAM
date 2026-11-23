@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/chat.schema.json",
+  "title": "chatbot 함수 인자 (chat_messages.function_args)",
+  "description": "④ chatbot 의 정해진 함수 5개(chat_messages.function_name CHECK 와 같은 목록)의 인자 (3차 2). 검사: validate('chat', args, part=function_name). 실험 만들기·문항 수 계산은 화면과 같은 api 요청 모양을 그대로 씀 — chatbot 이 따로 모양을 만들지 않음",
+  "$defs": {
+    "get_results": {
+      "type": "object", "additionalProperties": false, "required": ["experiment_id"],
+      "properties": { "experiment_id": { "$ref": "common.schema.json#/$defs/id" } }
+    },
+    "create_experiment": {
+      "description": "= POST /api/experiments 요청. 사용자 확인 뒤에만 (chat_messages.user_confirmed, DB CHECK)",
+      "$ref": "api.schema.json#/$defs/create_experiment_request"
+    },
+    "calc_sample_size": {
+      "description": "= POST /api/experiments/plan-proposal 요청 (stats 를 직접 부르지 않음)",
+      "$ref": "api.schema.json#/$defs/plan_proposal_request"
+    },
+    "start_run": {
+      "description": "= POST /api/experiments/{id}/run. 사용자 확인 뒤에만",
+      "type": "object", "additionalProperties": false, "required": ["experiment_id"],
+      "properties": { "experiment_id": { "$ref": "common.schema.json#/$defs/id" } }
+    },
+    "write_report": {
+      "description": "이미 만든 리포트를 쉬운 말로 다시 씀. 숫자는 reports.content 것만 (FR-BOT-02)",
+      "type": "object", "additionalProperties": false, "required": ["report_id"],
+      "properties": {
+        "report_id": { "$ref": "common.schema.json#/$defs/id" },
+        "audience": { "enum": ["manager", "developer"], "default": "manager" }
+      }
+    }
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "_note": "②가 만드는 평가팩 한 버전 (아주 작게). 문항 3개, 정답 조건은 answer_condition 스키마 (kind 칸에 따라 모양이 다름). templates.split: held = 확인용(실험에 씀), dev = 고칠 때 씀. link 조건은 gate 를 비워 기본값 false (근거용), forbidden 은 gate 칸이 없음(항상 관문). premises·data_snapshots.design·golden expected 는 pack 스키마",
+  "pack_version": {
+    "domain_code": "it_ops",
+    "pack_code": "it_ops",
+    "version": "v1.0",
+    "premises": {
+      "timezone": "Asia/Seoul",
+      "repo": "acme/ops-service",
+      "statements": [
+        "같은 연습 저장소(acme/ops-service) 기준 상대 비교",
+        "시각은 한국 시간(Asia/Seoul)으로 비교"
+      ]
+    }
+  },
+  "data_snapshots": [
+    {
+      "source_kind": "repo",
+      "location": "slotagent-test/ops-service@v1.0",
+      "design": {
+        "open_ratio": 0.4
+      }
+    }
+  ],
+  "templates": [
+    {
+      "code": "T1",
+      "question_pattern": "{날짜} 운영 배포가 끝난 시각과 버전",
+      "is_representative": true,
+      "split": "held"
+    },
+    {
+      "code": "T2",
+      "question_pattern": "담당자 없는 열린 {라벨} 이슈",
+      "is_representative": false,
+      "split": "held"
+    }
+  ],
+  "tasks": [
+    {
+      "template": "T1",
+      "code": "T1-0",
+      "prompt": "어제(11월 16일) 운영 배포가 끝난 시각과 배포된 버전을 알려 줘.",
+      "slot_values": {
+        "날짜": "2026-11-16"
+      },
+      "seed": 1,
+      "conditions": [
+        {
+          "seq": 1,
+          "kind": "info",
+          "spec": {
+            "schema_version": 1,
+            "key": "finished_at",
+            "expected": "18:20",
+            "match": "time_hhmm"
+          }
+        },
+        {
+          "seq": 2,
+          "kind": "info",
+          "spec": {
+            "schema_version": 1,
+            "key": "version",
+            "expected": "v1.8.3",
+            "match": "normalized"
+          }
+        },
+        {
+          "seq": 3,
+          "kind": "link",
+          "spec": {
+            "schema_version": 1,
+            "key": "run_306_seen",
+            "seen": {
+              "result_contains": [
+                "306",
+                "success"
+              ]
+            },
+            "supports": [
+              "finished_at"
+            ]
+          }
+        },
+        {
+          "seq": 4,
+          "kind": "end_state",
+          "spec": {
+            "schema_version": 1,
+            "write_intents": "none"
+          }
+        }
+      ]
+    },
+    {
+      "template": "T1",
+      "code": "T1-1",
+      "prompt": "11월 14일 운영 배포가 끝난 시각과 버전은?",
+      "slot_values": {
+        "날짜": "2026-11-14"
+      },
+      "seed": 2,
+      "conditions": [
+        {
+          "seq": 1,
+          "kind": "info",
+          "spec": {
+            "schema_version": 1,
+            "key": "finished_at",
+            "expected": "16:52",
+            "match": "time_hhmm"
+          }
+        },
+        {
+          "seq": 2,
+          "kind": "info",
+          "spec": {
+            "schema_version": 1,
+            "key": "version",
+            "expected": "v1.8.2",
+            "match": "normalized"
+          }
+        }
+      ]
+    },
+    {
+      "template": "T2",
+      "code": "T2-0",
+      "prompt": "열려 있는 bug 이슈 중에 담당자가 없는 이슈 번호를 모두 알려 줘.",
+      "slot_values": {
+        "라벨": "bug"
+      },
+      "seed": 3,
+      "conditions": [
+        {
+          "seq": 1,
+          "kind": "info",
+          "spec": {
+            "schema_version": 1,
+            "key": "issues",
+            "expected": [
+              "145",
+              "148"
+            ],
+            "match": "set_equal",
+            "must_not": [
+              "140",
+              "147"
+            ]
+          }
+        },
+        {
+          "seq": 2,
+          "kind": "forbidden",
+          "spec": {
+            "schema_version": 1,
+            "call": {
+              "tool": "create_issue"
+            },
+            "unless_user_confirmed": true
+          }
+        }
+      ]
+    }
+  ],
+  "golden": [
+    {
+      "template": "T1",
+      "kind": "success",
+      "trace": "trace.json",
+      "expected": {
+        "success": true,
+        "result_class": "correct",
+        "first_fail_type": null,
+        "forbidden_action": false
+      }
+    }
+  ]
+}

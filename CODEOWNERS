@@ -1,0 +1,50 @@
+# 이름은 역할이 정해지면 GitHub 아이디로 바꿈. 자기 칸 밖을 고치면 그 칸 담당의 리뷰가 필요함
+# ① 실행 엔진 = @role-engine  ② 평가팩 = @role-pack  ③ 통계 = @role-stats  ④ 연결·chatbot = @role-intake
+#
+# 주의 1: GitHub 은 뒤에 오는 줄이 이김 → 넓은 경로를 먼저, 좁은 경로를 나중에 적음
+# 주의 2: 4명 모두 admin 이라 승인 수로 막지 않음 (11/22 결정). 이 파일은 "누구에게 리뷰를 부탁하나" 안내용.
+#         contracts/ 는 CHANGELOG 한 줄 + 4명 확인을 약속으로 지킴
+# 주의 3: 공동 칸도 맨 앞 한 명이 1차 담당. ①과 ④가 함께 걸린 곳은 ①이 1차 (11/22 팀장 결정): api/·web = ①, reports = ③
+# 주의 4: 여러 역할이 함께 쓰는 폴더(grading/, api/, db/seeds/, backend/tests/)는 파일 이름 앞에 역할 접두사를 붙이고
+#         여기서는 접두사로 담당을 정함 (3차): eng_ = ① · pack_ = ② · stats_ = ③ · intake_ = ④. 접두사 없는 파일은 그 폴더의 1차 담당
+
+/contracts/                                 @role-engine @role-pack @role-stats @role-intake
+/backend/db/                                        @role-engine
+/backend/db/seeds/                                  @role-engine @role-pack @role-stats
+/backend/db/seeds/*_pack_*                          @role-pack
+
+/backend/src/slotagent/common/              @role-engine
+/backend/src/slotagent/engine/              @role-engine
+/backend/src/slotagent/workers/             @role-engine
+
+/backend/src/slotagent/grading/             @role-engine @role-pack
+/backend/src/slotagent/grading/eng_*        @role-engine
+/backend/src/slotagent/grading/pack_*       @role-pack
+/backend/src/slotagent/grading/pack_validate.py  @role-pack @role-stats
+
+/backend/src/slotagent/packs/               @role-pack
+/packs/                                     @role-pack
+/backend/src/slotagent/stats/               @role-stats
+/backend/src/slotagent/intake/              @role-intake
+/backend/src/slotagent/chatbot/             @role-intake
+
+/backend/src/slotagent/reports/             @role-stats @role-engine @role-pack @role-intake
+
+/backend/src/slotagent/api/                 @role-engine @role-intake
+/backend/src/slotagent/api/eng_*            @role-engine
+/backend/src/slotagent/api/eng_plan_proposal.py  @role-engine @role-stats @role-pack
+/backend/src/slotagent/api/pack_*           @role-pack
+/backend/src/slotagent/api/stats_*          @role-stats @role-engine
+/backend/src/slotagent/api/intake_*         @role-intake
+
+/backend/tests/                             @role-engine @role-pack @role-stats @role-intake
+/backend/tests/test_eng_*                   @role-engine
+/backend/tests/test_pack_*                  @role-pack
+/backend/tests/test_stats_*                 @role-stats
+/backend/tests/test_intake_*                @role-intake
+
+/frontend/                                       @role-engine @role-intake @role-pack @role-stats
+/runner/                                    @role-intake
+
+/backend/src/slotagent/orchestrator/         @role-engine
+/backend/src/slotagent/mcp_server/           @role-engine

@@ -1,0 +1,65 @@
+{
+  "_note": "뒷단 예시 묶음. 키 이름 = '스키마.부분' (contracts.validate(스키마, 값, part=부분)). 이야기: A(조회 도구 4개)는 T1-1 에서 배포 '끝난' 시각 대신 시작 시각을 답해 틀림(작업 단계 조회가 없음). B(3개)는 T1 을 모두 맞혔지만 list_issues 를 뺐기 때문에 T2 이슈 질문은 도구 범위 밖 → out_of_scope=fail 이라 실패로 셈. 둘 다 4/6. ⚠ 이 숫자는 P-01 = fail 기준 — exclude 로 정하면 T2 의 (문항, 반복)이 A·B 둘 다 분석에서 빠져 T1 만 남음: A 2/4 vs B 4/4",
+  "grading.judge_settings": [
+    { "schema_version": 1, "temperature": 0, "votes": 3, "tiebreak_model": "gpt-4.1",
+      "questions": ["grounded", "result_class"], "rubric_version": "rc-1.0" },
+    {}
+  ],
+  "grading.condition_evidence": [
+    { "span_seqs": [2], "found": "18:20", "note": "실행 306 updated_at" },
+    { "span_seqs": [] }
+  ],
+  "grading.trial_metrics": [
+    { "schema_version": 1, "tool_calls": 2, "distinct_tools": 2, "repeated_calls": 0, "empty_results": 0, "steps": 4,
+      "tool_sec_by_tool": { "list_workflow_runs": 0.4, "list_releases": 0.3 } },
+    {}
+  ],
+  "analysis.method": {
+    "schema_version": 1,
+    "ci": { "kind": "paired_bootstrap", "unit": "template", "level": 0.95, "n_boot": 10000 },
+    "correction": { "method": "holm", "family": "primary_verdicts", "alpha": 0.05 },
+    "sequential": { "method": "none" },
+    "seed": 20261122
+  },
+  "analysis.exclusions": {
+    "by_reason": { "missing_candidate": 0, "not_finished": 0, "env_error": 0, "ungraded": 0, "grader_error": 0, "undecidable": 0 },
+    "by_candidate": { "A": 0, "B": 0 },
+    "templates_left": 2,
+    "coverage": { "A": 1.0, "B": 1.0 }
+  },
+  "analysis.extra_needed": { "templates": 28, "tasks": 84, "cost_krw": 650 },
+  "report_content": [
+    {
+      "schema_version": 1, "kind": "one_pager", "light": "yellow", "verdict": "hold",
+      "headline": "B는 배포 질문을 모두 맞혔지만, 이슈 질문은 도구를 빼서 못 풀었어요",
+      "candidates": [
+        { "label": "A", "name": "지금 구성 (MCP 조회 도구 4개)", "role": "baseline", "success": { "k": 4, "n": 6 }, "monthly_cost_krw": 5160, "latency_p50_sec": 4.1 },
+        { "label": "B", "name": "필요한 3개만 (작업 단계 조회 추가)", "role": "candidate", "success": { "k": 4, "n": 6 }, "monthly_cost_krw": 4200, "latency_p50_sec": 3.4 }
+      ],
+      "evidence": [
+        { "text": "정답률 차이 B−A 0%p (95% 구간 −50~+50)", "comparison_id": 1 },
+        { "text": "B는 T2(담당자 없는 이슈)에서 이슈 목록 도구가 없어 답하지 못함", "trial_id": 9 }
+      ],
+      "risks": ["B로 바꾸면 이슈 조회(list_issues)를 못 해요 — 이 자리에서 뺀 도구가 필요한 질문이 있어요", "문항 유형이 2개뿐이라 결과가 크게 흔들릴 수 있음"],
+      "premises": ["같은 연습 저장소·같은 모델에서의 상대 비교", "평가팩 it_ops v1.0", "월 비용 = 풀이 1번 평균 비용 × 월 3,000번 (등록 때 입력)"],
+      "caveats": { "exploratory": false, "grader_validated": false, "cause_identifiable": true }
+    },
+    {
+      "schema_version": 1, "kind": "detail", "light": "yellow", "verdict": "hold",
+      "headline": "B는 배포 질문을 모두 맞혔지만, 이슈 질문은 도구를 빼서 못 풀었어요",
+      "evidence": [ { "text": "정답률 차이 B−A 0%p (95% 구간 −50~+50)", "comparison_id": 1 } ],
+      "caveats": { "exploratory": false, "grader_validated": false, "cause_identifiable": true },
+      "detail": {
+        "by_template": [
+          { "template_code": "T1", "label": "A", "k": 2, "n": 4 }, { "template_code": "T1", "label": "B", "k": 4, "n": 4 },
+          { "template_code": "T2", "label": "A", "k": 2, "n": 2 }, { "template_code": "T2", "label": "B", "k": 0, "n": 2, "out_of_scope": 2 }
+        ],
+        "fail_types": { "A": { "info_missing": 2 }, "B": {} },
+        "tool_time_top": [
+          { "tool": "list_workflow_runs", "label": "A", "calls": 6, "median_sec": 0.4, "total_sec": 2.4 },
+          { "tool": "list_workflow_jobs", "label": "B", "calls": 4, "median_sec": 0.5, "total_sec": 2.0 }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/component_spec.schema.json",
+  "title": "후보 구성 요소 (candidates.component_spec)",
+  "description": "쓰는 역할 ④ · 읽는 역할 ①. 자리 하나에서 '무엇으로 바꾸는지'만 적음. 나머지는 agent_spec 그대로. kind 는 candidates.component_kind 와 같아야 함. spec_hash = canonical_hash(component_spec)",
+  "type": "object",
+  "required": ["schema_version", "kind"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "enum": ["tool_bundle", "custom_tool", "tool_search", "prompt", "model", "skill", "workflow"] }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/tool_bundle" },
+    { "$ref": "#/$defs/custom_tool" },
+    { "$ref": "#/$defs/tool_search" },
+    { "$ref": "#/$defs/prompt" },
+    { "$ref": "#/$defs/model" }
+  ],
+  "$defs": {
+    "tool_bundle": {
+      "description": "자리의 도구 묶음을 바꿈. 자리 (service, access) 의 기존 도구는 모두 빼고 이 목록으로 채움",
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "kind", "service", "access", "tools"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "kind": { "const": "tool_bundle" },
+        "service": { "$ref": "common.schema.json#/$defs/service_code" },
+        "access": { "$ref": "common.schema.json#/$defs/access" },
+        "mcp_server": { "description": "이 묶음을 꺼내 주는 서버 (없으면 직접 정의). 자리 밖 도구가 쓰는 서버와 이름이 같은데 내용이 다르면 build_config_snapshot 이 거절함 — 다른 자리까지 바뀌어 '한 자리만 바꿈'이 깨지므로. 새 서버는 다른 이름으로","$ref": "common.schema.json#/$defs/mcp_server" },
+        "tools": {
+          "description": "켜는 도구 전부. 모두 이 묶음의 service·access 와 같아야 함 (검사: common.checks.check_component). 무료 평가는 20개까지 — 한도 검사는 ④ 저장 함수",
+          "type": "array", "minItems": 1, "maxItems": 50,
+          "items": { "$ref": "common.schema.json#/$defs/tool_def" }
+        }
+      }
+    },
+    "custom_tool": {
+      "description": "자리의 도구를 직접 만든 도구(1~10개)로 바꿈. 도구마다 정해 둔 가짜 응답(fixed_responses) 필수",
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "kind", "service", "access", "tools"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "kind": { "const": "custom_tool" },
+        "service": { "$ref": "common.schema.json#/$defs/service_code" },
+        "access": { "$ref": "common.schema.json#/$defs/access" },
+        "tools": {
+          "type": "array", "minItems": 1, "maxItems": 10,
+          "items": {
+            "allOf": [
+              { "$ref": "common.schema.json#/$defs/tool_def" },
+              { "required": ["fixed_responses"], "properties": { "origin": { "const": "custom" } } }
+            ]
+          }
+        }
+      }
+    },
+    "tool_search": {
+      "description": "고도화 D (11/23). 자리의 도구를 tools 로 바꾸되, 도구 설명을 처음에 다 보여 주지 않고 검색 도구로 필요할 때 찾아 불러옴. 합치는 규칙은 tool_bundle 과 같고(자리 도구를 모두 빼고 tools 로 채움), 스냅숏에 tool_search 칸이 더 붙음",
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "kind", "service", "access", "tools", "search"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "kind": { "const": "tool_search" },
+        "service": { "$ref": "common.schema.json#/$defs/service_code" },
+        "access": { "$ref": "common.schema.json#/$defs/access" },
+        "mcp_server": { "description": "tool_bundle 과 같음", "$ref": "common.schema.json#/$defs/mcp_server" },
+        "tools": {
+          "description": "검색 대상 도구 전부. 모두 이 후보의 service·access 와 같아야 함 (common.checks.check_component)",
+          "type": "array", "minItems": 1, "maxItems": 50,
+          "items": { "$ref": "common.schema.json#/$defs/tool_def" }
+        },
+        "search": {
+          "type": "object", "additionalProperties": false,
+          "required": ["method", "top_k"],
+          "properties": {
+            "method": { "description": "검색 방법. 8주 안에는 BM25(rank-bm25)만", "enum": ["bm25"] },
+            "top_k": { "description": "검색 한 번에 불러오는 도구 수", "type": "integer", "minimum": 1, "maximum": 10 },
+            "always_loaded": {
+              "description": "검색 없이 처음부터 보여 줄 도구 이름. tools 안에 있어야 함",
+              "type": "array", "maxItems": 10, "uniqueItems": true,
+              "items": { "$ref": "common.schema.json#/$defs/tool_name" }
+            }
+          }
+        }
+      }
+    },
+    "prompt": {
+      "description": "[확장] 지시문만 바꿈",
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "kind", "instructions"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "kind": { "const": "prompt" },
+        "instructions": { "type": "string", "minLength": 1 }
+      }
+    },
+    "model": {
+      "description": "[확장] 모델만 바꿈",
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "kind", "model"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "kind": { "const": "model" },
+        "model": { "type": "string" },
+        "temperature": { "type": "number", "minimum": 0, "maximum": 2 }
+      }
+    }
+  }
+}

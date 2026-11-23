@@ -1,0 +1,702 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/api.schema.json",
+  "title": "HTTP 요청·응답",
+  "description": "화면·chatbot ↔ 백엔드. 등록·초안 쪽 API는 ④, 평가팩 목록은 ②, 실행·상태는 ①, 결과·리포트는 ③·공동. 오류는 모두 error 모양",
+  "$defs": {
+    "error": {
+      "description": "DB 거절도 이 모양으로 바꿔 돌려줌. code 는 DB 가 붙인 HINT(0003) 또는 제약 이름으로 고름 — 문구로 고르지 않음 (api/eng_errors.py). message 는 사용자에게 그대로 보여도 되는 문구",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "enum": [
+            "invalid_spec",
+            "invalid_plan",
+            "limit_exceeded",
+            "baseline_exists",
+            "label_taken",
+            "wrong_slot",
+            "immutable",
+            "experiment_locked",
+            "not_lockable",
+            "not_found",
+            "budget_exceeded",
+            "proposal_stale",
+            "internal"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "detail": {
+          "description": "스키마 오류 위치, DB 원문 등 (개발자용)",
+          "type": [
+            "object",
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "register_agent_request": {
+      "description": "④ POST /api/agents — 에이전트와 첫 버전 등록. 백엔드가 spec.tools 의 (service, access) 마다 자리(slots)를 만들고, 자리마다 기준 후보 A(지금 구성)를 agent_spec 에서 자동으로 만듦 (common.checks.baseline_component)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "domain_code": {
+          "description": "등록 질문 1번의 도메인 (sa_domains 드롭다운, 11/23). 모르면 비움",
+          "type": "string"
+        },
+        "expected_monthly_calls": {
+          "description": "한 달 예상 호출 수 → 리포트 monthly_cost_krw. 모르면 비움",
+          "type": "integer",
+          "minimum": 1
+        },
+        "version": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection_type",
+            "control_level",
+            "model",
+            "temperature",
+            "instructions",
+            "spec"
+          ],
+          "properties": {
+            "connection_type": {
+              "enum": [
+                "spec_upload",
+                "runner",
+                "api"
+              ]
+            },
+            "questions_used": {
+              "description": "등록 질문으로 정보를 채웠는지 (11/23). 연결 방식과 따로 셈. 비면 false",
+              "type": "boolean"
+            },
+            "control_level": {
+              "enum": [
+                "C0",
+                "C1",
+                "C2"
+              ]
+            },
+            "model": {
+              "type": "string"
+            },
+            "temperature": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "instructions": {
+              "type": "string"
+            },
+            "spec": {
+              "$ref": "agent_spec.schema.json"
+            }
+          }
+        }
+      }
+    },
+    "register_agent_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_id",
+        "agent_version_id",
+        "slots"
+      ],
+      "properties": {
+        "agent_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "agent_version_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "slots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "slot_id",
+              "name",
+              "service",
+              "access",
+              "comparable",
+              "baseline_candidate_id"
+            ],
+            "properties": {
+              "slot_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "name": {
+                "type": "string"
+              },
+              "service": {
+                "$ref": "common.schema.json#/$defs/service_code"
+              },
+              "access": {
+                "$ref": "common.schema.json#/$defs/access"
+              },
+              "comparable": {
+                "type": "boolean"
+              },
+              "not_comparable_reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "baseline_candidate_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              }
+            }
+          }
+        }
+      }
+    },
+    "register_candidate_request": {
+      "description": "④ POST /api/slots/{slot_id}/candidates. 기준 후보는 등록 때 자동으로 생기므로 여기서는 기준이 아닌 후보만",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "name",
+        "component_spec"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        "name": {
+          "type": "string"
+        },
+        "component_spec": {
+          "$ref": "component_spec.schema.json"
+        }
+      }
+    },
+    "pack_list_response": {
+      "description": "② GET /api/packs?domain=it_ops — 잠긴 평가팩 버전 목록 (실험에 쓸 수 있는 것만)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packs"
+      ],
+      "properties": {
+        "packs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pack_version_id",
+              "pack_code",
+              "version",
+              "domain_code",
+              "n_templates",
+              "n_tasks",
+              "locked_at"
+            ],
+            "properties": {
+              "pack_version_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "pack_code": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "domain_code": {
+                "type": "string"
+              },
+              "n_templates": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "n_tasks": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "n_held_templates": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "locked_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    "plan_proposal_request": {
+      "description": "① 1차(응답 모양 책임), 값은 ②③ — POST /api/experiments/plan-proposal — ④가 prereg·plan 값을 직접 만들지 않도록 받는 곳. 백엔드가 settings 기본값(③②) + stats.sample_size(③) + packs.select_tasks(②) 로 만듦. 저장하지 않음",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_version_id",
+        "slot_id",
+        "pack_version_id",
+        "candidate_ids"
+      ],
+      "properties": {
+        "agent_version_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "slot_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "pack_version_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "candidate_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "split": {
+          "description": "고르는 문항 쪽. 기본 held (확인용). dev 는 고칠 때만",
+          "enum": [
+            "held",
+            "dev"
+          ],
+          "default": "held"
+        },
+        "reps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "budget_krw": {
+          "$ref": "common.schema.json#/$defs/krw_positive"
+        }
+      }
+    },
+    "plan_proposal_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prereg",
+        "plan",
+        "as_of",
+        "n_templates",
+        "n_tasks",
+        "trials",
+        "reps"
+      ],
+      "properties": {
+        "prereg": {
+          "$ref": "prereg.schema.json"
+        },
+        "plan": {
+          "$ref": "plan.schema.json#/$defs/body"
+        },
+        "reps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "n_templates": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "n_tasks": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "trials": {
+          "description": "후보 × 문항 × 반복 (계산값, 저장 안 함)",
+          "type": "integer",
+          "minimum": 1
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "as_of": {
+          "description": "제안을 만든 시각 (서버 시각). 다시 계산할 때 이 시각의 settings·task_exposures 를 씀",
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "plan 에는 proposal 칸이 없음. ④는 create 요청에 proposal = {request(보낸 요청), as_of(이 값)} 를 넣음"
+    },
+    "create_experiment_request": {
+      "description": "④ POST /api/experiments (draft 로 만듦). prereg·plan 은 plan-proposal 응답 값(고쳤으면 고친 값), proposal 은 그 제안의 출처. 후보의 역할은 candidates.is_baseline 에서(기준 = baseline, 나머지 = candidate), label 은 candidates.label 에서 백엔드가 채움 — 요청에서 받지 않음",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_version_id",
+        "slot_id",
+        "pack_version_id",
+        "reps",
+        "prereg",
+        "plan",
+        "candidates",
+        "proposal"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "compare",
+            "diagnose"
+          ],
+          "default": "compare"
+        },
+        "agent_version_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "slot_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "pack_version_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "reps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "budget_krw": {
+          "$ref": "common.schema.json#/$defs/krw_positive"
+        },
+        "prereg": {
+          "$ref": "prereg.schema.json"
+        },
+        "plan": {
+          "$ref": "plan.schema.json#/$defs/body"
+        },
+        "candidates": {
+          "description": "기준 후보 1개를 반드시 포함",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "proposal": {
+          "description": "어떤 제안에서 왔는지. 서버가 이걸로 제안을 다시 만들어 비교하고 plan.proposal(hash·edited·edited_fields)을 채움 — ④는 고쳤는지 적지 않음",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request",
+            "as_of"
+          ],
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/plan_proposal_request"
+            },
+            "as_of": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    },
+    "create_experiment_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experiment_id",
+        "status"
+      ],
+      "properties": {
+        "experiment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "status": {
+          "const": "draft"
+        }
+      }
+    },
+    "run_response": {
+      "description": "① POST /api/experiments/{id}/run — 잠금(lock_experiment) + run_trial 작업 넣기. 같은 요청을 두 번 보내도 한 번만 잠김",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experiment_id",
+        "status",
+        "trials_total"
+      ],
+      "properties": {
+        "experiment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "status": {
+          "enum": [
+            "locked",
+            "running"
+          ]
+        },
+        "trials_total": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "stop_request": {
+      "description": "① POST /api/experiments/{id}/stop — 사용자가 멈춤 (stop_reason = user). 본문 없음. 응답은 status_response",
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 0
+    },
+    "status_response": {
+      "description": "① GET /api/experiments/{id}/status. trials 는 계획 단위(후보, 문항, 반복)마다 마지막 실행(run_no 가 가장 큰 행)의 상태로 셈 → 합계 = trials_total. 환경 오류로 다시 돌린 횟수는 env_reruns 에 따로",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experiment_id",
+        "status",
+        "trials_total",
+        "trials",
+        "cost_krw"
+      ],
+      "properties": {
+        "experiment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "locked",
+            "running",
+            "stopped",
+            "done",
+            "failed"
+          ]
+        },
+        "stop_reason": {
+          "oneOf": [
+            {
+              "$ref": "common.schema.json#/$defs/stop_reason"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "trials_total": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "trials": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pending",
+            "running",
+            "finished",
+            "error",
+            "cancelled"
+          ],
+          "properties": {
+            "pending": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "running": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "finished": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "error": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "cancelled": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "env_reruns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cost_krw": {
+          "$ref": "common.schema.json#/$defs/krw"
+        },
+        "budget_krw": {
+          "oneOf": [
+            {
+              "$ref": "common.schema.json#/$defs/krw"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "latest_grading_run_id": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "latest_analysis_id": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      }
+    },
+    "results_response": {
+      "description": "③·공동 GET /api/experiments/{id}/results — 가장 최근 분석의 비교 결과",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experiment_id",
+        "analysis_id",
+        "is_interim",
+        "comparisons",
+        "reports"
+      ],
+      "properties": {
+        "experiment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "analysis_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "is_interim": {
+          "type": "boolean"
+        },
+        "comparisons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "comparison_id",
+              "label",
+              "baseline_label",
+              "metric",
+              "diff",
+              "ci_low",
+              "ci_high",
+              "ci_level"
+            ],
+            "properties": {
+              "comparison_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "label": {
+                "$ref": "common.schema.json#/$defs/label"
+              },
+              "baseline_label": {
+                "$ref": "common.schema.json#/$defs/label"
+              },
+              "metric": {
+                "$ref": "common.schema.json#/$defs/metric"
+              },
+              "diff": {
+                "type": "number"
+              },
+              "ci_low": {
+                "type": "number"
+              },
+              "ci_high": {
+                "type": "number"
+              },
+              "ci_level": {
+                "type": "number"
+              },
+              "verdict": {
+                "enum": [
+                  "adopt",
+                  "conditional",
+                  "hold",
+                  "reject",
+                  null
+                ]
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "reports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "report_id",
+              "kind"
+            ],
+            "properties": {
+              "report_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "kind": {
+                "enum": [
+                  "one_pager",
+                  "detail"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "report_response": {
+      "description": "공동 GET /api/reports/{id} (보기 전용 링크는 GET /api/shared/{token})",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_id",
+        "experiment_id",
+        "content"
+      ],
+      "properties": {
+        "report_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "experiment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "content": {
+          "$ref": "report_content.schema.json"
+        }
+      }
+    }
+  }
+}

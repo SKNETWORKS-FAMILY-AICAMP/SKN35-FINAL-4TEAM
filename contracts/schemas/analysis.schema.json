@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/analysis.schema.json",
+  "title": "분석 칸들 (③)",
+  "description": "analyses.method · comparisons.exclusions · comparisons.extra_needed. 판정 숫자(diff, ci_low, verdict ...)는 DB 칸에 바로. exclusions·extra_needed 는 작은 조각이라 schema_version 이 없음",
+  "$defs": {
+    "method": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ci",
+        "correction",
+        "seed"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "ci": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "unit",
+            "level"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "paired_bootstrap",
+                "wilson",
+                "newcombe"
+              ]
+            },
+            "unit": {
+              "description": "다시 뽑는 단위. 문항 유형 = 실제 표본",
+              "enum": [
+                "template",
+                "task"
+              ]
+            },
+            "level": {
+              "type": "number",
+              "exclusiveMinimum": 0.5,
+              "exclusiveMaximum": 1
+            },
+            "n_boot": {
+              "type": "integer",
+              "minimum": 1000
+            }
+          }
+        },
+        "correction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "family",
+            "alpha"
+          ],
+          "properties": {
+            "method": {
+              "description": "11/18 결정: 항상 Holm (판정 1개면 보정 없음과 같음)",
+              "enum": [
+                "holm",
+                "none"
+              ]
+            },
+            "family": {
+              "type": "string"
+            },
+            "alpha": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 0.2,
+              "description": "prereg.alpha 의 기록용 복사본 (common.checks.check_method 가 같은지 확인)"
+            }
+          }
+        },
+        "sequential": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ],
+          "properties": {
+            "method": {
+              "enum": [
+                "none",
+                "group_sequential"
+              ]
+            },
+            "look_no": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "looks": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "prereg.sequential.looks 의 기록용 복사본 (check_method)"
+            },
+            "alpha_spent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stop": {
+              "description": "중간 분석에서 ③이 내린 판정: true 면 여기서 멈춤. ①(engine/advance.py)이 읽고 experiments.status='stopped', 대기 풀이 cancelled",
+              "type": "boolean"
+            }
+          }
+        },
+        "seed": {
+          "type": "integer"
+        }
+      }
+    },
+    "exclusions": {
+      "description": "analysis_units() 결과를 센 것 (필수 키)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "by_reason",
+        "by_candidate",
+        "templates_left",
+        "coverage"
+      ],
+      "properties": {
+        "by_reason": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "missing_candidate",
+            "not_finished",
+            "env_error",
+            "ungraded",
+            "grader_error",
+            "undecidable"
+          ],
+          "properties": {
+            "missing_candidate": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "not_finished": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "env_error": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "ungraded": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "grader_error": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "undecidable": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "out_of_scope": {
+              "description": "outcome_rules.out_of_scope = exclude 일 때만",
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "by_candidate": {
+          "description": "후보 label → 뺀 단위 수",
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "templates_left": {
+          "description": "뺀 뒤 남은 문항 유형 수",
+          "type": "integer",
+          "minimum": 0
+        },
+        "coverage": {
+          "description": "후보 label → 계획한 (문항, 반복) 중 분석에 들어간 비율 (평가 가능 범위)",
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "unmeasurable": {
+          "description": "측정 못 한 지표 (plan_inclusion 등)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "extra_needed": {
+      "description": "판단 보류일 때 더 필요한 것",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "templates",
+        "tasks",
+        "cost_krw"
+      ],
+      "properties": {
+        "templates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cost_krw": {
+          "$ref": "common.schema.json#/$defs/krw"
+        }
+      }
+    }
+  }
+}

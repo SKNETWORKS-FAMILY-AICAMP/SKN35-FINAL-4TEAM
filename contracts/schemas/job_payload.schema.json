@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/job_payload.schema.json",
+  "title": "작업 큐 내용 (jobs.payload)",
+  "description": "넣는 역할: ①(engine/advance.py)만. 처리: workers/registry.py 가 kind 로 고름. payload 에는 번호만 넣고, 내용은 처리하는 쪽이 DB에서 읽음. kind 는 jobs.kind 와 같아야 함 (DB CHECK, 0003)",
+  "oneOf": [
+    {
+      "title": "풀이 하나 실행 (①)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "trial_id"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "run_trial"
+        },
+        "trial_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      }
+    },
+    {
+      "title": "채점 실행 하나 (① 규칙 → ② LLM·분류)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "grading_run_id"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "grade"
+        },
+        "grading_run_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      }
+    },
+    {
+      "title": "분석 (③). 실험은 grading_runs.experiment_id 로 앎",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "grading_run_id",
+        "is_interim"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "analyze"
+        },
+        "grading_run_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "is_interim": {
+          "type": "boolean"
+        },
+        "batch_no": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "if": {
+        "properties": {
+          "is_interim": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "batch_no"
+        ]
+      }
+    },
+    {
+      "title": "리포트 만들기 (공동)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "analysis_id",
+        "report_kinds"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "report"
+        },
+        "analysis_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "report_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "one_pager",
+              "detail"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "검증 실험·감시 (② 1차, ③ 계산 — grading/pack_validate.py)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "validation_run_id"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "validation"
+        },
+        "validation_run_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      }
+    }
+  ]
+}

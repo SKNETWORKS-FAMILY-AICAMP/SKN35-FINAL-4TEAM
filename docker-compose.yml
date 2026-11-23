@@ -1,21 +1,22 @@
-# 로컬 개발용 서비스. 실행: docker compose up -d
+# 로컬 제품 DB. 새 볼륨의 최초 실행에 마이그레이션을 적용합니다.
+# 작업 큐는 sa_jobs 하나만 사용합니다. Redis는 선택적 캐시입니다.
 services:
   postgres:
     image: pgvector/pgvector:pg17
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-slotagent}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_only}
-      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_DB: ${POSTGRES_DB:-slotagent}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/migrations:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
-
   redis:
     image: redis:7-alpine
     ports:
@@ -25,6 +26,5 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-
 volumes:
   postgres_data:
