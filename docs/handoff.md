@@ -11,6 +11,11 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-23 · Claude · taemin (기획서 1.3 반영)
+- 한 일: ① P-01 확정(범위 밖 = 실패) — prereg·settings `fail` 만, `tool_def.capabilities` + `sa_templates.required_capabilities` + `checks.template_scope`(실행 전 판정), 리포트 `detail.in_scope`. ② 쓰기 도구 `write_mode`(업로드 fake·exclude_tasks / 러너 fake·test_space / API dry_run 필수), 쓰기 도구 10개까지 `checks.check_write_modes`. ③ 모델 회사 `model_provider` 4종(DB·등록 요청·스냅숏). ④ 도구 50개 한도 뺌(토큰 상한 P-11). ⑤ Tool 자리 먼저 `snapshot.PHASE1_KINDS`, 새 MCP 서버 후보 거절. CHANGELOG·contracts/README·review_1122 8차·decisions_pending(P-01 정함, P-11·P-12 추가)·.env.example(키 4종). 테스트 38 passed. 저장소 밖: ERD v1.2 다시 빌드(150/10 통과), 기술스택 문서·부록(50개, dev/held 15/35 예) 고침, skeleton 도 같이 맞춤(38 passed).
+- 안 한 일 / 남은 일: 4명 확인(계약 변경). `common/llm.py`·`template_scope` 를 부르는 plan-proposal·리포트 코드. 기획서 1.3 문서의 "평가 워커(Inspect AI)"·"PostgreSQL 16" 표기는 사용자가 고칠 것. 커밋 안 함.
+- 의문점 (계약·미정 사항과 부딪힌 곳): P-05(사용자 확인)는 그대로 미정. 1.3 5.5 예시의 "사용자에게 확인 요청 → 승인"은 P-05 ①안(정해 둔 사용자 답)과 맞음.
+
 ## 2026-11-23 · Codex · taemin
 - 한 일: 사용자 요청으로 CHANGELOG의 11/23 계약 변경 표시를 "④ 확인함(11/23)"으로 바꾸고 최근 인계 기록의 ④ 확인 대기 항목을 정리했습니다.
 - 안 한 일 / 남은 일: 확인 표시만 수정했습니다. 코드·스키마·테스트 변경, 커밋·푸시 없음. 문구 변경을 확인했고 실행 테스트는 생략했습니다.

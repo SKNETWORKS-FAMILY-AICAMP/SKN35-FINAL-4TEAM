@@ -13,7 +13,7 @@
       "type": "array", "minItems": 1, "uniqueItems": true,
       "items": { "allOf": [{ "$ref": "common.schema.json#/$defs/outcome_reason" }, { "anyOf": [{ "pattern": "^env_" }, { "const": "llm_api_429" }] }] }
     },
-    "out_of_scope_rule": { "description": "⚠ P-01 팀 확정 전 → prereg.outcome_rules.out_of_scope", "enum": ["fail", "exclude"] },
+    "out_of_scope_rule": { "description": "P-01 확정 (11/23): 실패로 셈 → prereg.outcome_rules.out_of_scope", "const": "fail" },
     "queue.lease_sec": { "description": "① 작업 임대 시간(초)", "type": "integer", "minimum": 60, "maximum": 3600 },
     "judge.settings": { "description": "② 판정기 설정 (scope=domain). ①이 grading_runs.judge_settings 로 복사", "$ref": "grading.schema.json#/$defs/judge_settings" },
     "judge.model": { "description": "② 판정 모델 (scope=domain) → grading_runs.judge_model", "type": "string", "minLength": 1 },

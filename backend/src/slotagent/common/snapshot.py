@@ -28,6 +28,7 @@ import hashlib
 from . import checks, contracts, db_names
 from .hashing import agent_spec_hash, canonical_hash
 
+PHASE1_KINDS = ("tool_bundle", "custom_tool", "tool_search")   # 기획서 1.3: Tool 자리 먼저. Skill·MCP 서버 교체·프롬프트는 그다음
 HARNESS_VERSION = "0.1.0"   # 워커가 trials.harness_version 에 기록. 스냅숏에는 넣지 않음
 DEFAULT_RUNTIME = {"max_steps": 30, "timeout_sec": 300, "max_api_retries": 3}
 
@@ -47,6 +48,8 @@ def merge_snapshot(agent_version: Mapping[str, Any], slot: Mapping[str, Any], ca
     comp = contracts.validate("component_spec", candidate["component_spec"])
     if comp["kind"] != candidate.get("component_kind", "tool_bundle"):
         raise SnapshotError("component_spec.kind 와 candidates.component_kind 가 다릅니다")
+    if comp["kind"] not in PHASE1_KINDS:
+        raise SnapshotError(f"{comp['kind']} 후보는 다음 단계입니다 (기획서 1.3: Tool 자리 먼저)")
     if candidate["slot_id"] != slot["id"] or slot["agent_version_id"] != agent_version["id"]:
         raise SnapshotError("후보·자리·에이전트 버전이 서로 이어지지 않습니다")
 
@@ -73,6 +76,8 @@ def merge_snapshot(agent_version: Mapping[str, Any], slot: Mapping[str, Any], ca
                 name = new_server["name"]
                 raise SnapshotError(f"MCP 서버 {name} 을(를) 바꾸면 다른 자리 도구({', '.join(shared)})도 함께 바뀝니다. "
                                     f"후보의 서버 이름을 다르게 하세요 (예: {name}-b)")
+        if new_server and (new_server["name"] not in servers or canonical_hash(servers[new_server["name"]]) != canonical_hash(new_server)):
+            raise SnapshotError("MCP 서버를 새로 넣거나 바꾸는 후보는 다음 단계입니다 (기획서 1.3: Tool 자리 = 같은 MCP 서버 안의 도구·자체 도구)")
         tools = kept + list(comp["tools"])
         if new_server:
             servers[new_server["name"]] = new_server
@@ -108,7 +113,7 @@ def merge_snapshot(agent_version: Mapping[str, Any], slot: Mapping[str, Any], ca
                                                agent_version["instructions"], spec),
             "component_spec_hash": canonical_hash(comp),
         },
-        "model": {"name": model, "temperature": float(temperature)},
+        "model": {"name": model, "provider": agent_version["model_provider"], "temperature": float(temperature)},
         "instructions": instructions,
         "tools": tools,
         "write_tools": sorted(t["name"] for t in tools if t["access"] == "write"),

@@ -35,6 +35,11 @@
         }
       ]
     },
+    "required_capabilities": {
+      "description": "문항 유형(templates.required_capabilities)이 필요로 하는 기능 (기획서 1.3 5.4). 후보 도구의 capabilities 와 맞춰 실행 전에 범위 밖을 정함. 비면 범위 판정 안 함",
+      "type": "array", "uniqueItems": true, "maxItems": 10,
+      "items": { "$ref": "common.schema.json#/$defs/capability" }
+    },
     "golden_expected": {
       "description": "golden_trajectories.expected — 이 골든 궤적을 채점하면 나와야 할 결과. ①의 규칙 채점·②의 분류가 이것과 같아야 평가팩을 잠글 수 있음 (packs/loader.lock_pack)",
       "type": "object",

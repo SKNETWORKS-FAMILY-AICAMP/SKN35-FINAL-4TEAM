@@ -66,6 +66,7 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | connection | `connection` |  |
 | created_at | `created_at` |  |
 | questions_used | `questions_used` |  |
+| model_provider | `model_provider` |  |
 
 ## slots → `sa_slots`
 
@@ -130,6 +131,7 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | value_rule | `value_rule` |  |
 | is_representative | `is_representative` |  |
 | split | `split` |  |
+| required_capabilities | `required_capabilities` |  |
 
 ## tasks → `sa_tasks`
 

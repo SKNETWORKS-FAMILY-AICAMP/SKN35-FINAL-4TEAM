@@ -26,12 +26,14 @@
     {
       "code": "T1",
       "question_pattern": "{날짜} 운영 배포가 끝난 시각과 버전",
+      "required_capabilities": ["github.releases.read", "github.actions.read"],
       "is_representative": true,
       "split": "held"
     },
     {
       "code": "T2",
       "question_pattern": "담당자 없는 열린 {라벨} 이슈",
+      "required_capabilities": ["github.issues.read"],
       "is_representative": false,
       "split": "held"
     }

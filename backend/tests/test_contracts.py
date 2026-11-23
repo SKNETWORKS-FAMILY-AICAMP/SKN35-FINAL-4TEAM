@@ -203,6 +203,90 @@ def test_tool_search_rejects():
     assert contracts.errors("component_spec", bad["component_spec"])
 
 
+def test_p01_out_of_scope_counts_as_fail():
+    """P-01 확정 (기획서 1.3 5.4): 범위 밖은 실패로 셈. exclude 는 막힘"""
+    prereg = load("experiment.json")["prereg"]
+    assert not contracts.errors("prereg", prereg)
+    bad = copy.deepcopy(prereg)
+    bad["outcome_rules"]["out_of_scope"] = "exclude"
+    assert contracts.errors("prereg", bad)
+    assert contracts.errors("settings", "exclude", part="out_of_scope_rule")
+
+
+def test_template_scope():
+    """실행 전 범위 판정 (기획서 1.3 5.4·5.8): B 는 list_issues 를 빼서 T2 가 범위 밖"""
+    av, slot, (a, b) = _rows()
+    templates = load("pack.json")["templates"]
+    for t in templates:
+        contracts.validate("pack", t["required_capabilities"], part="required_capabilities")
+    assert checks.template_scope(merge_snapshot(av, slot, a)["tools"], templates) == {"T1": "in_scope", "T2": "in_scope"}
+    assert checks.template_scope(merge_snapshot(av, slot, b)["tools"], templates) == {"T1": "in_scope", "T2": "out_of_scope"}
+    no_caps = [dict(t, capabilities=[]) if t["name"] == "list_workflow_jobs" else t for t in merge_snapshot(av, slot, b)["tools"]]
+    assert checks.template_scope(no_caps, templates)["T2"] == "needs_review"       # 모르는 도구가 있으면 사람 확인
+    tools = [dict(t, write_mode="exclude_tasks") if t["name"] == "post_message" else t for t in av["spec"]["tools"]]
+    assert checks.template_scope(tools, [{"code": "T9", "required_capabilities": ["slack.messages.write"]}]) == {"T9": "excluded_write"}
+
+
+def test_write_modes():
+    """쓰기 도구 실행 방식은 연결 방식별 허용 값만, 쓰기 도구 10개까지 (기획서 1.3 5.8·8.2)"""
+    spec = load("agent_version.json")["spec"]
+    checks.check_write_modes("spec_upload", spec)
+    for conn, mode, ok in [("spec_upload", "exclude_tasks", True), ("spec_upload", "test_space", False),
+                           ("runner", "test_space", True), ("api", "dry_run", True), ("api", "fake", False)]:
+        s = copy.deepcopy(spec)
+        for t in s["tools"]:
+            if t["access"] == "write":
+                t["write_mode"] = mode
+        if ok:
+            checks.check_write_modes(conn, s)
+        else:
+            with pytest.raises(checks.CheckError):
+                checks.check_write_modes(conn, s)
+    s = copy.deepcopy(spec)
+    for t in s["tools"]:
+        t.pop("write_mode", None)
+    with pytest.raises(checks.CheckError, match="드라이런"):
+        checks.check_write_modes("api", s)                                   # API 는 dry_run 을 꼭 적어야 함
+    s = copy.deepcopy(spec)
+    s["tools"][0]["write_mode"] = "fake"
+    with pytest.raises(checks.CheckError, match="읽기 도구"):
+        checks.check_write_modes("spec_upload", s)
+    s = copy.deepcopy(spec)
+    w = next(t for t in s["tools"] if t["access"] == "write")
+    s["tools"] += [dict(w, name=f"write_{i}") for i in range(10)]
+    with pytest.raises(checks.CheckError, match="10개"):
+        checks.check_write_modes("spec_upload", s)
+
+
+def test_model_provider_and_tool_count():
+    """모델 회사 4종 (기획서 1.3 8.1), 도구 개수 제한 없음 (8.2)"""
+    req = load("api_and_jobs.json")["api.register_agent_request"]
+    bad = copy.deepcopy(req)
+    bad["version"].pop("model_provider")
+    assert contracts.errors("api", bad, part="register_agent_request")
+    bad["version"]["model_provider"] = "mistral"
+    assert contracts.errors("api", bad, part="register_agent_request")
+    av, slot, (_, b) = _rows()
+    assert merge_snapshot(av, slot, b)["model"]["provider"] == "openai"
+    spec = copy.deepcopy(av["spec"])
+    spec["tools"] += [dict(spec["tools"][0], name=f"extra_tool_{i}") for i in range(60)]
+    assert not contracts.errors("agent_spec", spec)                          # 50개 한도 없앰
+
+
+def test_tool_first_gate():
+    """기획서 1.3: Tool 자리 먼저 — 프롬프트 후보·새 MCP 서버 후보는 다음 단계"""
+    av, slot, (_, b) = _rows()
+    p = dict(b, component_kind="prompt", component_spec={"schema_version": 1, "kind": "prompt", "instructions": "x"})
+    with pytest.raises(SnapshotError, match="다음 단계"):
+        merge_snapshot(av, slot, p)
+    nb = copy.deepcopy(b)
+    nb["component_spec"]["mcp_server"] = dict(nb["component_spec"]["mcp_server"], name="github-b")
+    for t in nb["component_spec"]["tools"]:
+        t["origin"] = "mcp:github-b"
+    with pytest.raises(SnapshotError, match="다음 단계"):
+        merge_snapshot(av, slot, nb)
+
+
 def test_questions_is_not_a_connection_type():
     """질문은 연결 방식이 아니라 questions_used 칸 (11/23)"""
     req = load("api_and_jobs.json")["api.register_agent_request"]

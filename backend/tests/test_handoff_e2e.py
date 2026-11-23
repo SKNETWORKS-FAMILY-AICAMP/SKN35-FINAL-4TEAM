@@ -91,9 +91,9 @@ def test_1_intake(conn, ids):
     agent = one(cur, "INSERT INTO sa_agents(owner_id, name, expected_monthly_calls, domain_code) VALUES (%s, %s, %s, %s) RETURNING agent_id",
                 user, av["_agent"]["name"], av["_agent"]["expected_monthly_calls"], av["_agent"]["domain_code"])
     spec = contracts.validate("agent_spec", av["spec"])
-    av_id = one(cur, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, questions_used, control_level, model, temperature,
-                         instructions, spec, spec_hash) VALUES (%s,1,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING agent_version_id""",
-                agent, av["connection_type"], av["questions_used"], av["control_level"], av["model"], av["temperature"], av["instructions"],
+    av_id = one(cur, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, questions_used, model_provider, control_level, model,
+                         temperature, instructions, spec, spec_hash) VALUES (%s,1,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING agent_version_id""",
+                agent, av["connection_type"], av["questions_used"], av["model_provider"], av["control_level"], av["model"], av["temperature"], av["instructions"],
                 Jsonb(spec), agent_spec_hash(av["model"], av["temperature"], av["instructions"], spec))
     sc = load("slot_and_candidates.json")
     s = sc["slot"]
@@ -117,6 +117,8 @@ def test_1_intake(conn, ids):
     # 질문은 연결 방식이 아님 (11/23) — DB 에서도 막힘. 도구 검색 후보 C 는 위에서 들어감
     assert rejected(conn, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, control_level, model, instructions, spec, spec_hash)
                              VALUES (%s, 2, 'questions', 'C2', 'm', 'i', '{}', 'h')""", agent) is not None
+    assert rejected(conn, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, model_provider, control_level, model, instructions, spec, spec_hash)
+                             VALUES (%s, 3, 'spec_upload', 'mistral', 'C2', 'm', 'i', '{}', 'h')""", agent) is not None   # 모델 회사 4종만 (1.3)
 
 
 # ---- 2. ② 평가팩 만들고 잠그기 -------------------------------------------
@@ -131,9 +133,10 @@ def test_2_pack(conn, ids):
         contracts.validate("pack", d["design"], part="data_design")
         cur.execute("""INSERT INTO sa_data_snapshots(pack_version_id, source_kind, location, design, content_hash, frozen_at)
                        VALUES (%s,%s,%s,%s,%s, now())""", (pack, d["source_kind"], d["location"], Jsonb(d["design"]), canonical_hash(d)))
-    tmpl = {t["code"]: one(cur, """INSERT INTO sa_templates(pack_version_id, code, question_pattern, is_representative, split)
-                                   VALUES (%s,%s,%s,%s,%s) RETURNING template_id""",
-                            pack, t["code"], t["question_pattern"], t["is_representative"], t["split"]) for t in p["templates"]}
+    tmpl = {t["code"]: one(cur, """INSERT INTO sa_templates(pack_version_id, code, question_pattern, is_representative, split, required_capabilities)
+                                   VALUES (%s,%s,%s,%s,%s,%s) RETURNING template_id""",
+                            pack, t["code"], t["question_pattern"], t["is_representative"], t["split"],
+                            Jsonb(t["required_capabilities"])) for t in p["templates"]}
     tasks, conds, template_of = [], {}, {}
     for t in p["tasks"]:
         checks.check_task_conditions(t["conditions"])

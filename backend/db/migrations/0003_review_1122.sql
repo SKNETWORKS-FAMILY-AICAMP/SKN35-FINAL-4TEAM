@@ -215,3 +215,16 @@ ALTER TABLE sa_candidates DROP CONSTRAINT sa_candidates_component_kind_check;
 ALTER TABLE sa_candidates ADD CONSTRAINT sa_candidates_component_kind_check
   CHECK (component_kind IN ('tool_bundle', 'custom_tool', 'tool_search', 'prompt', 'model', 'skill', 'workflow'));
 COMMENT ON COLUMN sa_candidates.component_kind IS '[확장] 바꾸는 구성 요소 종류: tool_bundle 도구 묶음 / custom_tool 직접 만든 도구 / tool_search 도구 검색 / prompt 지시문 / model / skill / workflow. 8주 안에는 앞의 셋만';
+
+-- =====================================================================
+-- 11/23 기획서 1.3 반영 (contracts/CHANGELOG.md 2026-11-23 두 번째 줄)
+-- =====================================================================
+-- (4) 모델 회사 4종. 같은 회사 안에서 버전만 바꿈
+ALTER TABLE sa_agent_versions ADD COLUMN model_provider text NOT NULL
+  CONSTRAINT sa_agent_versions_model_provider_known CHECK (model_provider IN ('anthropic', 'openai', 'google', 'deepseek'));
+COMMENT ON COLUMN sa_agent_versions.model_provider IS '모델 회사: anthropic / openai / google / deepseek (기획서 1.3 8.1). 호출은 common/llm.py 어댑터 하나로';
+
+-- (5) 문항 유형이 필요로 하는 기능. 후보 도구의 capabilities 와 맞춰 실행 전에 도구 범위 밖을 정함 (P-01 = fail)
+ALTER TABLE sa_templates ADD COLUMN required_capabilities jsonb NOT NULL DEFAULT '[]'
+  CONSTRAINT sa_templates_required_capabilities_array CHECK (jsonb_typeof(required_capabilities) = 'array');
+COMMENT ON COLUMN sa_templates.required_capabilities IS '필요 기능 이름표 목록 (pack 스키마 required_capabilities). 범위 밖 판정은 common.checks.template_scope. 비면 판정 안 함';
