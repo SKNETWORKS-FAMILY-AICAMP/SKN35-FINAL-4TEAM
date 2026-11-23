@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/plan.schema.json",
+  "title": "실험 계획 (experiments.plan)",
+  "description": "문항 고르기 ②(평가팩) · 문항 수·묶음 ③ · 저장 ④ · 읽기 ①(lock_experiment 가 tasks 로 풀이 행을 만듦). ④는 POST /api/experiments/plan-proposal 이 돌려준 plan 을 보냄 (proposal 칸 없이). proposal 칸은 저장할 때 서버(common.proposal)가 채움 — 저장된 행은 part='stored' 로 검사. 잠근 뒤 바꿀 수 없음. 저장 전 검사: common.checks.check_plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tasks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "tasks": {
+      "description": "풀 문항과 순차 검정 묶음. 순서 = 실행 순서. task_id 겹침 금지, 같은 문항 유형(template)은 한 묶음에만, 묶음 번호는 1부터 빈틈 없이 (check_plan)",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "task_id",
+          "batch_no"
+        ],
+        "properties": {
+          "task_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "batch_no": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "min_detectable_pp": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "estimate": {
+      "description": "잠그기 전에 보여 주는 예상 (FR-EXP-03). 문항 수·풀이 수는 tasks 로 계산되니 두지 않음 (화면이 계산하거나 plan-proposal 응답에서 받음)",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cost_krw": {
+          "$ref": "common.schema.json#/$defs/krw"
+        },
+        "minutes": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "proposal": {
+      "description": "사전 등록 추적 (3차 5). 모두 서버가 씀 — ④가 보낸 {request, as_of} 로 서버가 plan-proposal 을 다시 계산해 저장할 값과 비교. hash = canonical_hash({prereg, plan}) (다시 계산한 제안의 해시, plan 의 proposal 칸 뺌)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request",
+        "as_of",
+        "hash",
+        "edited",
+        "edited_fields"
+      ],
+      "properties": {
+        "request": {
+          "description": "④가 plan-proposal 에 보낸 요청 그대로",
+          "$ref": "api.schema.json#/$defs/plan_proposal_request"
+        },
+        "as_of": {
+          "description": "제안을 만든 시각 (plan_proposal_response.as_of). 다시 계산할 때 이 시각의 settings 를 씀",
+          "type": "string",
+          "format": "date-time"
+        },
+        "hash": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "edited": {
+          "description": "저장한 값이 제안과 다르면 true (서버가 비교)",
+          "type": "boolean"
+        },
+        "edited_fields": {
+          "description": "제안과 다른 칸 (서버가 비교). prereg·plan 은 맨 위 칸 단위, 실험 칸은 reps·budget_krw·candidates",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^((prereg|plan)\\.[a-z_]+|reps|budget_krw|candidates)$"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "edited": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "edited_fields": {
+            "minItems": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "edited_fields": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stored": {
+      "description": "experiments.plan 에 저장된 모양 = proposal 칸 있음",
+      "allOf": [
+        {
+          "$ref": "#"
+        }
+      ],
+      "required": [
+        "proposal"
+      ]
+    },
+    "body": {
+      "description": "요청·응답에 오가는 모양 = proposal 칸 없음 (서버만 채움)",
+      "allOf": [
+        {
+          "$ref": "#"
+        }
+      ],
+      "not": {
+        "required": [
+          "proposal"
+        ]
+      }
+    }
+  }
+}

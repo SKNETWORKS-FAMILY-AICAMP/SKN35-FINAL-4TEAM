@@ -1,0 +1,56 @@
+{
+  "_note": "④가 저장하는 slots 행 1개 + candidates 행 3개. A = 지금 구성(기준), B = 필요한 도구만 켠 묶음, C = A 의 도구를 검색으로 찾기(tool_search, 11/23). component_spec 은 component_spec 스키마",
+  "slot": { "id": 1, "agent_version_id": 1, "name": "GitHub 조회", "service": "github", "access": "read", "comparable": true },
+  "candidates": [
+    {
+      "id": 1, "slot_id": 1, "label": "A", "name": "지금 구성 (MCP 조회 도구 4개)", "component_kind": "tool_bundle", "is_baseline": true,
+      "component_spec": {
+        "schema_version": 1, "kind": "tool_bundle", "service": "github", "access": "read",
+        "mcp_server": { "name": "github", "package": "github-mcp-server", "version": "0.20.0", "transport": "stdio", "image_digest": null },
+        "tools": [
+          { "name": "list_releases", "description": "List releases in a GitHub repository", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" } }, "required": ["owner", "repo"] } },
+          { "name": "list_workflow_runs", "description": "List workflow runs for a repository (summary only)", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "workflow_name": { "type": "string" } }, "required": ["owner", "repo"] } },
+          { "name": "list_issues", "description": "List issues in a GitHub repository with filtering options", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "state": { "type": "string" } }, "required": ["owner", "repo"] } },
+          { "name": "search_code", "description": "Search for code across GitHub repositories", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "q": { "type": "string" } }, "required": ["q"] } }
+        ]
+      }
+    },
+    {
+      "id": 2, "slot_id": 1, "label": "B", "name": "필요한 3개만 (작업 단계 조회 추가)", "component_kind": "tool_bundle", "is_baseline": false,
+      "component_spec": {
+        "schema_version": 1, "kind": "tool_bundle", "service": "github", "access": "read",
+        "mcp_server": { "name": "github", "package": "github-mcp-server", "version": "0.20.0", "transport": "stdio", "image_digest": null },
+        "tools": [
+          { "name": "list_releases", "description": "List releases in a GitHub repository", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" } }, "required": ["owner", "repo"] } },
+          { "name": "list_workflow_runs", "description": "List workflow runs for a repository (summary only)", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "workflow_name": { "type": "string" } }, "required": ["owner", "repo"] } },
+          { "name": "list_workflow_jobs", "description": "List jobs and steps for a specific workflow run, including failed step logs", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "run_id": { "type": "integer" } }, "required": ["owner", "repo", "run_id"] } }
+        ]
+      }
+    },
+    {
+      "id": 3, "slot_id": 1, "label": "C", "name": "도구 검색 (A 의 4개를 필요할 때 찾기)", "component_kind": "tool_search", "is_baseline": false,
+      "component_spec": {
+        "schema_version": 1, "kind": "tool_search", "service": "github", "access": "read",
+        "mcp_server": { "name": "github", "package": "github-mcp-server", "version": "0.20.0", "transport": "stdio", "image_digest": null },
+        "search": { "method": "bm25", "top_k": 2, "always_loaded": ["list_releases"] },
+        "tools": [
+          { "name": "list_releases", "description": "List releases in a GitHub repository", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" } }, "required": ["owner", "repo"] } },
+          { "name": "list_workflow_runs", "description": "List workflow runs for a repository (summary only)", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "workflow_name": { "type": "string" } }, "required": ["owner", "repo"] } },
+          { "name": "list_issues", "description": "List issues in a GitHub repository with filtering options", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "state": { "type": "string" } }, "required": ["owner", "repo"] } },
+          { "name": "search_code", "description": "Search for code across GitHub repositories", "service": "github", "access": "read", "origin": "mcp:github",
+            "parameters": { "type": "object", "properties": { "q": { "type": "string" } }, "required": ["q"] } }
+        ]
+      }
+    }
+  ]
+}

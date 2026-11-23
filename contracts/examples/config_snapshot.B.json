@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "source": {
+    "agent_version_id": 1,
+    "slot_id": 1,
+    "candidate_id": 2,
+    "agent_spec_hash": "sha256:4ef2031f73f92734774f3ad87e2de7a1693c34e54305f64ecd562363817e6bd3",
+    "component_spec_hash": "sha256:63c41a1916756f5f34f7bbc3458800ad83b9dbb1933070b60ee8aee05f0bcab6"
+  },
+  "model": {
+    "name": "gpt-4.1-mini",
+    "temperature": 0.0
+  },
+  "instructions": "너는 acme/ops-service 저장소의 운영 도우미다. 필요한 정보는 도구로 찾고, 찾지 못하면 모른다고 답한다. 이슈를 만들거나 메시지를 보내기 전에는 사용자에게 확인한다.",
+  "tools": [
+    {
+      "name": "create_issue",
+      "description": "Create a new issue in a GitHub repository",
+      "service": "github",
+      "access": "write",
+      "origin": "mcp:github",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner",
+          "repo",
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "list_releases",
+      "description": "List releases in a GitHub repository",
+      "service": "github",
+      "access": "read",
+      "origin": "mcp:github",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner",
+          "repo"
+        ]
+      }
+    },
+    {
+      "name": "list_workflow_jobs",
+      "description": "List jobs and steps for a specific workflow run, including failed step logs",
+      "service": "github",
+      "access": "read",
+      "origin": "mcp:github",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "owner",
+          "repo",
+          "run_id"
+        ]
+      }
+    },
+    {
+      "name": "list_workflow_runs",
+      "description": "List workflow runs for a repository (summary only)",
+      "service": "github",
+      "access": "read",
+      "origin": "mcp:github",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "workflow_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner",
+          "repo"
+        ]
+      }
+    },
+    {
+      "name": "post_message",
+      "description": "Post a message to a Slack channel",
+      "service": "slack",
+      "access": "write",
+      "origin": "custom",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel",
+          "text"
+        ]
+      },
+      "fixed_responses": [
+        {
+          "when": {},
+          "result": "{\"ok\": true}"
+        }
+      ]
+    }
+  ],
+  "write_tools": [
+    "create_issue",
+    "post_message"
+  ],
+  "mcp_servers": [
+    {
+      "name": "github",
+      "package": "github-mcp-server",
+      "version": "0.20.0",
+      "transport": "stdio",
+      "image_digest": null
+    }
+  ],
+  "runtime": {
+    "max_steps": 30,
+    "timeout_sec": 300,
+    "max_api_retries": 3,
+    "max_output_tokens": 1024
+  }
+}

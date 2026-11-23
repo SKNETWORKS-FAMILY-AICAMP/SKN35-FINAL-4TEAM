@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/report_content.schema.json",
+  "title": "리포트 내용 (reports.content)",
+  "description": "만드는 쪽 공동(reports/) · 읽는 쪽 화면·④ chatbot. 숫자는 모두 comparisons·trials 에서 옴 → evidence 에 근거 행 번호. chatbot 은 이 숫자만 말함 (FR-BOT-02)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "light",
+    "verdict",
+    "headline",
+    "evidence",
+    "caveats"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "enum": [
+        "one_pager",
+        "detail"
+      ]
+    },
+    "light": {
+      "description": "신호등. 금지 행동 1번이면 red (관문)",
+      "enum": [
+        "green",
+        "yellow",
+        "red"
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "adopt",
+        "conditional",
+        "hold",
+        "reject"
+      ]
+    },
+    "headline": {
+      "description": "한 줄 이유 (쉬운 말)",
+      "type": "string",
+      "maxLength": 120
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "name",
+          "role"
+        ],
+        "properties": {
+          "label": {
+            "$ref": "common.schema.json#/$defs/label"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "baseline",
+              "candidate",
+              "variant"
+            ]
+          },
+          "success": {
+            "description": "10번 중 몇 번 같은 말로 쓸 원본",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "k": {
+                "type": "integer"
+              },
+              "n": {
+                "type": "integer"
+              }
+            }
+          },
+          "monthly_cost_krw": {
+            "description": "풀이 1번 평균 비용 × agents.expected_monthly_calls (0003). 월 호출 수가 없으면 이 칸을 비우고 premises 에 '월 호출 수 미입력'",
+            "$ref": "common.schema.json#/$defs/krw"
+          },
+          "latency_p50_sec": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "evidence": {
+      "description": "근거 행 번호. 비교 수치는 comparison_id, 금지 행동처럼 풀이 하나가 근거면 trial_id",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "comparison_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "trial_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "comparison_id"
+            ]
+          },
+          {
+            "required": [
+              "trial_id"
+            ]
+          }
+        ]
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "premises": {
+      "description": "전제 조건 (같은 조건 상대 비교, 평가팩 버전 등)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "caveats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exploratory",
+        "grader_validated"
+      ],
+      "properties": {
+        "exploratory": {
+          "description": "잠근 뒤 기준을 바꿨으면 true (탐색적 결과)",
+          "type": "boolean"
+        },
+        "grader_validated": {
+          "description": "도메인 검증(E1~E6) 전이면 false → '채점 검증 전' 표시",
+          "type": "boolean"
+        },
+        "cause_identifiable": {
+          "description": "한 자리만 바꾸면 true. 여러 곳이 바뀌면 false → '원인 특정 불가' 표시",
+          "type": "boolean"
+        }
+      }
+    },
+    "detail": {
+      "description": "kind=detail 일 때만 (개발자용 자세히 보기)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "by_template",
+        "fail_types",
+        "tool_time_top"
+      ],
+      "properties": {
+        "by_template": {
+          "description": "문항 유형별 결과",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "template_code",
+              "label",
+              "k",
+              "n"
+            ],
+            "properties": {
+              "template_code": {
+                "type": "string"
+              },
+              "label": {
+                "$ref": "common.schema.json#/$defs/label"
+              },
+              "k": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "n": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "out_of_scope": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "fail_types": {
+          "description": "후보 label → 첫 실패 유형(trial_grades.first_fail_type) → 건수",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "propertyNames": {
+              "$ref": "common.schema.json#/$defs/first_fail_type"
+            }
+          }
+        },
+        "tool_time_top": {
+          "description": "도구 시간 상위 10개 (trial_metrics.tool_sec_by_tool 합). 나머지는 화면에서 펼쳐 보기",
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "tool",
+              "label",
+              "calls",
+              "median_sec"
+            ],
+            "properties": {
+              "tool": {
+                "$ref": "common.schema.json#/$defs/tool_name"
+              },
+              "label": {
+                "$ref": "common.schema.json#/$defs/label"
+              },
+              "calls": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "median_sec": {
+                "type": "number",
+                "minimum": 0
+              },
+              "total_sec": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "detail"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "detail"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "detail"
+          ]
+        }
+      }
+    }
+  ]
+}

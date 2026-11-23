@@ -1,0 +1,84 @@
+{
+  "_note": "④가 저장하는 실험 초안. prereg·plan 은 POST /api/experiments/plan-proposal 이 돌려준 값 그대로 (기본값 settings, 문항 수 ③, 문항 고르기 ②). task_id·candidate id 는 예시 번호 — e2e 테스트가 실제 id 로 바꿈. 후보 역할은 candidates.is_baseline 에서, label 은 candidates.label 에서",
+  "kind": "compare",
+  "reps": 2,
+  "budget_krw": 3000,
+  "prereg": {
+    "schema_version": 1,
+    "primary_metric": "success_rate",
+    "test": "ni_then_sup",
+    "margin_pp": 5,
+    "alpha": 0.05,
+    "secondary_metrics": [
+      "cost_per_success_krw",
+      "latency_p50_sec"
+    ],
+    "expected": {
+      "better_label": "B",
+      "diff_pp": 10
+    },
+    "regression_limit": 0.05,
+    "sequential": {
+      "method": "none"
+    },
+    "outcome_rules": {
+      "agent_error": "fail",
+      "timeout": "fail",
+      "env_error": "retry_then_exclude",
+      "grader_error": "exclude",
+      "undecidable": "exclude",
+      "out_of_scope": "fail",
+      "env_error_reasons": [
+        "env_mcp_server_down",
+        "env_practice_repo_unreachable",
+        "env_llm_api_5xx",
+        "env_worker_lost"
+      ]
+    },
+    "max_env_retries": 1
+  },
+  "plan": {
+    "schema_version": 1,
+    "tasks": [
+      {
+        "task_id": 1,
+        "batch_no": 1
+      },
+      {
+        "task_id": 2,
+        "batch_no": 1
+      },
+      {
+        "task_id": 3,
+        "batch_no": 1
+      }
+    ],
+    "min_detectable_pp": 10,
+    "estimate": {
+      "cost_krw": 25,
+      "minutes": 3
+    },
+    "proposal": {
+      "request": {
+        "agent_version_id": 1,
+        "slot_id": 1,
+        "pack_version_id": 1,
+        "candidate_ids": [
+          1,
+          2
+        ],
+        "split": "held",
+        "reps": 2,
+        "budget_krw": 3000
+      },
+      "as_of": "2026-11-22T09:30:00+09:00",
+      "hash": "sha256:012cc2394f6ef3cfcb22358164784dbc86bbbde4798f4e536e5b472a8f3c2732",
+      "edited": false,
+      "edited_fields": []
+    }
+  },
+  "candidates": [
+    1,
+    2
+  ]
+}
