@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:01Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "고정 시나리오로 정보를 조회합니다."
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_issues",
+      "started_at": "2026-11-23T00:00:02Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {},
+      "tool_result": "[{\"number\": \"145\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"number\": \"148\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [\"bug\", \"urgent\"], \"assignees\": []}, {\"number\": \"140\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": [\"mina\"]}, {\"number\": \"147\", \"repo\": \"acme/ops-service\", \"state\": \"closed\", \"labels\": [\"bug\"], \"assignees\": []}, {\"number\": \"152\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [\"enhancement\"], \"assignees\": []}, {\"number\": \"153\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [], \"assignees\": []}, {\"number\": \"145\", \"repo\": \"acme/other-service\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"number\": \"210\", \"repo\": \"acme/other-service\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"number\": \"211\", \"repo\": \"acme/other-service\", \"state\": \"closed\", \"labels\": [\"bug\"], \"assignees\": []}, {\"number\": \"212\", \"repo\": \"acme/other-service\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": [\"jun\"]}]"
+    },
+    {
+      "seq": 3,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:03Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "{\"issues\": [\"145\", \"210\"]}"
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"issues\": [\"145\", \"210\"]}",
+  "run_outcome": "completed"
+}

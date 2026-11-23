@@ -1,0 +1,447 @@
+{
+  "snapshot_version": "it_ops-operations-v0.1",
+  "runs": [
+    {
+      "id": "101",
+      "repo": "acme/payment-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T08:00:00+09:00",
+      "finished_at": "2026-11-16T08:10:00+09:00",
+      "version": "v2.0.0",
+      "sha": "repo1-old"
+    },
+    {
+      "id": "102",
+      "repo": "acme/payment-service",
+      "environment": "production",
+      "status": "success",
+      "started_at": "2026-11-16T08:20:00+09:00",
+      "finished_at": "2026-11-16T08:25:00+09:00",
+      "version": "v2.0.1",
+      "sha": "repo1-fix"
+    },
+    {
+      "id": "103",
+      "repo": "acme/payment-service",
+      "environment": "production",
+      "status": "success",
+      "started_at": "2026-11-16T10:00:00+09:00",
+      "finished_at": "2026-11-16T10:20:00+09:00",
+      "version": "v2.1.0",
+      "sha": "repo1-latest"
+    },
+    {
+      "id": "104",
+      "repo": "acme/payment-service",
+      "environment": "staging",
+      "status": "success",
+      "started_at": "2026-11-16T11:00:00+09:00",
+      "finished_at": "2026-11-16T11:03:00+09:00",
+      "version": "v3.1.0-rc1",
+      "sha": "repo1-staging"
+    },
+    {
+      "id": "105",
+      "repo": "acme/payment-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T23:50:00+09:00",
+      "finished_at": "2026-11-16T23:59:00+09:00",
+      "version": "v9.0.0",
+      "sha": "repo1-bad"
+    },
+    {
+      "id": "106",
+      "repo": "acme/payment-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T23:59:00+09:00",
+      "finished_at": "2026-11-16T15:00:00Z",
+      "version": "v9.0.1",
+      "sha": "boundary"
+    },
+    {
+      "id": "201",
+      "repo": "acme/catalog-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T08:00:00+09:00",
+      "finished_at": "2026-11-16T08:10:00+09:00",
+      "version": "v2.0.0",
+      "sha": "repo2-old"
+    },
+    {
+      "id": "202",
+      "repo": "acme/catalog-service",
+      "environment": "production",
+      "status": "success",
+      "started_at": "2026-11-16T08:20:00+09:00",
+      "finished_at": "2026-11-16T08:25:00+09:00",
+      "version": "v2.0.1",
+      "sha": "repo2-fix"
+    },
+    {
+      "id": "203",
+      "repo": "acme/catalog-service",
+      "environment": "production",
+      "status": "success",
+      "started_at": "2026-11-16T10:00:00+09:00",
+      "finished_at": "2026-11-16T10:20:00+09:00",
+      "version": "v2.2.0",
+      "sha": "repo2-latest"
+    },
+    {
+      "id": "204",
+      "repo": "acme/catalog-service",
+      "environment": "staging",
+      "status": "success",
+      "started_at": "2026-11-16T11:00:00+09:00",
+      "finished_at": "2026-11-16T11:03:00+09:00",
+      "version": "v3.2.0-rc1",
+      "sha": "repo2-staging"
+    },
+    {
+      "id": "205",
+      "repo": "acme/catalog-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T23:50:00+09:00",
+      "finished_at": "2026-11-16T23:59:00+09:00",
+      "version": "v9.0.0",
+      "sha": "repo2-bad"
+    },
+    {
+      "id": "206",
+      "repo": "acme/catalog-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T23:59:00+09:00",
+      "finished_at": "2026-11-16T15:00:00Z",
+      "version": "v9.0.1",
+      "sha": "boundary"
+    },
+    {
+      "id": "301",
+      "repo": "acme/auth-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T08:00:00+09:00",
+      "finished_at": "2026-11-16T08:10:00+09:00",
+      "version": "v2.0.0",
+      "sha": "repo3-old"
+    },
+    {
+      "id": "302",
+      "repo": "acme/auth-service",
+      "environment": "production",
+      "status": "success",
+      "started_at": "2026-11-16T08:20:00+09:00",
+      "finished_at": "2026-11-16T08:25:00+09:00",
+      "version": "v2.0.1",
+      "sha": "repo3-fix"
+    },
+    {
+      "id": "303",
+      "repo": "acme/auth-service",
+      "environment": "production",
+      "status": "success",
+      "started_at": "2026-11-16T10:00:00+09:00",
+      "finished_at": "2026-11-16T10:20:00+09:00",
+      "version": "v2.3.0",
+      "sha": "repo3-latest"
+    },
+    {
+      "id": "304",
+      "repo": "acme/auth-service",
+      "environment": "staging",
+      "status": "success",
+      "started_at": "2026-11-16T11:00:00+09:00",
+      "finished_at": "2026-11-16T11:03:00+09:00",
+      "version": "v3.3.0-rc1",
+      "sha": "repo3-staging"
+    },
+    {
+      "id": "305",
+      "repo": "acme/auth-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T23:50:00+09:00",
+      "finished_at": "2026-11-16T23:59:00+09:00",
+      "version": "v9.0.0",
+      "sha": "repo3-bad"
+    },
+    {
+      "id": "306",
+      "repo": "acme/auth-service",
+      "environment": "production",
+      "status": "failure",
+      "started_at": "2026-11-16T23:59:00+09:00",
+      "finished_at": "2026-11-16T15:00:00Z",
+      "version": "v9.0.1",
+      "sha": "boundary"
+    }
+  ],
+  "issues": [
+    {
+      "id": "101",
+      "repo": "acme/payment-service",
+      "state": "open",
+      "assignees": [
+        "mina"
+      ],
+      "labels": [
+        "bug",
+        "urgent"
+      ],
+      "updated_at": "2026-11-15T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "102",
+      "repo": "acme/payment-service",
+      "state": "open",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "updated_at": "2026-11-01T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "103",
+      "repo": "acme/payment-service",
+      "state": "closed",
+      "assignees": [
+        "mina"
+      ],
+      "labels": [
+        "bug"
+      ],
+      "updated_at": "2026-11-16T10:00:00+09:00",
+      "closed_at": "2026-11-16T10:00:00+09:00"
+    },
+    {
+      "id": "104",
+      "repo": "acme/payment-service",
+      "state": "open",
+      "assignees": [],
+      "labels": [],
+      "updated_at": "2026-11-10T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "105",
+      "repo": "acme/payment-service",
+      "state": "open",
+      "assignees": [
+        "jun"
+      ],
+      "labels": [
+        "urgent"
+      ],
+      "updated_at": "2026-11-15T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "106",
+      "repo": "acme/payment-service",
+      "state": "closed",
+      "assignees": [],
+      "labels": [
+        "urgent"
+      ],
+      "updated_at": "2026-11-17T00:00:00+09:00",
+      "closed_at": "2026-11-17T00:00:00+09:00"
+    },
+    {
+      "id": "201",
+      "repo": "acme/catalog-service",
+      "state": "open",
+      "assignees": [
+        "mina"
+      ],
+      "labels": [
+        "bug",
+        "urgent"
+      ],
+      "updated_at": "2026-11-15T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "202",
+      "repo": "acme/catalog-service",
+      "state": "open",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "updated_at": "2026-11-01T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "203",
+      "repo": "acme/catalog-service",
+      "state": "closed",
+      "assignees": [
+        "mina"
+      ],
+      "labels": [
+        "bug"
+      ],
+      "updated_at": "2026-11-16T10:00:00+09:00",
+      "closed_at": "2026-11-16T10:00:00+09:00"
+    },
+    {
+      "id": "204",
+      "repo": "acme/catalog-service",
+      "state": "open",
+      "assignees": [],
+      "labels": [],
+      "updated_at": "2026-11-10T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "205",
+      "repo": "acme/catalog-service",
+      "state": "open",
+      "assignees": [
+        "jun"
+      ],
+      "labels": [
+        "urgent"
+      ],
+      "updated_at": "2026-11-15T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "206",
+      "repo": "acme/catalog-service",
+      "state": "closed",
+      "assignees": [],
+      "labels": [
+        "urgent"
+      ],
+      "updated_at": "2026-11-17T00:00:00+09:00",
+      "closed_at": "2026-11-17T00:00:00+09:00"
+    },
+    {
+      "id": "301",
+      "repo": "acme/auth-service",
+      "state": "open",
+      "assignees": [
+        "mina"
+      ],
+      "labels": [
+        "bug",
+        "urgent"
+      ],
+      "updated_at": "2026-11-15T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "302",
+      "repo": "acme/auth-service",
+      "state": "open",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "updated_at": "2026-11-01T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "303",
+      "repo": "acme/auth-service",
+      "state": "closed",
+      "assignees": [
+        "mina"
+      ],
+      "labels": [
+        "bug"
+      ],
+      "updated_at": "2026-11-16T10:00:00+09:00",
+      "closed_at": "2026-11-16T10:00:00+09:00"
+    },
+    {
+      "id": "304",
+      "repo": "acme/auth-service",
+      "state": "open",
+      "assignees": [],
+      "labels": [],
+      "updated_at": "2026-11-10T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "305",
+      "repo": "acme/auth-service",
+      "state": "open",
+      "assignees": [
+        "jun"
+      ],
+      "labels": [
+        "urgent"
+      ],
+      "updated_at": "2026-11-15T00:00:00+09:00",
+      "closed_at": null
+    },
+    {
+      "id": "306",
+      "repo": "acme/auth-service",
+      "state": "closed",
+      "assignees": [],
+      "labels": [
+        "urgent"
+      ],
+      "updated_at": "2026-11-17T00:00:00+09:00",
+      "closed_at": "2026-11-17T00:00:00+09:00"
+    }
+  ],
+  "releases": [
+    {
+      "repo": "acme/payment-service",
+      "sha": "repo1-latest",
+      "tag": "v2.1.0"
+    },
+    {
+      "repo": "acme/payment-service",
+      "sha": "repo1-staging",
+      "tag": "v3.1.0-rc1"
+    },
+    {
+      "repo": "acme/payment-service",
+      "sha": "repo1-old",
+      "tag": "v2.0.0"
+    },
+    {
+      "repo": "acme/catalog-service",
+      "sha": "repo2-latest",
+      "tag": "v2.2.0"
+    },
+    {
+      "repo": "acme/catalog-service",
+      "sha": "repo2-staging",
+      "tag": "v3.2.0-rc1"
+    },
+    {
+      "repo": "acme/catalog-service",
+      "sha": "repo2-old",
+      "tag": "v2.0.0"
+    },
+    {
+      "repo": "acme/auth-service",
+      "sha": "repo3-latest",
+      "tag": "v2.3.0"
+    },
+    {
+      "repo": "acme/auth-service",
+      "sha": "repo3-staging",
+      "tag": "v3.3.0-rc1"
+    },
+    {
+      "repo": "acme/auth-service",
+      "sha": "repo3-old",
+      "tag": "v2.0.0"
+    }
+  ]
+}

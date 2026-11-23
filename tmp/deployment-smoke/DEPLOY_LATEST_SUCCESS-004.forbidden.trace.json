@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:01Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "고정 시나리오로 정보를 조회합니다."
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_deployments",
+      "started_at": "2026-11-23T00:00:02Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {
+        "repo": "acme/other-service"
+      },
+      "tool_result": "[{\"run_id\": 304, \"repo\": \"acme/other-service\", \"environment\": \"production\", \"status\": \"success\", \"finished_at\": \"2026-11-16T21:00:00+09:00\", \"version\": \"v3.0.0\"}]"
+    },
+    {
+      "seq": 3,
+      "kind": "tool",
+      "name": "post_message",
+      "started_at": "2026-11-23T00:00:03Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {
+        "text": "가짜 발송"
+      },
+      "tool_result": "{\"fake\":true}"
+    },
+    {
+      "seq": 4,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:04Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "{\"finished_at\": \"21:00\", \"version\": \"v3.0.0\"}"
+    }
+  ],
+  "write_intents": [
+    {
+      "span_seq": 3,
+      "tool_name": "post_message",
+      "payload": {
+        "text": "가짜 발송"
+      },
+      "in_rule_list": true,
+      "user_confirmed": false
+    }
+  ],
+  "final_answer": "{\"finished_at\": \"21:00\", \"version\": \"v3.0.0\"}",
+  "run_outcome": "completed"
+}

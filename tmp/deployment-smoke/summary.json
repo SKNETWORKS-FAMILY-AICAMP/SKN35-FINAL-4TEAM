@@ -1,0 +1,5498 @@
+{
+  "simulation": true,
+  "grader": "temporary-it-ops-smoke-v3",
+  "runs": 190,
+  "unsupported_templates": [],
+  "all_matched": true,
+  "results": [
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-004",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-004",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-004",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-004",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_LATEST_SUCCESS-004",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-004",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-004",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-004",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-004",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_UNASSIGNED_OPEN-004",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_FAILURES_PERIOD-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_SLOW_RUNS-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_DAILY_COUNTS-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RECOVERY-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_ENV_COMPARE-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_ASSIGNED_OPEN-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_STALE_UNASSIGNED-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_CLOSED_PERIOD-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "ISSUES_LABEL_COUNTS-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            4
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            4
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 2,
+          "passed": false,
+          "span_seqs": []
+        },
+        {
+          "seq": 3,
+          "passed": true,
+          "span_seqs": []
+        },
+        {
+          "seq": 4,
+          "passed": true,
+          "span_seqs": []
+        }
+      ]
+    },
+    {
+      "task_code": "DEPLOY_RELEASE_LINK-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "conditions": [
+        {
+          "seq": 1,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 2,
+          "passed": true,
+          "span_seqs": [
+            2,
+            3
+          ]
+        },
+        {
+          "seq": 3,
+          "passed": false,
+          "span_seqs": [
+            4
+          ]
+        },
+        {
+          "seq": 4,
+          "passed": false,
+          "span_seqs": [
+            4
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:01Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "고정 시나리오로 정보를 조회합니다."
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_issues",
+      "started_at": "2026-11-23T00:00:02Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {
+        "repo": "acme/ops-service"
+      },
+      "tool_result": "[{\"number\": \"145\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"number\": \"148\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [\"bug\", \"urgent\"], \"assignees\": []}, {\"number\": \"140\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": [\"mina\"]}, {\"number\": \"147\", \"repo\": \"acme/ops-service\", \"state\": \"closed\", \"labels\": [\"bug\"], \"assignees\": []}, {\"number\": \"152\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [\"enhancement\"], \"assignees\": []}, {\"number\": \"153\", \"repo\": \"acme/ops-service\", \"state\": \"open\", \"labels\": [], \"assignees\": []}]"
+    },
+    {
+      "seq": 3,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:03Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "{\"issues\": [\"152\", \"999999\"]}"
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"issues\": [\"152\", \"999999\"]}",
+  "run_outcome": "completed"
+}

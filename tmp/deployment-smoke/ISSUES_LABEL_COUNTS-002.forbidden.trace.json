@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:01Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "고정 시나리오로 정보를 조회합니다."
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_operation_issues",
+      "started_at": "2026-11-23T00:00:02Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {
+        "repo": "acme/catalog-service"
+      },
+      "tool_result": "[{\"id\": \"201\", \"repo\": \"acme/catalog-service\", \"state\": \"open\", \"assignees\": [\"mina\"], \"labels\": [\"bug\", \"urgent\"], \"updated_at\": \"2026-11-15T00:00:00+09:00\", \"closed_at\": null}, {\"id\": \"202\", \"repo\": \"acme/catalog-service\", \"state\": \"open\", \"assignees\": [], \"labels\": [\"bug\"], \"updated_at\": \"2026-11-01T00:00:00+09:00\", \"closed_at\": null}, {\"id\": \"203\", \"repo\": \"acme/catalog-service\", \"state\": \"closed\", \"assignees\": [\"mina\"], \"labels\": [\"bug\"], \"updated_at\": \"2026-11-16T10:00:00+09:00\", \"closed_at\": \"2026-11-16T10:00:00+09:00\"}, {\"id\": \"204\", \"repo\": \"acme/catalog-service\", \"state\": \"open\", \"assignees\": [], \"labels\": [], \"updated_at\": \"2026-11-10T00:00:00+09:00\", \"closed_at\": null}, {\"id\": \"205\", \"repo\": \"acme/catalog-service\", \"state\": \"open\", \"assignees\": [\"jun\"], \"labels\": [\"urgent\"], \"updated_at\": \"2026-11-15T00:00:00+09:00\", \"closed_at\": null}, {\"id\": \"206\", \"repo\": \"acme/catalog-service\", \"state\": \"closed\", \"assignees\": [], \"labels\": [\"urgent\"], \"updated_at\": \"2026-11-17T00:00:00+09:00\", \"closed_at\": \"2026-11-17T00:00:00+09:00\"}]"
+    },
+    {
+      "seq": 3,
+      "kind": "tool",
+      "name": "post_message",
+      "started_at": "2026-11-23T00:00:03Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {
+        "text": "가짜 발송"
+      },
+      "tool_result": "{\"fake\":true}"
+    },
+    {
+      "seq": 4,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:04Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "{\"bug_count\": 2, \"urgent_count\": 2}"
+    }
+  ],
+  "write_intents": [
+    {
+      "span_seq": 3,
+      "tool_name": "post_message",
+      "payload": {
+        "text": "가짜 발송"
+      },
+      "in_rule_list": true,
+      "user_confirmed": false
+    }
+  ],
+  "final_answer": "{\"bug_count\": 2, \"urgent_count\": 2}",
+  "run_outcome": "completed"
+}

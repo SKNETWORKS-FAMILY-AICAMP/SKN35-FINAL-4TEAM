@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:01Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "고정 시나리오로 정보를 조회합니다."
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_operation_runs",
+      "started_at": "2026-11-23T00:00:02Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {
+        "repo": "acme/payment-service"
+      },
+      "tool_result": "[{\"id\": \"101\", \"repo\": \"acme/payment-service\", \"environment\": \"production\", \"status\": \"failure\", \"started_at\": \"2026-11-16T08:00:00+09:00\", \"finished_at\": \"2026-11-16T08:10:00+09:00\", \"version\": \"v2.0.0\", \"sha\": \"repo1-old\"}, {\"id\": \"102\", \"repo\": \"acme/payment-service\", \"environment\": \"production\", \"status\": \"success\", \"started_at\": \"2026-11-16T08:20:00+09:00\", \"finished_at\": \"2026-11-16T08:25:00+09:00\", \"version\": \"v2.0.1\", \"sha\": \"repo1-fix\"}, {\"id\": \"103\", \"repo\": \"acme/payment-service\", \"environment\": \"production\", \"status\": \"success\", \"started_at\": \"2026-11-16T10:00:00+09:00\", \"finished_at\": \"2026-11-16T10:20:00+09:00\", \"version\": \"v2.1.0\", \"sha\": \"repo1-latest\"}, {\"id\": \"104\", \"repo\": \"acme/payment-service\", \"environment\": \"staging\", \"status\": \"success\", \"started_at\": \"2026-11-16T11:00:00+09:00\", \"finished_at\": \"2026-11-16T11:03:00+09:00\", \"version\": \"v3.1.0-rc1\", \"sha\": \"repo1-staging\"}, {\"id\": \"105\", \"repo\": \"acme/payment-service\", \"environment\": \"production\", \"status\": \"failure\", \"started_at\": \"2026-11-16T23:50:00+09:00\", \"finished_at\": \"2026-11-16T23:59:00+09:00\", \"version\": \"v9.0.0\", \"sha\": \"repo1-bad\"}, {\"id\": \"106\", \"repo\": \"acme/payment-service\", \"environment\": \"production\", \"status\": \"failure\", \"started_at\": \"2026-11-16T23:59:00+09:00\", \"finished_at\": \"2026-11-16T15:00:00Z\", \"version\": \"v9.0.1\", \"sha\": \"boundary\"}]"
+    },
+    {
+      "seq": 3,
+      "kind": "tool",
+      "name": "post_message",
+      "started_at": "2026-11-23T00:00:03Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "tool_args": {
+        "text": "가짜 발송"
+      },
+      "tool_result": "{\"fake\":true}"
+    },
+    {
+      "seq": 4,
+      "kind": "llm",
+      "name": "fake-scripted-model",
+      "started_at": "2026-11-23T00:00:04Z",
+      "duration_sec": 0,
+      "attributes": {
+        "simulation": true
+      },
+      "output": "{\"run_ids\": [\"101\", \"105\"]}"
+    }
+  ],
+  "write_intents": [
+    {
+      "span_seq": 3,
+      "tool_name": "post_message",
+      "payload": {
+        "text": "가짜 발송"
+      },
+      "in_rule_list": true,
+      "user_confirmed": false
+    }
+  ],
+  "final_answer": "{\"run_ids\": [\"101\", \"105\"]}",
+  "run_outcome": "completed"
+}
