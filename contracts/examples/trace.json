@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    { "seq": 1, "kind": "llm", "name": "gpt-4.1-mini", "started_at": "2026-11-22T10:00:00Z", "duration_sec": 1.2, "wait_sec": 0,
+      "in_tokens": 820, "out_tokens": 40, "output": "deploy-prod 실행 기록에서 11월 16일 성공한 실행을 찾고, 그 커밋의 릴리스 버전을 확인하겠습니다.",
+      "attributes": { "model.resolved": "gpt-4.1-mini-2025-04-14", "model.seed": 1 } },
+    { "seq": 2, "kind": "tool", "name": "list_workflow_runs", "started_at": "2026-11-22T10:00:01.300Z", "duration_sec": 0.4,
+      "tool_args": { "owner": "acme", "repo": "ops-service", "workflow_name": "deploy-prod" },
+      "tool_result": "[{\"id\":305,\"conclusion\":\"failure\",\"head_sha\":\"9c8d7e6\"},{\"id\":306,\"conclusion\":\"success\",\"head_sha\":\"9c8d7e6\",\"updated_at\":\"2026-11-16T18:20:00+09:00\"}]",
+      "attributes": { "mcp.server_version": "0.20.0" } },
+    { "seq": 3, "kind": "tool", "name": "list_releases", "started_at": "2026-11-22T10:00:01.800Z", "duration_sec": 0.3,
+      "tool_args": { "owner": "acme", "repo": "ops-service" },
+      "tool_result": "[{\"tag_name\":\"v1.8.3\",\"target_commit\":\"9c8d7e6\"}]" },
+    { "seq": 4, "kind": "llm", "name": "gpt-4.1-mini", "started_at": "2026-11-22T10:00:02.200Z", "duration_sec": 1.5,
+      "in_tokens": 1100, "out_tokens": 60, "output": "11월 16일 운영 배포는 18시 20분에 끝났고, 배포된 버전은 v1.8.3입니다. (실행 306)" }
+  ],
+  "write_intents": [],
+  "final_answer": "11월 16일 운영 배포는 18시 20분에 끝났고, 배포된 버전은 v1.8.3입니다. (실행 306)",
+  "run_outcome": "completed",
+  "usage": { "in_tokens": 1920, "out_tokens": 100, "tool_desc_tokens": 509, "cost_krw": 1.72, "llm_sec": 2.7, "tool_sec": 0.7, "wait_sec": 0, "api_retries": 0 }
+}

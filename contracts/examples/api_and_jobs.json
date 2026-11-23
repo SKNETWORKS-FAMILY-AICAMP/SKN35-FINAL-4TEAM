@@ -1,0 +1,349 @@
+{
+  "_note": "HTTP 요청·응답과 작업 큐 예시. 키 이름 = '스키마.부분'. 배열 값은 하나씩 검사",
+  "api.register_agent_request": {
+    "name": "운영 도우미",
+    "purpose": "운영 질문에 답하기",
+    "domain_code": "it_ops",
+    "expected_monthly_calls": 3000,
+    "version": {
+      "connection_type": "spec_upload",
+      "questions_used": true,
+      "control_level": "C2",
+      "model": "gpt-4.1-mini",
+      "temperature": 0,
+      "instructions": "너는 운영 도우미다.",
+      "spec": {
+        "schema_version": 1,
+        "services": [
+          {
+            "code": "github",
+            "name": "GitHub"
+          }
+        ],
+        "tools": [
+          {
+            "name": "list_releases",
+            "description": "List releases",
+            "service": "github",
+            "access": "read",
+            "origin": "mcp:github",
+            "parameters": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        ],
+        "mcp_servers": [
+          {
+            "name": "github",
+            "version": "0.20.0"
+          }
+        ]
+      }
+    }
+  },
+  "api.register_agent_response": {
+    "agent_id": 1,
+    "agent_version_id": 1,
+    "slots": [
+      {
+        "slot_id": 1,
+        "name": "GitHub 조회",
+        "service": "github",
+        "access": "read",
+        "comparable": true,
+        "not_comparable_reason": null,
+        "baseline_candidate_id": 1
+      }
+    ]
+  },
+  "api.register_candidate_request": {
+    "label": "C",
+    "name": "릴리스 조회만 (도구 1개)",
+    "component_spec": {
+      "schema_version": 1,
+      "kind": "tool_bundle",
+      "service": "github",
+      "access": "read",
+      "tools": [
+        {
+          "name": "list_releases",
+          "description": "List releases",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  },
+  "api.pack_list_response": {
+    "packs": [
+      {
+        "pack_version_id": 1,
+        "pack_code": "it_ops",
+        "version": "v1.0",
+        "domain_code": "it_ops",
+        "n_templates": 2,
+        "n_tasks": 3,
+        "n_held_templates": 2,
+        "locked_at": "2026-11-22T09:00:00Z"
+      }
+    ]
+  },
+  "api.plan_proposal_request": {
+    "agent_version_id": 1,
+    "slot_id": 1,
+    "pack_version_id": 1,
+    "candidate_ids": [
+      1,
+      2
+    ],
+    "split": "held",
+    "reps": 2,
+    "budget_krw": 3000
+  },
+  "api.plan_proposal_response": {
+    "prereg": {
+      "schema_version": 1,
+      "primary_metric": "success_rate",
+      "test": "ni_then_sup",
+      "margin_pp": 5,
+      "alpha": 0.05,
+      "outcome_rules": {
+        "agent_error": "fail",
+        "timeout": "fail",
+        "env_error": "retry_then_exclude",
+        "grader_error": "exclude",
+        "undecidable": "exclude",
+        "out_of_scope": "fail",
+        "env_error_reasons": [
+          "env_mcp_server_down",
+          "env_llm_api_5xx"
+        ]
+      },
+      "max_env_retries": 1
+    },
+    "plan": {
+      "schema_version": 1,
+      "tasks": [
+        {
+          "task_id": 1,
+          "batch_no": 1
+        },
+        {
+          "task_id": 2,
+          "batch_no": 1
+        },
+        {
+          "task_id": 3,
+          "batch_no": 1
+        }
+      ],
+      "estimate": {
+        "cost_krw": 25,
+        "minutes": 3
+      }
+    },
+    "as_of": "2026-11-22T09:30:00+09:00",
+    "reps": 2,
+    "n_templates": 2,
+    "n_tasks": 3,
+    "trials": 12,
+    "warnings": [
+      "문항 유형이 2개뿐이라 판단 보류가 나올 가능성이 큼 (필요: 30개 이상)"
+    ]
+  },
+  "api.create_experiment_request": {
+    "kind": "compare",
+    "agent_version_id": 1,
+    "slot_id": 1,
+    "pack_version_id": 1,
+    "reps": 2,
+    "budget_krw": 3000,
+    "prereg": {
+      "schema_version": 1,
+      "primary_metric": "success_rate",
+      "test": "ni_then_sup",
+      "margin_pp": 5,
+      "alpha": 0.05,
+      "outcome_rules": {
+        "agent_error": "fail",
+        "timeout": "fail",
+        "env_error": "retry_then_exclude",
+        "grader_error": "exclude",
+        "undecidable": "exclude",
+        "out_of_scope": "fail",
+        "env_error_reasons": [
+          "env_mcp_server_down",
+          "env_llm_api_5xx"
+        ]
+      },
+      "max_env_retries": 1
+    },
+    "plan": {
+      "schema_version": 1,
+      "tasks": [
+        {
+          "task_id": 1,
+          "batch_no": 1
+        }
+      ]
+    },
+    "candidates": [
+      1,
+      2
+    ],
+    "proposal": {
+      "request": {
+        "agent_version_id": 1,
+        "slot_id": 1,
+        "pack_version_id": 1,
+        "candidate_ids": [
+          1,
+          2
+        ],
+        "split": "held",
+        "reps": 2,
+        "budget_krw": 3000
+      },
+      "as_of": "2026-11-22T09:30:00+09:00"
+    }
+  },
+  "api.create_experiment_response": {
+    "experiment_id": 1,
+    "status": "draft"
+  },
+  "api.run_response": {
+    "experiment_id": 1,
+    "status": "running",
+    "trials_total": 12
+  },
+  "api.stop_request": {},
+  "api.status_response": {
+    "experiment_id": 1,
+    "status": "running",
+    "stop_reason": null,
+    "trials_total": 12,
+    "trials": {
+      "pending": 5,
+      "running": 2,
+      "finished": 5,
+      "error": 0,
+      "cancelled": 0
+    },
+    "env_reruns": 1,
+    "cost_krw": 8.6,
+    "budget_krw": 3000,
+    "latest_grading_run_id": null,
+    "latest_analysis_id": null
+  },
+  "api.results_response": {
+    "experiment_id": 1,
+    "analysis_id": 1,
+    "is_interim": false,
+    "comparisons": [
+      {
+        "comparison_id": 1,
+        "label": "B",
+        "baseline_label": "A",
+        "metric": "success_rate",
+        "diff": 0,
+        "ci_low": -0.5,
+        "ci_high": 0.5,
+        "ci_level": 0.95,
+        "verdict": "hold",
+        "reason": "문항 유형 2개"
+      }
+    ],
+    "reports": [
+      {
+        "report_id": 1,
+        "kind": "one_pager"
+      }
+    ]
+  },
+  "api.error": [
+    {
+      "code": "baseline_exists",
+      "message": "이 자리에는 이미 기준 후보가 있어요. 기준은 자리마다 하나예요."
+    },
+    {
+      "code": "label_taken",
+      "message": "이 자리에 같은 이름(A)의 후보가 있어요. 다른 글자를 골라 주세요."
+    },
+    {
+      "code": "wrong_slot",
+      "message": "이 실험은 'GitHub 조회' 자리만 비교해요. 다른 자리의 후보는 넣을 수 없어요."
+    },
+    {
+      "code": "immutable",
+      "message": "저장한 후보는 고칠 수 없어요. 바꾸려면 새 후보로 등록해 주세요."
+    },
+    {
+      "code": "experiment_locked",
+      "message": "시작한 실험의 후보는 바꿀 수 없어요. 새 실험을 만들어 주세요."
+    },
+    {
+      "code": "invalid_plan",
+      "message": "같은 문항이 계획에 두 번 들어 있어요."
+    }
+  ],
+  "job_payload": [
+    {
+      "schema_version": 1,
+      "kind": "run_trial",
+      "trial_id": 1
+    },
+    {
+      "schema_version": 1,
+      "kind": "grade",
+      "grading_run_id": 1
+    },
+    {
+      "schema_version": 1,
+      "kind": "analyze",
+      "grading_run_id": 1,
+      "is_interim": false
+    },
+    {
+      "schema_version": 1,
+      "kind": "report",
+      "analysis_id": 1,
+      "report_kinds": [
+        "one_pager",
+        "detail"
+      ]
+    },
+    {
+      "schema_version": 1,
+      "kind": "validation",
+      "validation_run_id": 1
+    }
+  ],
+  "chat.get_results": {
+    "experiment_id": 1
+  },
+  "chat.start_run": {
+    "experiment_id": 1
+  },
+  "chat.write_report": {
+    "report_id": 1,
+    "audience": "manager"
+  },
+  "chat.calc_sample_size": {
+    "agent_version_id": 1,
+    "slot_id": 1,
+    "pack_version_id": 1,
+    "candidate_ids": [
+      1,
+      2
+    ],
+    "split": "held",
+    "reps": 2,
+    "budget_krw": 3000
+  }
+}

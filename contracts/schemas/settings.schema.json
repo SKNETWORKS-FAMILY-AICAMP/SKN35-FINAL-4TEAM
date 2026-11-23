@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/settings.schema.json",
+  "title": "기본값 (settings.value)",
+  "description": "settings 의 value 모양 — key 마다 하나 (3차 2). 값은 ②③(+①)이 정하고, ①(engine/advance.py)과 plan-proposal(common.proposal)이 읽음. 검사: validate('settings', value, part=key). price.<모델> 키는 part='price'. 모르는 key 는 막음",
+  "$defs": {
+    "ni_margin_pp": { "description": "③ 비열등성 마진 %p → prereg.margin_pp", "type": "number", "exclusiveMinimum": 0, "maximum": 50 },
+    "alpha": { "description": "③ 유의수준 → prereg.alpha", "type": "number", "exclusiveMinimum": 0, "maximum": 0.2 },
+    "regression_limit": { "description": "③ 회귀율 한도 → prereg.regression_limit", "type": "number", "minimum": 0, "maximum": 1 },
+    "max_env_retries": { "description": "① 환경 오류 다시 실행 횟수 → prereg.max_env_retries", "type": "integer", "minimum": 0, "maximum": 3 },
+    "env_error_reasons": {
+      "description": "① 환경 탓으로 볼 outcome_reason → prereg.outcome_rules.env_error_reasons",
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "allOf": [{ "$ref": "common.schema.json#/$defs/outcome_reason" }, { "anyOf": [{ "pattern": "^env_" }, { "const": "llm_api_429" }] }] }
+    },
+    "out_of_scope_rule": { "description": "⚠ P-01 팀 확정 전 → prereg.outcome_rules.out_of_scope", "enum": ["fail", "exclude"] },
+    "queue.lease_sec": { "description": "① 작업 임대 시간(초)", "type": "integer", "minimum": 60, "maximum": 3600 },
+    "judge.settings": { "description": "② 판정기 설정 (scope=domain). ①이 grading_runs.judge_settings 로 복사", "$ref": "grading.schema.json#/$defs/judge_settings" },
+    "judge.model": { "description": "② 판정 모델 (scope=domain) → grading_runs.judge_model", "type": "string", "minLength": 1 },
+    "label_success_min": { "description": "② 라벨 품질 최소 일치율 (FR-VAL-04)", "type": "number", "minimum": 0, "maximum": 1 },
+    "cost_limit_month": { "description": "① 한 달 비용 한도 (NFR-OPS-01)", "$ref": "common.schema.json#/$defs/krw_positive" },
+    "price": {
+      "description": "① 가격표. key = price.<모델 이름>. cost_ledger.price_setting_id 가 이 행을 가리킴",
+      "type": "object", "additionalProperties": false, "required": ["in_per_1k_krw", "out_per_1k_krw"],
+      "properties": {
+        "in_per_1k_krw": { "$ref": "common.schema.json#/$defs/krw" },
+        "out_per_1k_krw": { "$ref": "common.schema.json#/$defs/krw" }
+      }
+    }
+  }
+}

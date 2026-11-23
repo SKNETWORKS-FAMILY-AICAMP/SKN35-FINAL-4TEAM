@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/agent_spec.schema.json",
+  "title": "구성 명세 (agent_versions.spec)",
+  "description": "쓰는 역할 ④ · 읽는 역할 ①(build_config_snapshot). 모델·온도·지시문은 agent_versions 의 칸에 따로 있음. spec_hash = canonical_hash({model, temperature, instructions, spec})",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "services", "tools"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "services": {
+      "description": "에이전트가 쓰는 서비스. 자리(slots)는 (service, access) 마다 하나로 나옴",
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["code", "name"],
+        "properties": {
+          "code": { "$ref": "common.schema.json#/$defs/service_code" },
+          "name": { "type": "string" }
+        }
+      }
+    },
+    "mcp_servers": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/mcp_server" }, "maxItems": 5 },
+    "tools": {
+      "description": "지금 켜져 있는 도구 전부 (MCP 가 꺼내 준 것 포함). 등록 한도 50개",
+      "type": "array", "minItems": 1, "maxItems": 50,
+      "items": { "$ref": "common.schema.json#/$defs/tool_def" }
+    },
+    "skills": {
+      "description": "[확장] Skill 이름과 내용 해시. 8주 안에는 비워 둠",
+      "type": "array", "maxItems": 10,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["name", "content_hash"],
+        "properties": { "name": { "type": "string" }, "content_hash": { "$ref": "common.schema.json#/$defs/hash" } }
+      }
+    },
+    "runtime": { "$ref": "common.schema.json#/$defs/runtime" }
+  },
+  "$comment": "어떻게 받았는지(파일·러너·API, 질문 사용 여부)는 agent_versions.connection_type·questions_used 칸에만 둠. spec 에 넣으면 같은 구성이 받는 방법에 따라 spec_hash 가 달라짐 (11/22 검토 16)"
+}

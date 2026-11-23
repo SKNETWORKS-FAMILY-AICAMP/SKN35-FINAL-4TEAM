@@ -1,0 +1,289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/trace.schema.json",
+  "title": "실행 기록 (spans 행 묶음 / golden_trajectories.trace)",
+  "description": "쓰는 역할 ①(워커) · 읽는 역할 ①규칙 채점·②LLM 판정·③(시간). DB에는 spans·write_intents 행으로 나뉘어 들어가고, 골든 궤적(②)은 이 모양 그대로. 러너 업로드 모양은 뒷반에 따로 정함 (풀이 시작·끝 시각, 서명 칸이 더 필요). 실행 기록 = 표준 추적 형식(D-02)에서 이 칸들로 옮김. DB 로 옮기는 규칙: contracts/README '실행 기록을 DB에 넣는 순서'",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "spans",
+    "write_intents",
+    "final_answer"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "trial_id": {
+      "description": "골든 궤적이면 null",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "attempt": {
+      "description": "trials.attempt 와 같아야 DB가 받음",
+      "type": "integer",
+      "minimum": 1
+    },
+    "spans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "seq",
+          "kind",
+          "started_at",
+          "duration_sec"
+        ],
+        "properties": {
+          "seq": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "kind": {
+            "enum": [
+              "llm",
+              "tool",
+              "plan"
+            ]
+          },
+          "name": {
+            "description": "모델 이름 또는 도구 이름 (tool 이면 필수)",
+            "type": "string"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "duration_sec": {
+            "type": "number",
+            "minimum": 0
+          },
+          "wait_sec": {
+            "description": "대기(요청 제한·큐)",
+            "type": "number",
+            "minimum": 0
+          },
+          "in_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "out_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "output": {
+            "description": "llm: 모델이 낸 글 (중간 발화·최종 답·도구 호출 이유) / plan: 계획 내용. ②의 판정 질문(plan_steps·grounded)과 첫 실패 단계 분류가 읽음. DB 는 spans.output (0003)",
+            "type": "string"
+          },
+          "tool_args": {
+            "type": "object"
+          },
+          "tool_result": {
+            "description": "모델이 받은 그대로 전문",
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "attributes": {
+            "description": "나머지 속성 (model.resolved, mcp.server_version, span 부모 등)",
+            "type": "object"
+          }
+        },
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "tool"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    "write_intents": {
+      "description": "가짜 쓰기 도구가 막은 호출. DB 에 넣을 때 span_seq → 같은 풀이·같은 시도의 spans.id 로 바꿈 (spans 를 먼저 넣음). DB 트리거가 같은 풀이·지금 시도인지 확인 (0003)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "span_seq",
+          "tool_name",
+          "payload",
+          "in_rule_list"
+        ],
+        "properties": {
+          "span_seq": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "tool_name": {
+            "$ref": "common.schema.json#/$defs/tool_name"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "in_rule_list": {
+            "type": "boolean"
+          },
+          "user_confirmed": {
+            "type": "boolean",
+            "default": false,
+            "description": "⚠ 자동 실행에서는 확인해 줄 사용자가 없음 → 결정 전까지 항상 false (docs/decisions_pending.md P-05)"
+          }
+        }
+      }
+    },
+    "final_answer": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "run_outcome": {
+      "enum": [
+        "completed",
+        "agent_error",
+        "timeout",
+        "env_error"
+      ],
+      "description": "outcome_reason 으로 정함 (3차 6): prereg.outcome_rules.env_error_reasons 에 있으면 env_error, timeout_ 으로 시작하면 timeout, 나머지는 agent_error. 스키마는 prereg 를 모르므로 앞말로 정해지는 두 가지만 확인"
+    },
+    "outcome_reason": {
+      "description": "completed 가 아니면 필수. 값 목록은 common outcome_reason",
+      "$ref": "common.schema.json#/$defs/outcome_reason"
+    },
+    "usage": {
+      "description": "trials 의 숫자 칸으로 들어감",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "in_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "out_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tool_desc_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cost_krw": {
+          "$ref": "common.schema.json#/$defs/krw"
+        },
+        "llm_sec": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tool_sec": {
+          "type": "number",
+          "minimum": 0
+        },
+        "wait_sec": {
+          "type": "number",
+          "minimum": 0
+        },
+        "api_retries": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "run_outcome"
+        ],
+        "properties": {
+          "run_outcome": {
+            "not": {
+              "const": "completed"
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "outcome_reason"
+        ]
+      }
+    },
+    {
+      "$comment": "timeout_ 이유 = timeout, agent_ 이유 = agent_error (3차 6)",
+      "if": {
+        "required": [
+          "outcome_reason"
+        ],
+        "properties": {
+          "outcome_reason": {
+            "pattern": "^timeout_"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "run_outcome": {
+            "const": "timeout"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "outcome_reason"
+        ],
+        "properties": {
+          "outcome_reason": {
+            "pattern": "^agent_"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "run_outcome": {
+            "const": "agent_error"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "run_outcome"
+        ],
+        "properties": {
+          "run_outcome": {
+            "const": "env_error"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "outcome_reason": {
+            "anyOf": [
+              {
+                "pattern": "^env_"
+              },
+              {
+                "const": "llm_api_429"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

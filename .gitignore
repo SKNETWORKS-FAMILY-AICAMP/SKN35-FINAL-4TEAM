@@ -1,27 +1,49 @@
-# Python
-__pycache__/
-*.py[cod]
 .venv/
+__pycache__/
 .pytest_cache/
-.ruff_cache/
-.ipynb_checkpoints/
-
-# Secrets
+*.pyc
 .env
-.env.*
-!.env.example
+node_modules/
+.next/
+fixtures/recordings/
 
-# Data and model outputs
-data/
-models/
-*.parquet
-
-# OS / IDE
-.DS_Store
-Thumbs.db
+# 개인 AI 도구 지침·설정 (로컬 파일은 유지)
+[Aa][Gg][Ee][Nn][Tt][Ss].md
+[Cc][Ll][Aa][Uu][Dd][Ee].md
+.agents/
+.codex/
+.claude/
+.mcp.json
+.promptfoo/
 .idea/
 .vscode/
+.DS_Store
+Thumbs.db
 
-# Node
-node_modules/
-.promptfoo/
+# 로컬 환경·테스트 결과·캐시
+.env.*
+!.env.example
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+playwright-report/
+test-results/
+*.log
+
+# 데이터·모델·학습 결과 (② 판정기 학습 등). 폴더는 저장소 맨 위만 막음 — 코드 안 data/·models/ 는 올라감
+/data/
+/models/
+/outputs/
+checkpoints/
+wandb/
+*.parquet
+*.safetensors
+*.gguf
+
+# 로컬 복사용 패키지와 검증 임시 폴더
+/artifacts/
+/.tmp-*/

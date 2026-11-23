@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/pack.schema.json",
+  "title": "평가팩 칸들 (②)",
+  "description": "역할 사이를 오가는 평가팩 jsonb 칸 3개 (3차 2). pack_versions.premises(② → 리포트) · data_snapshots.design(② → ① 워커·연습 환경 점검) · golden_trajectories.expected(② → ① 규칙 채점 테스트). 작은 조각이라 schema_version 이 없음. 정답 조건(answer_condition)·골든 궤적 기록(trace)은 따로 스키마가 있음",
+  "$defs": {
+    "premises": {
+      "description": "pack_versions.premises — 평가팩의 전제 조건. statements 는 리포트 premises 에 그대로 들어가는 문장",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timezone", "statements"],
+      "properties": {
+        "timezone": { "description": "시각·날짜 비교(match = time_hhmm, date)의 기준 시간대", "type": "string", "examples": ["Asia/Seoul"] },
+        "repo": { "description": "연습 저장소 이름 (문항·답에 나오는 이름)", "type": "string" },
+        "statements": {
+          "description": "리포트에 보일 전제 문장 (쉬운 말)",
+          "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "data_design": {
+      "description": "data_snapshots.design — 연습 데이터를 어떻게 만들었는지 (FR-ENV-02). 연습 환경 점검(env_checks kind=data_design)과 워커가 읽음. ⚠ 연습 환경에 MCP 서버를 붙이는 방법(P-03)이 정해지면 그 칸을 여기에 더함. DB 기본값 {} 는 '설계 기록 없음'",
+      "oneOf": [
+        { "description": "빈 객체 = 기록 없음", "type": "object", "maxProperties": 0 },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "login_format": { "description": "사람 로그인 이름 형식 (예: 이름.성)", "type": "string" },
+            "bot_names": { "description": "봇 계정 이름 (사람으로 세지 않음)", "type": "array", "items": { "type": "string" } },
+            "open_ratio": { "description": "열린 항목 비율 (이슈·PR 등)", "type": "number", "minimum": 0, "maximum": 1 },
+            "notes": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      ]
+    },
+    "golden_expected": {
+      "description": "golden_trajectories.expected — 이 골든 궤적을 채점하면 나와야 할 결과. ①의 규칙 채점·②의 분류가 이것과 같아야 평가팩을 잠글 수 있음 (packs/loader.lock_pack)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["success"],
+      "properties": {
+        "success": { "type": "boolean" },
+        "result_class": { "$ref": "common.schema.json#/$defs/result_class" },
+        "first_fail_type": { "oneOf": [{ "$ref": "common.schema.json#/$defs/first_fail_type" }, { "type": "null" }] },
+        "forbidden_action": { "description": "kind = forbidden 궤적이면 true", "type": "boolean" },
+        "out_of_scope": { "type": "boolean" },
+        "conditions": {
+          "description": "정답 조건 seq → 통과 여부 (조건마다 확인하고 싶을 때)",
+          "type": "object",
+          "propertyNames": { "pattern": "^[1-9][0-9]*$" },
+          "additionalProperties": { "type": "boolean" }
+        }
+      },
+      "allOf": [
+        { "if": { "properties": { "success": { "const": true } } }, "then": { "properties": { "forbidden_action": { "const": false }, "first_fail_type": { "const": null } } } }
+      ]
+    }
+  }
+}

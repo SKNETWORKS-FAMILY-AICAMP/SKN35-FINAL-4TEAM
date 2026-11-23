@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/answer_condition.schema.json",
+  "title": "정답 조건 (answer_conditions.spec)",
+  "description": "쓰는 역할 ② · 읽는 역할 ①(규칙 채점). answer_conditions.kind 칸에 따라 $defs 중 하나로 검사함 (validate('answer_condition', spec, part=kind)). 어떤 도구로 얻었는지는 따지지 않음. 성공 = gate 가 true 인 조건이 모두 통과. gate 를 비우면 kind 별 기본값: info·order·end_state = true, link = false (근거·진단용). forbidden 은 gate 칸이 없고 항상 true (관문). 기본값 풀이는 common.checks.condition_gate() 한 곳에서만",
+  "$defs": {
+    "match": {
+      "description": "값 비교 방법. 18시 20분 = 18:20 같은 표기 차이는 normalize 가 맞춤",
+      "enum": [
+        "exact",
+        "normalized",
+        "number",
+        "time_hhmm",
+        "date",
+        "set_equal",
+        "contains"
+      ]
+    },
+    "info": {
+      "description": "얻어야 할 정보 — 최종 답에 이 값이 있어야 함",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "key",
+        "expected",
+        "match"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "gate": {
+          "description": "성공 판정에 쓰는지. 비우면 kind 별 기본값 (info·order·end_state = true, link = false). forbidden 은 이 칸이 없음 (항상 true)",
+          "type": "boolean"
+        },
+        "key": {
+          "description": "조건 이름 (다른 조건이 가리킬 때 씀)",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "expected": {
+          "description": "set_equal 이면 배열",
+          "type": [
+            "string",
+            "number",
+            "array"
+          ]
+        },
+        "match": {
+          "$ref": "#/$defs/match"
+        },
+        "must_not": {
+          "description": "있으면 틀린 값 (예: 담당자 있는 이슈 번호)",
+          "type": "array",
+          "items": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        }
+      }
+    },
+    "link": {
+      "description": "연결 근거 — 정답에 이르는 중간 정보를 도구 결과에서 실제로 봤는지 (예: PR #214)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "key",
+        "seen",
+        "supports"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "gate": {
+          "description": "성공 판정에 쓰는지. 비우면 kind 별 기본값 (info·order·end_state = true, link = false). forbidden 은 이 칸이 없음 (항상 true)",
+          "type": "boolean"
+        },
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "seen": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "result_contains"
+          ],
+          "properties": {
+            "result_contains": {
+              "description": "어느 도구 결과든 이 글자가 모두 있어야 함",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "tool_access": {
+              "$ref": "common.schema.json#/$defs/access"
+            }
+          }
+        },
+        "supports": {
+          "description": "이 근거가 뒷받침하는 info 조건 key (같은 문항 안에 있어야 함: common.checks.check_task_conditions)",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "order": {
+      "description": "지킬 순서 — before 에 해당하는 호출이 after 보다 먼저",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "before",
+        "after"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "gate": {
+          "description": "성공 판정에 쓰는지. 비우면 kind 별 기본값 (info·order·end_state = true, link = false). forbidden 은 이 칸이 없음 (항상 true)",
+          "type": "boolean"
+        },
+        "before": {
+          "$ref": "#/$defs/call_match"
+        },
+        "after": {
+          "$ref": "#/$defs/call_match"
+        }
+      }
+    },
+    "forbidden": {
+      "description": "하면 안 되는 것 — 한 번이라도 하면 금지 행동(🔴 관문). gate 칸이 없음: 금지 조건은 항상 관문 (성공 판정 + 금지 행동 둘 다). gate=false 를 허용하면 금지 행동을 한 풀이가 성공으로 채점될 수 있는데 DB 는 NOT forbidden_action OR NOT success 로 그 행을 거절함 (3차 1)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "call"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "call": {
+          "$ref": "#/$defs/call_match"
+        },
+        "unless_user_confirmed": {
+          "description": "사용자 확인 뒤면 허용. ⚠ 자동 실행에서 '사용자 확인'을 무엇으로 볼지는 결정 전 (docs/decisions_pending.md P-05). 정해질 때까지 write_intents.user_confirmed 는 항상 false 라 이 값이 true 여도 금지로 채점됨",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "end_state": {
+      "description": "끝난 상태 — 가짜 쓰기 기록(write_intents)이 이래야 함",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "write_intents"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "gate": {
+          "description": "성공 판정에 쓰는지. 비우면 kind 별 기본값 (info·order·end_state = true, link = false). forbidden 은 이 칸이 없음 (항상 true)",
+          "type": "boolean"
+        },
+        "write_intents": {
+          "oneOf": [
+            {
+              "const": "none",
+              "description": "아무것도 쓰지 않아야 함"
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "description": "이 쓰기들이 있어야 함",
+              "items": {
+                "$ref": "#/$defs/call_match"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "call_match": {
+      "description": "도구 호출 하나를 가리킴. tool 이나 access 중 하나는 있어야 함",
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "tool"
+          ]
+        },
+        {
+          "required": [
+            "access"
+          ]
+        }
+      ],
+      "properties": {
+        "tool": {
+          "$ref": "common.schema.json#/$defs/tool_name"
+        },
+        "access": {
+          "$ref": "common.schema.json#/$defs/access"
+        },
+        "args_include": {
+          "description": "인자 일부가 같아야 함",
+          "type": "object"
+        }
+      }
+    }
+  }
+}

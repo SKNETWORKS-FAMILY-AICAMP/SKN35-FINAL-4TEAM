@@ -1,0 +1,39 @@
+{
+  "_note": "④가 저장하는 agent_versions 행 하나 (id 는 DB가 만듦, 여기 값은 예시 연결용). spec 은 agent_spec 스키마",
+  "id": 1,
+  "agent_id": 1,
+  "_agent": { "name": "운영 도우미", "expected_monthly_calls": 3000, "domain_code": "it_ops" },
+  "version_no": 1,
+  "connection_type": "spec_upload",
+  "questions_used": true,
+  "control_level": "C2",
+  "model": "gpt-4.1-mini",
+  "temperature": 0,
+  "instructions": "너는 acme/ops-service 저장소의 운영 도우미다. 필요한 정보는 도구로 찾고, 찾지 못하면 모른다고 답한다. 이슈를 만들거나 메시지를 보내기 전에는 사용자에게 확인한다.",
+  "spec": {
+    "schema_version": 1,
+    "services": [
+      { "code": "github", "name": "GitHub" },
+      { "code": "slack", "name": "Slack" }
+    ],
+    "mcp_servers": [
+      { "name": "github", "package": "github-mcp-server", "version": "0.20.0", "transport": "stdio", "image_digest": null }
+    ],
+    "tools": [
+      { "name": "list_releases", "description": "List releases in a GitHub repository", "service": "github", "access": "read", "origin": "mcp:github",
+        "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" } }, "required": ["owner", "repo"] } },
+      { "name": "list_workflow_runs", "description": "List workflow runs for a repository (summary only)", "service": "github", "access": "read", "origin": "mcp:github",
+        "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "workflow_name": { "type": "string" } }, "required": ["owner", "repo"] } },
+      { "name": "list_issues", "description": "List issues in a GitHub repository with filtering options", "service": "github", "access": "read", "origin": "mcp:github",
+        "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "state": { "type": "string" } }, "required": ["owner", "repo"] } },
+      { "name": "search_code", "description": "Search for code across GitHub repositories", "service": "github", "access": "read", "origin": "mcp:github",
+        "parameters": { "type": "object", "properties": { "q": { "type": "string" } }, "required": ["q"] } },
+      { "name": "create_issue", "description": "Create a new issue in a GitHub repository", "service": "github", "access": "write", "origin": "mcp:github",
+        "parameters": { "type": "object", "properties": { "owner": { "type": "string" }, "repo": { "type": "string" }, "title": { "type": "string" } }, "required": ["owner", "repo", "title"] } },
+      { "name": "post_message", "description": "Post a message to a Slack channel", "service": "slack", "access": "write", "origin": "custom",
+        "parameters": { "type": "object", "properties": { "channel": { "type": "string" }, "text": { "type": "string" } }, "required": ["channel", "text"] },
+        "fixed_responses": [ { "when": {}, "result": "{\"ok\": true}" } ] }
+    ],
+    "runtime": { "max_steps": 30, "timeout_sec": 300, "max_api_retries": 3, "max_output_tokens": 1024 }
+  }
+}
