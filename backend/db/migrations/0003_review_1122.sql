@@ -245,8 +245,10 @@ ALTER TABLE sa_agents
 COMMENT ON COLUMN sa_agents.runner_token_hash IS '러너 연결 토큰의 해시 (플랫폼이 발급, 원문은 저장 안 함). 러너가 작업을 받을 때 이 값으로 확인';
 COMMENT ON COLUMN sa_agents.runner_token_revoked_at IS '러너 토큰 폐기 시각. 채워지면 그 토큰으로 작업을 못 받음';
 
--- (8) P-05 v1: 문항별 엔진 전용 승인 정책 (① 요청: 개발 초기 0003에 추가).
--- 기존 DB에서 0003 전체를 재실행하지 말고 아래 ALTER만 별도로 적용한다.
-ALTER TABLE sa_tasks ADD COLUMN IF NOT EXISTS confirmation jsonb
-  CONSTRAINT sa_tasks_confirmation_object CHECK (confirmation IS NULL OR jsonb_typeof(confirmation) = 'object');
-COMMENT ON COLUMN sa_tasks.confirmation IS 'P-05 고정 사용자 응답 정책. NULL=고정 답 없음. confirmation.policy로 검사. 엔진 전용, 실행 모델/러너에 전체 노출 금지';
+-- (8) 호출별 중간 비용. 실행 결과의 소유권과 달리 이전 attempt의 늦은 비용도 보존합니다.
+ALTER TABLE sa_cost_ledger ADD COLUMN attempt int, ADD COLUMN span_seq int;
+CREATE UNIQUE INDEX sa_cost_ledger_trial_call_once
+  ON sa_cost_ledger(ref_id, attempt, span_seq) WHERE source = 'trial';
+COMMENT ON COLUMN sa_cost_ledger.attempt IS 'trial 비용을 발생시킨 시도 번호. 임대 회수 전 값 그대로. 기존 행·judge/chat/validation은 NULL 허용';
+COMMENT ON COLUMN sa_cost_ledger.span_seq IS 'trial 비용을 발생시킨 LLM span의 seq. ref_id(trial_id)·attempt와 함께 중복 방지. 기존 행·다른 source는 NULL 허용';
+COMMENT ON INDEX sa_cost_ledger_trial_call_once IS 'source=trial의 (ref_id,attempt,span_seq) 호출 비용을 한 번만 기록. judge/chat/validation에는 적용하지 않음';
