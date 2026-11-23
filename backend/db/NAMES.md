@@ -486,3 +486,5 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | out_tokens | `out_tokens` |  |
 | cost_krw | `cost_krw` |  |
 | price_setting_id | `price_setting_id` | FK(역할) |
+| attempt | `attempt` | trial 호출 중복 키, nullable |
+| span_seq | `span_seq` | trial 호출 중복 키, nullable |

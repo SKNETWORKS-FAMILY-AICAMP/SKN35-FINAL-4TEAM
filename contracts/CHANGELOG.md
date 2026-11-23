@@ -5,6 +5,7 @@
 
 | 날짜 | 스키마 | 버전 | 바뀐 것 | 누가 |
 |------|--------|------|---------|------|
+| 2026-11-23 | DB만 (JSON 계약 변경 없음) | 1 | 사용자 승인: `0003_review_1122.sql` 끝에 `sa_cost_ledger.attempt`·`span_seq`(nullable), source='trial' 부분 UNIQUE(ref_id,attempt,span_seq) 추가. 중간 비용 보존·최종 저장 중복 방지. **②④ 코드 영향 없음**, judge·chat·validation과 기존 행은 그대로 허용. | ① |
 | 2026-11-22 | 전체 | 1 | 첫 판 (ERD v1.2 11/22판 기준) | 태민 |
 | 2026-11-22 | 전체 | 1 | 11/22 뼈대 검토 반영 (아직 아무도 안 썼으므로 버전은 1 그대로). 바뀐 것 요약: agent_spec.source 뺌 · config_snapshot 의 harness_version·model.seed·resolved 뺌, runtime.max_output_tokens · prereg.test = ni_then_sup 등 3값·env_error_reasons 필수·지표 이름 한 목록 · plan 의 n_templates·estimate.trials 뺌 · answer_condition 에 gate · trace spans[].output, outcome_reason 값 목록 · judge_settings·trial_metrics 가 {} 받음 · analysis.method.sequential.stop · job analyze 에서 experiment_id 뺌 · report evidence 에 trial_id, detail 칸 · api 에 등록·평가팩 목록·plan-proposal·stop·results·report, 실험 요청 후보는 id 만. 자세히 docs/review_1122.md | 태민 |
 | 2026-11-22 | 전체 | 1 | 3차 검토 반영 (버전 1 그대로): 새 스키마 pack·settings·chat · forbidden 에서 gate 뺌 · common 에 result_class·first_fail_type·question_kind · metric 목록에서 regression_rate 뺌 · plan.proposal 은 서버가 채움(request·as_of·hash·edited·edited_fields), plan $defs body/stored, create 요청에 proposal{request, as_of}, plan-proposal 응답에 as_of, error code proposal_stale · trace 에 run_outcome↔outcome_reason 확인. 자세히 docs/review_1122.md "3차 검토" | 태민 |

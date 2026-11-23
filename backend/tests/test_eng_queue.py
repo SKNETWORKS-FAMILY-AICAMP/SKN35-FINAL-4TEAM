@@ -3,6 +3,7 @@
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from decimal import Decimal
 from threading import Event
 
 import psycopg
@@ -125,7 +126,7 @@ def test_old_worker_cannot_save_after_reclaim(experiment, engine_db):
     assert conn.execute("SELECT DISTINCT attempt FROM sa_spans WHERE trial_id=%s", (trial,)).fetchall() == [(2,)]
     assert conn.execute(
         "SELECT count(*) FROM sa_cost_ledger WHERE source='trial' AND ref_id=%s", (trial,)
-    ).fetchone() == (2,)
+    ).fetchone() == (3,)
 
 
 def test_expiry_blocks_save_even_before_reclaim(experiment):
@@ -184,7 +185,7 @@ def test_disconnected_worker_is_recovered_by_another_connection(experiment, engi
         assert run_trial(recovery, trial, deps=dependencies(), job=replacement).trace["attempt"] == 2
 
 
-def test_queue_completion_failure_rolls_back_all_results(experiment, monkeypatch):
+def test_queue_completion_failure_rolls_back_results_and_keeps_costs(experiment, monkeypatch):
     conn, ids = experiment
     trial = ids["trials"][0]
     add_job(conn, trial)
@@ -199,8 +200,8 @@ def test_queue_completion_failure_rolls_back_all_results(experiment, monkeypatch
             run_trial(conn, trial, deps=dependencies(), job=job)
     assert conn.execute("SELECT count(*) FROM sa_spans WHERE trial_id=%s", (trial,)).fetchone() == (0,)
     assert conn.execute(
-        "SELECT count(*) FROM sa_cost_ledger WHERE ref_id=%s AND source='trial'", (trial,)
-    ).fetchone() == (0,)
+        "SELECT count(*),sum(cost_krw) FROM sa_cost_ledger WHERE ref_id=%s AND source='trial'", (trial,)
+    ).fetchone() == (2, Decimal("0.264"))
     assert conn.execute("SELECT status,attempt FROM sa_trials WHERE trial_id=%s", (trial,)).fetchone() == ("pending", 2)
     queue.fail(conn, job, retry=True)
     assert conn.execute("SELECT attempt FROM sa_trials WHERE trial_id=%s", (trial,)).fetchone() == (2,)

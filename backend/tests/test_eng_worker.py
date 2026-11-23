@@ -207,7 +207,7 @@ def test_budget_exhaustion_does_not_call_model(experiment):
     ).fetchone() == (2,)
 
 
-def test_failed_handoff_rolls_back_all_final_records(experiment, monkeypatch):
+def test_failed_handoff_rolls_back_results_and_keeps_received_costs(experiment, monkeypatch):
     conn, ids = experiment
 
     def fail(*args):
@@ -224,12 +224,15 @@ def test_failed_handoff_rolls_back_all_final_records(experiment, monkeypatch):
     )
     assert conn.execute("SELECT count(*) FROM sa_spans WHERE trial_id=%s", (trial,)).fetchone() == (0,)
     assert conn.execute(
-        "SELECT count(*) FROM sa_cost_ledger WHERE ref_id=%s AND source='trial'", (trial,)
-    ).fetchone() == (0,)
+        "SELECT count(*),sum(cost_krw) FROM sa_cost_ledger WHERE ref_id=%s AND source='trial'", (trial,)
+    ).fetchone() == (2, Decimal("0.264"))
     monkeypatch.undo()
     result = run_trial(conn, trial, deps=dependencies())
     assert result.outcome == "completed"
     assert result.trace["attempt"] == 2
+    assert conn.execute(
+        "SELECT count(*),sum(cost_krw) FROM sa_cost_ledger WHERE ref_id=%s AND source='trial'", (trial,)
+    ).fetchone() == (4, Decimal("0.528"))
 
 
 def test_old_attempt_cannot_persist_after_reassignment(experiment):

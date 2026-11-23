@@ -1,7 +1,7 @@
 """① 읽기 실행 코어를 제품 DB와 임대 작업에 연결합니다.
 
 첫 단계는 명시적으로 주입한 모델·읽기 도구만 실행합니다. 기본값으로 실제 모델을 과금 호출하지 않습니다.
-실행 중 DB 트랜잭션을 붙잡지 않고 시작/소유권 확인/최종 저장만 짧게 처리합니다.
+실행 중 DB 트랜잭션을 붙잡지 않고 시작·소유권 확인·응답별 비용·최종 저장을 짧게 처리합니다.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from slotagent.common.hashing import canonical_hash
 from slotagent.common.llm import Price
 from slotagent.common.snapshot import HARNESS_VERSION, trial_seed
 from slotagent.engine import advance
+from slotagent.engine.costs import record_trial_cost
 from slotagent.engine.loop import Dependencies, RunCancelled, RunResult, run_agent
 
 
@@ -132,14 +133,30 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job):
                     queue.guard(conn, job)
                 except queue.LeaseLost:
                     return True
-            current = conn.execute("SELECT status, attempt FROM sa_trials WHERE trial_id=%s", (trial_id,)).fetchone()
-        return current != ("running", row["attempt"])
+            current = conn.execute(
+                """SELECT t.status,t.attempt,e.status FROM sa_trials t JOIN sa_experiments e USING (experiment_id)
+                   WHERE t.trial_id=%s""",
+                (trial_id,),
+            ).fetchone()
+        return current is None or current[:2] != ("running", row["attempt"]) or current[2] not in {"locked", "running"}
+
+    def model_received(span):
+        # 임대 상실 뒤 도착한 응답도 비용은 보존합니다. 결과 펜싱과 분리합니다.
+        record_trial_cost(
+            conn,
+            trial_id=trial_id,
+            attempt=row["attempt"],
+            span=span,
+            experiment_id=row["experiment_id"],
+            price_setting_id=price_id,
+        )
+        deps.on_model_span(span)
 
     result = run_agent(
         snap,
         row["prompt"],
         trial_seed(row["seed"], row["rep"]),
-        replace(deps, price=price, cancelled=cancelled),
+        replace(deps, price=price, cancelled=cancelled, on_model_span=model_received),
         prereg=row["prereg"],
     )
     trace = copy.deepcopy(result.trace)
@@ -148,9 +165,11 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job):
     with conn.transaction():
         if job is not None:
             queue.guard(conn, job)
-        conn.execute(
-            "SELECT experiment_id FROM sa_experiments WHERE experiment_id=%s FOR UPDATE", (row["experiment_id"],)
-        )
+        exp_status = conn.execute(
+            "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR UPDATE", (row["experiment_id"],)
+        ).fetchone()[0]
+        if exp_status not in {"locked", "running"}:
+            raise RunCancelled("실험이 중단되어 결과를 저장하지 않습니다.")
         current = conn.execute(
             "SELECT status, attempt FROM sa_trials WHERE trial_id=%s FOR UPDATE", (trial_id,)
         ).fetchone()
@@ -183,18 +202,13 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job):
             )
             if span["kind"] == "llm" and "in_tokens" in span:
                 total_cost += Decimal(attrs["cost_krw"])
-                conn.execute(
-                    """INSERT INTO sa_cost_ledger(source,ref_id,experiment_id,model,in_tokens,out_tokens,cost_krw,price_setting_id)
-                       VALUES ('trial',%s,%s,%s,%s,%s,%s,%s)""",
-                    (
-                        trial_id,
-                        row["experiment_id"],
-                        span["name"],
-                        span["in_tokens"],
-                        span["out_tokens"],
-                        Decimal(attrs["cost_krw"]),
-                        price_id,
-                    ),
+                record_trial_cost(
+                    conn,
+                    trial_id=trial_id,
+                    attempt=row["attempt"],
+                    span=span,
+                    experiment_id=row["experiment_id"],
+                    price_setting_id=price_id,
                 )
         usage = trace["usage"]
         conn.execute(

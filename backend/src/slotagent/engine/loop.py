@@ -37,6 +37,7 @@ class Dependencies:
     cancelled: Callable[[], bool] = lambda: False
     clock: Callable[[], float] = time.monotonic
     now: Callable[[], datetime] = lambda: datetime.now(UTC)
+    on_model_span: Callable[[dict], None] = lambda span: None
 
 
 @dataclass(frozen=True)
@@ -98,6 +99,8 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
                 record.model_error(snap["model"]["name"], at, exc)
                 return finish(exc.reason)
             record.model(snap["model"]["name"], at, reply)
+            # 소유권·취소 검사보다 먼저, 이미 받은 응답의 비용을 호출자에게 넘깁니다.
+            deps.on_model_span(copy.deepcopy(record.spans[-1]))
             remaining()
             messages.append(reply.message())
             if reply.finish_reason == "refusal":
