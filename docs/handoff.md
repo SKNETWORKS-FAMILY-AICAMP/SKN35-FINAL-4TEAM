@@ -11,6 +11,26 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-23 · Codex · taemin (기술 스택 설명 문서)
+- 한 일: 사용자 요청으로 docs/SlotAgent_기술스택_1123.html을 새로 작성했습니다. 기획서 1.3 기준으로 기술별 역할·선택 이유·사용 예시를 쉬운 말로 설명하고, 화면→서버→DB→실행→판정 흐름, 모델 회사 4종·공통 어댑터, 쓰기 실행 방식, P-01 확정과 P-05·P-11 미정, 고도화·선택 기술을 구분했습니다. Playwright로 7개 섹션·20개 설명 카드·15개 요약 행·목차·인쇄 버튼·1440/768/390px 가로 넘침·JS 오류를 확인하고 데스크톱·모바일 렌더링을 검토했습니다. 임시 이미지는 삭제했습니다.
+- 안 한 일 / 남은 일: 기술 스택 HTML과 이 인계 기록만 작성했습니다. 코드·계약·의존성·다른 문서는 변경하지 않았습니다. 문서 작업이라 백엔드 테스트는 재실행하지 않았습니다. 커밋·푸시 없음.
+- 의문점 (계약·미정 사항과 부딪힌 곳): 없음. 채택한 기술과 구현 완료를 구분했습니다.
+
+## 2026-11-23 · Codex · taemin (최신 상태 검토)
+- 한 일: 현재 작업 폴더를 수정 없이 검토했습니다. scripts/test.ps1 38 passed, Ruff check --no-cache . 통과, uv lock --check --offline 233 packages 일치, docker compose config --quiet와 staged/unstaged diff 공백 검사 통과. 최신 skeleton과 계약 스키마 16개·예시 8개 일치를 확인했고 개인 AI 파일의 Git 제외도 확인했습니다. 테스트 생성 캐시는 삭제했습니다.
+- 안 한 일 / 남은 일: 검토 발견 사항만 보고했습니다. README.md에는 30 passed·P-01 미정·tool_search 미반영, contracts/README.md에는 50개 한도·exclude 선택 설명이 남아 있습니다. 공유 기술 스택 HTML은 현재 docs에 없습니다. 이미 커밋된 0003에 template_scope·러너 토큰 칸을 추가한 상태로, backend/db/README.md의 합친 뒤 0004부터 추가 규칙과 다릅니다. 새 DB 테스트는 통과하지만 기존 DB 업그레이드는 별도 마이그레이션이 필요합니다. Ruff 수정 등 unstaged 변경도 남아 있습니다. 코드·스키마·의존성 변경, 커밋·푸시 없음.
+- 의문점 (계약·미정 사항과 부딪힌 곳): 위 마이그레이션 규칙과 파일 상태의 차이를 임의로 고치지 않고 보고했습니다. 기획서 1.3 계약의 4명 확인 필요 기록도 유지돼 있습니다.
+
+## 2026-11-23 · Claude · taemin (ruff 정리)
+- 한 일: 뼈대부터 있던 ruff 경고 21건을 0건으로. 자동 수정(import 정렬, collections.abc, datetime.UTC, functools.cache, 안 쓰는 import) + 손으로 zip(strict=True) 4곳, 안 쓰는 반복 변수 이름 앞에 _. intake/service.py 는 ④ 구현 자리라 힌트 import 를 noqa 로 남기고 add_candidate 설명에 template_scope 저장을 적음. 동작 변경 없음, 테스트 38 passed.
+- 안 한 일 / 남은 일: skeleton(검증용 원본)은 정리 안 함. 커밋 안 함.
+- 의문점: 없음.
+
+## 2026-11-23 · Claude · taemin (DB 추가 2개)
+- 한 일: `sa_experiment_candidates.template_scope`(실행 전 범위 판정 저장, 계약 common `$defs/template_scope`, needs_review 는 CHECK 로 저장 못 함, 실험 잠금 뒤 못 바꿈)·`sa_agents.runner_token_hash`(UNIQUE)·`runner_token_revoked_at`(러너 연결 토큰, 해시만). NAMES.md·db_names·e2e(저장·거절 확인)·CHANGELOG·review_1122. 테스트 38 passed. ERD 다시 빌드(318칸, 150/10 통과), skeleton 도 같이.
+- 안 한 일 / 남은 일: 실험 후보를 넣는 ④ 코드에서 `checks.template_scope` 결과를 채우는 일, 러너 토큰 발급·확인 API(④). 커밋 안 함.
+- 의문점 (계약·미정 사항과 부딪힌 곳): 없음.
+
 ## 2026-11-23 · Claude · taemin (기획서 1.3 반영)
 - 한 일: ① P-01 확정(범위 밖 = 실패) — prereg·settings `fail` 만, `tool_def.capabilities` + `sa_templates.required_capabilities` + `checks.template_scope`(실행 전 판정), 리포트 `detail.in_scope`. ② 쓰기 도구 `write_mode`(업로드 fake·exclude_tasks / 러너 fake·test_space / API dry_run 필수), 쓰기 도구 10개까지 `checks.check_write_modes`. ③ 모델 회사 `model_provider` 4종(DB·등록 요청·스냅숏). ④ 도구 50개 한도 뺌(토큰 상한 P-11). ⑤ Tool 자리 먼저 `snapshot.PHASE1_KINDS`, 새 MCP 서버 후보 거절. CHANGELOG·contracts/README·review_1122 8차·decisions_pending(P-01 정함, P-11·P-12 추가)·.env.example(키 4종). 테스트 38 passed. 저장소 밖: ERD v1.2 다시 빌드(150/10 통과), 기술스택 문서·부록(50개, dev/held 15/35 예) 고침, skeleton 도 같이 맞춤(38 passed).
 - 안 한 일 / 남은 일: 4명 확인(계약 변경). `common/llm.py`·`template_scope` 를 부르는 plan-proposal·리포트 코드. 기획서 1.3 문서의 "평가 워커(Inspect AI)"·"PostgreSQL 16" 표기는 사용자가 고칠 것. 커밋 안 함.

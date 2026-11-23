@@ -12,7 +12,8 @@ COLUMNS[짧은 테이블 이름][ERD v1.2 칸 이름] = DB 칸 이름 (PK 는 �
 """
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 PK: dict[str, str] = {
     "users": "user_id", "domains": "domain_code", "settings": "setting_id", "agents": "agent_id",
@@ -32,7 +33,7 @@ COLUMNS: dict[str, dict[str, str]] = {
     'users': {'user_id': 'user_id', 'email': 'email', 'name': 'name', 'org_id': 'org_id', 'created_at': 'created_at'},
     'domains': {'code': 'domain_code', 'name': 'name', 'status': 'status', 'validated_at': 'validated_at', 'created_at': 'created_at'},
     'settings': {'setting_id': 'setting_id', 'scope': 'scope', 'scope_ref': 'scope_ref', 'key': 'key', 'value': 'value', 'valid_from': 'valid_from', 'note': 'note'},
-    'agents': {'agent_id': 'agent_id', 'owner_id': 'owner_id', 'name': 'name', 'purpose': 'purpose', 'created_at': 'created_at', 'expected_monthly_calls': 'expected_monthly_calls', 'domain_code': 'domain_code'},
+    'agents': {'agent_id': 'agent_id', 'owner_id': 'owner_id', 'name': 'name', 'purpose': 'purpose', 'created_at': 'created_at', 'expected_monthly_calls': 'expected_monthly_calls', 'domain_code': 'domain_code', 'runner_token_hash': 'runner_token_hash', 'runner_token_revoked_at': 'runner_token_revoked_at'},
     'agent_versions': {'agent_version_id': 'agent_version_id', 'agent_id': 'agent_id', 'version_no': 'version_no', 'connection_type': 'connection_type', 'control_level': 'control_level', 'model': 'model', 'temperature': 'temperature', 'instructions': 'instructions', 'spec': 'spec', 'spec_schema_version': 'spec_schema_version', 'spec_hash': 'spec_hash', 'connection': 'connection', 'created_at': 'created_at', 'questions_used': 'questions_used', 'model_provider': 'model_provider'},
     'slots': {'slot_id': 'slot_id', 'agent_version_id': 'agent_version_id', 'name': 'name', 'service': 'service', 'access': 'access', 'comparable': 'comparable', 'not_comparable_reason': 'not_comparable_reason'},
     'candidates': {'candidate_id': 'candidate_id', 'slot_id': 'slot_id', 'label': 'label', 'name': 'name', 'component_kind': 'component_kind', 'component_spec': 'component_spec', 'spec_schema_version': 'spec_schema_version', 'spec_hash': 'spec_hash', 'is_baseline': 'is_baseline', 'created_at': 'created_at'},
@@ -45,7 +46,7 @@ COLUMNS: dict[str, dict[str, str]] = {
     'env_checks': {'env_check_id': 'env_check_id', 'pack_version_id': 'pack_version_id', 'kind': 'kind', 'target': 'target', 'result': 'result', 'detail': 'detail', 'checked_by': 'checked_by', 'checked_at': 'checked_at'},
     'task_exposures': {'task_exposure_id': 'task_exposure_id', 'task_id': 'task_id', 'seen_by': 'seen_by', 'reason': 'reason', 'seen_at': 'seen_at'},
     'experiments': {'experiment_id': 'experiment_id', 'derived_from': 'derived_from', 'kind': 'kind', 'agent_version_id': 'agent_version_id', 'slot_id': 'slot_id', 'pack_version_id': 'pack_version_id', 'reps': 'reps', 'prereg': 'prereg', 'prereg_schema_version': 'prereg_schema_version', 'plan': 'plan', 'budget_krw': 'budget_krw', 'status': 'status', 'stop_reason': 'stop_reason', 'exploratory': 'exploratory', 'locked_at': 'locked_at', 'created_by': 'created_by', 'created_at': 'created_at'},
-    'experiment_candidates': {'experiment_candidate_id': 'experiment_candidate_id', 'experiment_id': 'experiment_id', 'candidate_id': 'candidate_id', 'label': 'label', 'role': 'role', 'variant': 'variant', 'config_snapshot': 'config_snapshot', 'config_hash': 'config_hash'},
+    'experiment_candidates': {'experiment_candidate_id': 'experiment_candidate_id', 'experiment_id': 'experiment_id', 'candidate_id': 'candidate_id', 'label': 'label', 'role': 'role', 'variant': 'variant', 'config_snapshot': 'config_snapshot', 'config_hash': 'config_hash', 'template_scope': 'template_scope'},
     'jobs': {'job_id': 'job_id', 'kind': 'kind', 'payload': 'payload', 'status': 'status', 'priority': 'priority', 'attempts': 'attempts', 'leased_by': 'leased_by', 'lease_until': 'lease_until', 'last_error': 'last_error', 'created_at': 'created_at', 'updated_at': 'updated_at'},
     'trials': {'trial_id': 'trial_id', 'experiment_id': 'experiment_id', 'exp_candidate_id': 'experiment_candidate_id', 'task_id': 'task_id', 'rep': 'rep', 'batch_no': 'batch_no', 'status': 'status', 'run_outcome': 'run_outcome', 'outcome_reason': 'outcome_reason', 'run_no': 'run_no', 'api_retries': 'api_retries', 'attempt': 'attempt', 'record_source': 'record_source', 'signature': 'signature', 'started_at': 'started_at', 'finished_at': 'finished_at', 'in_tokens': 'in_tokens', 'out_tokens': 'out_tokens', 'tool_desc_tokens': 'tool_desc_tokens', 'cost_krw': 'cost_krw', 'llm_sec': 'llm_sec', 'tool_sec': 'tool_sec', 'wait_sec': 'wait_sec', 'final_answer': 'final_answer', 'harness_version': 'harness_version'},
     'spans': {'span_id': 'span_id', 'trial_id': 'trial_id', 'attempt': 'attempt', 'seq': 'seq', 'kind': 'kind', 'name': 'name', 'started_at': 'started_at', 'duration_sec': 'duration_sec', 'wait_sec': 'wait_sec', 'in_tokens': 'in_tokens', 'out_tokens': 'out_tokens', 'tool_args': 'tool_args', 'tool_result': 'tool_result', 'error': 'error', 'attributes': 'attributes', 'output': 'output'},

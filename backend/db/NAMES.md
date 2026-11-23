@@ -47,6 +47,8 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | created_at | `created_at` |  |
 | expected_monthly_calls | `expected_monthly_calls` |  |
 | domain_code | `domain_code` | FK |
+| runner_token_hash | `runner_token_hash` |  |
+| runner_token_revoked_at | `runner_token_revoked_at` |  |
 
 ## agent_versions → `sa_agent_versions`
 
@@ -222,6 +224,7 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | variant | `variant` |  |
 | config_snapshot | `config_snapshot` |  |
 | config_hash | `config_hash` |  |
+| template_scope | `template_scope` |  |
 
 ## jobs → `sa_jobs`
 

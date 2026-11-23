@@ -11,8 +11,9 @@
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any, Mapping
+from collections.abc import Mapping
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from .checks import CheckError
 from .hashing import canonical_hash
@@ -79,6 +80,6 @@ def proposed_values(request: Mapping[str, Any], response: Mapping[str, Any]) -> 
 def verify(conn, req_proposal: Mapping[str, Any], saved: Mapping[str, Any], *, now: datetime | None = None) -> dict:
     """④ 저장 함수가 부름. req_proposal = create 요청의 proposal {request, as_of}. 돌려주는 값: plan.proposal 칸."""
     as_of = datetime.fromisoformat(req_proposal["as_of"])
-    check_as_of(as_of, now or datetime.now(timezone.utc))
+    check_as_of(as_of, now or datetime.now(UTC))
     response = propose(conn, req_proposal["request"], as_of=as_of)
     return record(req_proposal["request"], req_proposal["as_of"], proposed_values(req_proposal["request"], response), saved)

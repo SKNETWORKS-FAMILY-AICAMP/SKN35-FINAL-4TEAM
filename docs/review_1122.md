@@ -191,3 +191,4 @@ ERD 문서(11/22 밤): `erd_v1.2` 의 원본(product_db.sql = 0001, dictionary.p
 | DB | 0003 끝에 `sa_agent_versions.model_provider`, `sa_templates.required_capabilities` |
 | 예시 | 도구에 capabilities, 쓰기 도구 write_mode=fake, pack 문항 유형에 required_capabilities, 리포트 in_scope (A 2/4 vs B 4/4, B 범위 밖 2) |
 | 확인 | `scripts/test.ps1` 38 passed (P-01·범위 판정·쓰기 방식·모델 회사·도구 개수·Tool 먼저 5개 더함) |
+| DB 추가 (8차 뒤) | `sa_experiment_candidates.template_scope` — 실행 전 범위 판정을 후보 넣을 때 저장, 잠금 뒤 못 바꿈, needs_review 는 CHECK 로 막음. `sa_agents.runner_token_hash`(UNIQUE)·`runner_token_revoked_at` — 러너 연결 토큰은 해시만. 테스트 38 passed (e2e 에 저장·거절 확인 더함) |

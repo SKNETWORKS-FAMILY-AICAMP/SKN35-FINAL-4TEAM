@@ -21,9 +21,9 @@ prompt / model 후보는 도구는 그대로 두고 지시문·모델만 바꾼�
 """
 from __future__ import annotations
 
-from typing import Any, Mapping
-
 import hashlib
+from collections.abc import Mapping
+from typing import Any
 
 from . import checks, contracts, db_names
 from .hashing import agent_spec_hash, canonical_hash
@@ -134,7 +134,7 @@ def build_config_snapshot(conn, candidate_id: int) -> tuple[dict, str]:
         r = cur.execute(f"SELECT * FROM {db_names.table(table)} WHERE {db_names.col(table, 'id')} = %s", (arg,)).fetchone()
         if r is None:
             return None
-        return db_names.plain(table, dict(zip([c.name for c in cur.description], r)))
+        return db_names.plain(table, dict(zip([c.name for c in cur.description], r, strict=True)))
 
     cand = row("candidates", candidate_id)
     if cand is None:

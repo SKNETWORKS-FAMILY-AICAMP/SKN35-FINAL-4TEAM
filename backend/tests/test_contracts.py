@@ -1,12 +1,12 @@
 """예시가 스키마에 맞는지, 막아야 할 것을 막는지, 해시·스냅숏이 안 바뀌는지."""
 import copy
 import json
-import pathlib
+from datetime import UTC
 
 import pytest
+from conftest import ROOT, load
 from jsonschema import Draft202012Validator
 
-from conftest import EX, ROOT, load
 from slotagent.common import checks, contracts, proposal
 from slotagent.common.hashing import canonical_hash, canonical_json
 from slotagent.common.snapshot import SnapshotError, merge_snapshot, trial_seed
@@ -392,8 +392,8 @@ def test_proposal_tracking():
     bad = copy.deepcopy(ex["plan"])
     bad["proposal"]["edited_fields"] = ["plan.tasks"]                                                  # edited=false 인데 고친 칸이 있으면 막음
     assert contracts.errors("plan", bad, part="stored")
-    from datetime import datetime, timedelta, timezone
-    now = datetime(2026, 11, 22, 12, tzinfo=timezone.utc)
+    from datetime import datetime, timedelta
+    now = datetime(2026, 11, 22, 12, tzinfo=UTC)
     proposal.check_as_of(now - timedelta(hours=1), now)
     with pytest.raises(checks.CheckError, match="다시 받으세요"):                                      # 24시간 넘은 제안은 proposal_stale
         proposal.check_as_of(now - timedelta(hours=25), now)
