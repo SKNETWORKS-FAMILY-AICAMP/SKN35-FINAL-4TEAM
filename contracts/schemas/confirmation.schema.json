@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slotagent.local/schemas/confirmation.schema.json",
+  "title": "P-05 승인 계약 v1 — ① 검토 및 4명 확인 대기",
+  "$defs": {
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_name",
+        "arguments"
+      ],
+      "properties": {
+        "tool_name": {
+          "$ref": "common.schema.json#/$defs/tool_name"
+        },
+        "arguments": {
+          "type": "object"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "responses"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "responses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "capability",
+              "target",
+              "decision"
+            ],
+            "properties": {
+              "capability": {
+                "$ref": "common.schema.json#/$defs/capability"
+              },
+              "target": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "decision": {
+                "enum": [
+                  "approve",
+                  "reject"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "description": "문항별 엔진 전용 고정 정책. target의 모든 문자열이 요청 인자의 JSON 값 중 정확히 존재해야 함."
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action"
+      ],
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/action"
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "decision",
+        "action",
+        "response_index"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "decision": {
+          "enum": [
+            "approve",
+            "reject",
+            "no_response"
+          ]
+        },
+        "action": {
+          "$ref": "#/$defs/action"
+        },
+        "response_index": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

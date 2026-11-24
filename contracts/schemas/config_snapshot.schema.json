@@ -22,21 +22,22 @@
     },
     "model": {
       "type": "object", "additionalProperties": false,
-      "required": ["name", "temperature"],
+      "required": ["name", "provider", "temperature"],
       "$comment": "seed 는 풀이마다 다름 → common.snapshot.trial_seed(task.seed, rep) 로 워커가 만들고 spans.attributes['model.seed'] 에 기록. 고정 버전은 spans.attributes['model.resolved']. 출력 토큰 상한은 runtime.max_output_tokens (11/22 검토 36)",
       "properties": {
         "name": { "description": "등록한 이름 (gpt-4.1-mini)", "type": "string" },
+        "provider": { "$ref": "common.schema.json#/$defs/model_provider" },
         "temperature": { "type": "number", "minimum": 0, "maximum": 2 }
       }
     },
     "instructions": { "type": "string" },
     "tools": {
       "description": "실행에 쓸 수 있는 도구 전부. 이름순 정렬, 이름 중복 없음. tool_search 칸이 있으면 그 deferred 도구는 검색 뒤에만 보임",
-      "type": "array", "minItems": 1, "maxItems": 50,
+      "type": "array", "minItems": 1,
       "items": { "$ref": "common.schema.json#/$defs/tool_def" }
     },
     "write_tools": {
-      "description": "쓰기 가로채기(write proxy)가 막고 write_intents 에 남길 도구 이름. tools 중 access=write 전부",
+      "description": "쓰기 가로채기(write proxy)가 막고 write_intents 에 남길 도구 이름. tools 중 access=write 전부. 실행 방식은 tools[].write_mode (비면 fake). exclude_tasks 도구가 필요한 문항 유형은 plan 에서 이미 빠져 있음",
       "type": "array", "items": { "$ref": "common.schema.json#/$defs/tool_name" }, "uniqueItems": true
     },
     "mcp_servers": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/mcp_server" } },

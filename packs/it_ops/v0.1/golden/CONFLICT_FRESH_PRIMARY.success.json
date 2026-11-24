@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "get_run_facts",
+      "tool_args": {
+        "repo": "acme/payment-service",
+        "run_id": "1001",
+        "environment": "production"
+      },
+      "tool_result": "{\"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"production\", \"status\": \"success\"}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:01Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_version_evidence",
+      "tool_args": {
+        "repo": "acme/payment-service",
+        "run_id": "1001",
+        "environment": "production"
+      },
+      "tool_result": "[{\"evidence_id\": \"payment-live\", \"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"production\", \"source\": \"deployment_api\", \"field\": \"version\", \"value\": \"v1.3.0\", \"observed_at\": \"2026-11-24T10:00:00+09:00\"}, {\"evidence_id\": \"payment-old-cache\", \"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"production\", \"source\": \"summary_cache\", \"field\": \"version\", \"value\": \"v1.0.0\", \"observed_at\": \"2026-11-23T09:00:00+09:00\"}, {\"evidence_id\": \"payment-future\", \"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"production\", \"source\": \"deployment_api\", \"field\": \"version\", \"value\": \"v1.9.0\", \"observed_at\": \"2026-11-24T13:00:00+09:00\"}, {\"evidence_id\": \"payment-stage\", \"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"staging\", \"source\": \"deployment_api\", \"field\": \"version\", \"value\": \"v1.8.0\", \"observed_at\": \"2026-11-24T10:00:00+09:00\"}]",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:02Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"status\": \"resolved\", \"selected_version\": \"v1.3.0\", \"known_status\": \"success\", \"primary_versions\": [\"v1.3.0\"], \"evidence_ids\": [\"payment-live\"], \"missing_fields\": [], \"next_action\": \"none\"}",
+  "run_outcome": "completed"
+}

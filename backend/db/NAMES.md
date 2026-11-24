@@ -47,6 +47,8 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | created_at | `created_at` |  |
 | expected_monthly_calls | `expected_monthly_calls` |  |
 | domain_code | `domain_code` | FK |
+| runner_token_hash | `runner_token_hash` |  |
+| runner_token_revoked_at | `runner_token_revoked_at` |  |
 
 ## agent_versions → `sa_agent_versions`
 
@@ -66,6 +68,7 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | connection | `connection` |  |
 | created_at | `created_at` |  |
 | questions_used | `questions_used` |  |
+| model_provider | `model_provider` |  |
 
 ## slots → `sa_slots`
 
@@ -130,6 +133,7 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | value_rule | `value_rule` |  |
 | is_representative | `is_representative` |  |
 | split | `split` |  |
+| required_capabilities | `required_capabilities` |  |
 
 ## tasks → `sa_tasks`
 
@@ -140,6 +144,7 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | code | `code` |  |
 | prompt | `prompt` |  |
 | slot_values | `slot_values` |  |
+| confirmation | `confirmation` | 0004 |
 | seed | `seed` |  |
 
 ## answer_conditions → `sa_answer_conditions`
@@ -220,6 +225,7 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | variant | `variant` |  |
 | config_snapshot | `config_snapshot` |  |
 | config_hash | `config_hash` |  |
+| template_scope | `template_scope` |  |
 
 ## jobs → `sa_jobs`
 
@@ -481,3 +487,5 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | out_tokens | `out_tokens` |  |
 | cost_krw | `cost_krw` |  |
 | price_setting_id | `price_setting_id` | FK(역할) |
+| attempt | `attempt` | trial 호출 중복 키, nullable |
+| span_seq | `span_seq` | trial 호출 중복 키, nullable |

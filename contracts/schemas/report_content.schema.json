@@ -169,6 +169,7 @@
       "additionalProperties": false,
       "required": [
         "by_template",
+        "in_scope",
         "fail_types",
         "tool_time_top"
       ],
@@ -203,6 +204,30 @@
               "out_of_scope": {
                 "type": "integer",
                 "minimum": 0
+              }
+            }
+          }
+        },
+        "in_scope": {
+          "description": "기획서 1.3 5.4: 후보별 범위 밖 비율 + 모든 후보가 풀 수 있는 공통 문항 유형만으로 센 범위 안 성공률 (1차 판정은 범위 밖을 실패로 센 by_template 쪽)",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["common_templates", "by_candidate"],
+          "properties": {
+            "common_templates": { "description": "모든 후보가 범위 안인 문항 유형 수", "type": "integer", "minimum": 0 },
+            "by_candidate": {
+              "type": "object",
+              "propertyNames": { "$ref": "common.schema.json#/$defs/label" },
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["out_of_scope", "n_all", "k_common", "n_common"],
+                "properties": {
+                  "out_of_scope": { "description": "범위 밖으로 센 단위 수", "type": "integer", "minimum": 0 },
+                  "n_all": { "description": "전체 단위 수", "type": "integer", "minimum": 0 },
+                  "k_common": { "description": "공통 문항 유형에서 성공한 단위 수", "type": "integer", "minimum": 0 },
+                  "n_common": { "description": "공통 문항 유형 단위 수", "type": "integer", "minimum": 0 }
+                }
               }
             }
           }

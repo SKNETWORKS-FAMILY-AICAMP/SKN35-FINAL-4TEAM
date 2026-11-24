@@ -1,0 +1,401 @@
+{
+  "snapshot_version": "it-ops-conflicts-v0.1",
+  "cases": [
+    {
+      "id": "conflict-1",
+      "kind": "conflict",
+      "facts": {
+        "repo": "acme/payment-service",
+        "run_id": "1001",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "payment-primary",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v1.1.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "payment-replica",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "production",
+          "source": "deployment_replica",
+          "field": "version",
+          "value": "v1.2.0",
+          "observed_at": "2026-11-24T11:00:00+09:00"
+        },
+        {
+          "evidence_id": "payment-hint",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "production",
+          "source": "log_hint",
+          "field": "version",
+          "value": "v1.1.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "fresh-1",
+      "kind": "fresh",
+      "facts": {
+        "repo": "acme/payment-service",
+        "run_id": "1001",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "payment-live",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v1.3.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "payment-old-cache",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "production",
+          "source": "summary_cache",
+          "field": "version",
+          "value": "v1.0.0",
+          "observed_at": "2026-11-23T09:00:00+09:00"
+        },
+        {
+          "evidence_id": "payment-future",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v1.9.0",
+          "observed_at": "2026-11-24T13:00:00+09:00"
+        },
+        {
+          "evidence_id": "payment-stage",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "staging",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v1.8.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "insufficient-1",
+      "kind": "insufficient",
+      "facts": {
+        "repo": "acme/payment-service",
+        "run_id": "1001",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "payment-hint-only",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "production",
+          "source": "log_hint",
+          "field": "version",
+          "value": "v1.4.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "payment-status",
+          "repo": "acme/payment-service",
+          "run_id": "1001",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "status",
+          "value": "success",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "conflict-2",
+      "kind": "conflict",
+      "facts": {
+        "repo": "acme/catalog-service",
+        "run_id": "1002",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "catalog-primary",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v2.1.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "catalog-replica",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "production",
+          "source": "deployment_replica",
+          "field": "version",
+          "value": "v2.2.0",
+          "observed_at": "2026-11-24T11:00:00+09:00"
+        },
+        {
+          "evidence_id": "catalog-hint",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "production",
+          "source": "log_hint",
+          "field": "version",
+          "value": "v2.1.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "fresh-2",
+      "kind": "fresh",
+      "facts": {
+        "repo": "acme/catalog-service",
+        "run_id": "1002",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "catalog-live",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v2.3.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "catalog-old-cache",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "production",
+          "source": "summary_cache",
+          "field": "version",
+          "value": "v2.0.0",
+          "observed_at": "2026-11-23T09:00:00+09:00"
+        },
+        {
+          "evidence_id": "catalog-future",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v2.9.0",
+          "observed_at": "2026-11-24T13:00:00+09:00"
+        },
+        {
+          "evidence_id": "catalog-stage",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "staging",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v2.8.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "insufficient-2",
+      "kind": "insufficient",
+      "facts": {
+        "repo": "acme/catalog-service",
+        "run_id": "1002",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "catalog-hint-only",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "production",
+          "source": "log_hint",
+          "field": "version",
+          "value": "v2.4.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "catalog-status",
+          "repo": "acme/catalog-service",
+          "run_id": "1002",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "status",
+          "value": "success",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "conflict-3",
+      "kind": "conflict",
+      "facts": {
+        "repo": "acme/auth-service",
+        "run_id": "1003",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "auth-primary",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v3.1.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "auth-replica",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "production",
+          "source": "deployment_replica",
+          "field": "version",
+          "value": "v3.2.0",
+          "observed_at": "2026-11-24T11:00:00+09:00"
+        },
+        {
+          "evidence_id": "auth-hint",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "production",
+          "source": "log_hint",
+          "field": "version",
+          "value": "v3.1.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "fresh-3",
+      "kind": "fresh",
+      "facts": {
+        "repo": "acme/auth-service",
+        "run_id": "1003",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "auth-live",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v3.3.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "auth-old-cache",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "production",
+          "source": "summary_cache",
+          "field": "version",
+          "value": "v3.0.0",
+          "observed_at": "2026-11-23T09:00:00+09:00"
+        },
+        {
+          "evidence_id": "auth-future",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v3.9.0",
+          "observed_at": "2026-11-24T13:00:00+09:00"
+        },
+        {
+          "evidence_id": "auth-stage",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "staging",
+          "source": "deployment_api",
+          "field": "version",
+          "value": "v3.8.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "insufficient-3",
+      "kind": "insufficient",
+      "facts": {
+        "repo": "acme/auth-service",
+        "run_id": "1003",
+        "environment": "production",
+        "status": "success"
+      },
+      "as_of": "2026-11-24T12:00:00+09:00",
+      "max_age_hours": 24,
+      "evidence": [
+        {
+          "evidence_id": "auth-hint-only",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "production",
+          "source": "log_hint",
+          "field": "version",
+          "value": "v3.4.0",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        },
+        {
+          "evidence_id": "auth-status",
+          "repo": "acme/auth-service",
+          "run_id": "1003",
+          "environment": "production",
+          "source": "deployment_api",
+          "field": "status",
+          "value": "success",
+          "observed_at": "2026-11-24T10:00:00+09:00"
+        }
+      ]
+    }
+  ]
+}

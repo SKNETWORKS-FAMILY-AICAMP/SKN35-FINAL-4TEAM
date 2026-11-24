@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "status": "local_verified",
+  "pack_code": "it_ops",
+  "pack_version": "v0.1",
+  "services": [
+    {
+      "service": "github",
+      "server_id": "it-ops-github-practice",
+      "status": "ready",
+      "image": "sha256:4db1d9c66a0dd2338fab2b294c4bae66e92fe186c1af9fdd3d9befd0dd7e2aa3",
+      "version": "0.1.0",
+      "command": [
+        "python",
+        "/app/server.py",
+        "--manifest",
+        "/app/servers.json",
+        "--data-dir",
+        "/data"
+      ],
+      "transport": "stdio",
+      "data_version": "it-ops-github-data-v0.1",
+      "snapshots": [
+        "deployments",
+        "issues",
+        "operations"
+      ],
+      "tools": [
+        {
+          "name": "list_deployments",
+          "capabilities": [
+            "github.actions.read"
+          ],
+          "access": "read",
+          "source_snapshot": "deployments",
+          "source_key": "deployments",
+          "input_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "output_schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "environment",
+                "finished_at",
+                "repo",
+                "run_id",
+                "status",
+                "version"
+              ],
+              "properties": {
+                "run_id": {
+                  "type": [
+                    "integer"
+                  ]
+                },
+                "repo": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "environment": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "status": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "finished_at": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "version": {
+                  "type": [
+                    "string"
+                  ]
+                }
+              }
+            }
+          },
+          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        },
+        {
+          "name": "list_issues",
+          "capabilities": [
+            "github.issues.read"
+          ],
+          "access": "read",
+          "source_snapshot": "issues",
+          "source_key": "issues",
+          "input_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "output_schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "assignees",
+                "labels",
+                "number",
+                "repo",
+                "state"
+              ],
+              "properties": {
+                "number": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "repo": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "state": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "labels": {
+                  "type": [
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "assignees": {
+                  "type": [
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        },
+        {
+          "name": "list_operation_runs",
+          "capabilities": [
+            "github.actions.read"
+          ],
+          "access": "read",
+          "source_snapshot": "operations",
+          "source_key": "runs",
+          "input_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "output_schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "environment",
+                "finished_at",
+                "id",
+                "repo",
+                "sha",
+                "started_at",
+                "status",
+                "version"
+              ],
+              "properties": {
+                "id": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "repo": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "environment": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "status": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "started_at": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "finished_at": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "version": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "sha": {
+                  "type": [
+                    "string"
+                  ]
+                }
+              }
+            }
+          },
+          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        },
+        {
+          "name": "list_operation_issues",
+          "capabilities": [
+            "github.issues.read"
+          ],
+          "access": "read",
+          "source_snapshot": "operations",
+          "source_key": "issues",
+          "input_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "output_schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "assignees",
+                "closed_at",
+                "id",
+                "labels",
+                "repo",
+                "state",
+                "updated_at"
+              ],
+              "properties": {
+                "id": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "repo": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "state": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "assignees": {
+                  "type": [
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "labels": {
+                  "type": [
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "updated_at": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "closed_at": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              }
+            }
+          },
+          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        },
+        {
+          "name": "list_operation_releases",
+          "capabilities": [
+            "github.releases.read"
+          ],
+          "access": "read",
+          "source_snapshot": "operations",
+          "source_key": "releases",
+          "input_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "output_schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "repo",
+                "sha",
+                "tag"
+              ],
+              "properties": {
+                "repo": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "sha": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "tag": {
+                  "type": [
+                    "string"
+                  ]
+                }
+              }
+            }
+          },
+          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        }
+      ],
+      "lifecycle": {
+        "container_scope": "trial_attempt",
+        "temporary_state": "fresh_per_attempt",
+        "network": "none",
+        "mount_policy": "allowlisted_data_files_only"
+      },
+      "image_scope": "local_daemon_only",
+      "image_tag": "slotagent-it-ops-practice:0.1.0"
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "deployments",
+      "path": "data/deployments.json",
+      "version": "it_ops-deployments-v0.1",
+      "content_hash": "sha256:f426541889639d66fb3a240ab0912c1269b97d9e9a2d1ad40119da51e03f671a",
+      "container_path": "/data/deployments.json",
+      "read_only": true
+    },
+    {
+      "id": "issues",
+      "path": "data/issues.json",
+      "version": "it_ops-issues-v0.1",
+      "content_hash": "sha256:6d73d947176a001478f5c37e60b5bcbe0b5c1b06d8d574c6d3eb949cefc612f2",
+      "container_path": "/data/issues.json",
+      "read_only": true
+    },
+    {
+      "id": "operations",
+      "path": "data/operations.json",
+      "version": "it_ops-operations-v0.1",
+      "content_hash": "sha256:67f85da4bae2a79110ecb4d829e4e52127e5ff7b0e8e306b34adee60134f8138",
+      "container_path": "/data/operations.json",
+      "read_only": true
+    }
+  ],
+  "deferred_services": [
+    {
+      "service": "slack",
+      "reason": "현재 문항은 모두 조회 전용. P-05 보류에 따라 쓰기 서버·승인 연동은 이번 범위에서 제외"
+    },
+    {
+      "service": "db",
+      "reason": "현재 15개 유형에는 DB 에러 조회 문항 없음"
+    }
+  ],
+  "template_codes": [
+    "DEPLOY_LATEST_SUCCESS",
+    "ISSUES_UNASSIGNED_OPEN",
+    "DEPLOY_FAILURES_PERIOD",
+    "DEPLOY_SLOW_RUNS",
+    "DEPLOY_DAILY_COUNTS",
+    "DEPLOY_RECOVERY",
+    "DEPLOY_ENV_COMPARE",
+    "ISSUES_ASSIGNED_OPEN",
+    "ISSUES_STALE_UNASSIGNED",
+    "ISSUES_CLOSED_PERIOD",
+    "ISSUES_LABEL_COUNTS",
+    "DEPLOY_RELEASE_LINK",
+    "DEPLOY_FAILURE_STREAK",
+    "ISSUES_UNLABELED_OPEN",
+    "DEPLOY_UNDEPLOYED_RELEASES"
+  ]
+}

@@ -11,11 +11,14 @@
     check_plan(plan, template_of, prereg)       # 30-b·c 문항 겹침, 문항 유형이 한 묶음에만, looks = 마지막 묶음
     check_experiment_candidates(rows)           # 32  기준 후보(is_baseline) 정확히 1개
     check_method(method, prereg)                # 33  analyses.method 의 복사본이 prereg 와 같은지
+    check_write_modes(connection_type, spec)    # 1.3 쓰기 도구 실행 방식(연결별 허용 값)·쓰기 도구 10개까지
+    template_scope(tools, templates)            # 1.3 실행 전에 문항 유형별 범위 판정 (범위 밖 = 실패로 셈, P-01)
 제안값 추적(plan.proposal)은 common.proposal 에서 (3차 5 — 서버가 다시 계산해 비교)
 """
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping
+from collections.abc import Iterable, Mapping
+from typing import Any
 
 from .hashing import canonical_hash
 
@@ -29,6 +32,62 @@ class CheckError(ValueError):
 def _raise(code: str, errs: list[str]) -> None:
     if errs:
         raise CheckError(code, errs)
+
+
+# ---- 쓰기 도구 실행 방식 (기획서 1.3 5.8·8.1) ------------------------------
+WRITE_MODES = {                       # 연결 방식별로 사용자가 고를 수 있는 값. 플랫폼은 외부 시스템에 직접 쓰지 않음
+    "spec_upload": ("fake", "exclude_tasks"),   # 가짜 도구로 대체 / 그 문항 빼기
+    "runner": ("fake", "test_space"),           # 가짜 도구 / 사용자가 준비한 테스트 공간에 실제로 씀
+    "api": ("dry_run",),                        # 운영 환경이라 드라이런으로 설정된 경우에만 실행
+}
+MAX_WRITE_TOOLS = 10
+
+
+def check_write_modes(connection_type: str, agent_spec: Mapping[str, Any]) -> None:
+    """등록 때 (④). write_mode 는 쓰기 도구에만, 연결 방식이 허용하는 값만. 비면 fake (API 는 dry_run 필수)."""
+    allowed = WRITE_MODES[connection_type]
+    errs = []
+    writes = [t for t in agent_spec["tools"] if t["access"] == "write"]
+    if len(writes) > MAX_WRITE_TOOLS:
+        errs.append(f"쓰기 도구는 {MAX_WRITE_TOOLS}개까지입니다 (지금 {len(writes)}개)")
+    for t in agent_spec["tools"]:
+        mode = t.get("write_mode")
+        if t["access"] != "write":
+            if mode is not None:
+                errs.append(f"{t['name']} 은(는) 읽기 도구라 write_mode 를 둘 수 없습니다")
+        elif mode is None and connection_type == "api":
+            errs.append(f"API 연결의 쓰기 도구 {t['name']} 은(는) 드라이런(dry_run)으로 설정해야 실행합니다")
+        elif mode is not None and mode not in allowed:
+            errs.append(f"{connection_type} 연결에서 {t['name']} 의 write_mode 는 {', '.join(allowed)} 중 하나입니다")
+    _raise("invalid_spec", errs)
+
+
+# ---- 문항 유형 범위 (기획서 1.3 5.4, P-01 = fail) ---------------------------
+def template_scope(tools: Iterable[Mapping[str, Any]], templates: Iterable[Mapping[str, Any]]) -> dict[str, str]:
+    """후보 구성(config_snapshot.tools)과 문항 유형으로 실행 전에 범위를 정한다. 결과를 보고 짐작하지 않음.
+    돌려주는 값: {문항 유형 code: in_scope | out_of_scope | excluded_write | needs_review}
+    - required_capabilities 가 비면 in_scope (판정 안 함)
+    - 필요한 기능을 하는 도구가 없으면 out_of_scope → 1차 성공률에서 실패로 셈
+      (capabilities 를 안 적은 도구가 있으면 그 도구가 할 수도 있어 needs_review → 평가팩 잠그기 전 사람 확인)
+    - 필요한 기능을 하는 도구가 모두 write_mode = exclude_tasks 면 excluded_write → 그 문항 유형은 실험에서 뺌
+    """
+    tools = list(tools)
+    provided: dict[str, list] = {}
+    for t in tools:
+        for c in t.get("capabilities", []):
+            provided.setdefault(c, []).append(t)
+    unknown = any(not t.get("capabilities") for t in tools)
+    out = {}
+    for tp in templates:
+        status = "in_scope"
+        for c in tp.get("required_capabilities") or []:
+            if c not in provided:
+                status = "needs_review" if unknown else "out_of_scope"
+                break
+            if all(t.get("write_mode") == "exclude_tasks" for t in provided[c]):
+                status = "excluded_write"
+        out[tp["code"]] = status
+    return out
 
 
 # ---- 후보 ---------------------------------------------------------------

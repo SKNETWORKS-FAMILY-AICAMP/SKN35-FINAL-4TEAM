@@ -1,6 +1,6 @@
 """④ 저장 함수. 형식 검사(contracts) → 내용 검사(common.checks) → DB 저장 → DB 오류를 api.error 로 바꿈."""
-from slotagent.common import checks, contracts
-from slotagent.common.hashing import canonical_hash
+from slotagent.common import checks, contracts  # noqa: F401  checks 는 ④ 구현 때 씀
+from slotagent.common.hashing import canonical_hash  # noqa: F401  ④ 구현 때 씀
 from slotagent.common.snapshot import build_config_snapshot
 
 
@@ -14,7 +14,7 @@ def register_agent(conn, req: dict, owner_id: int) -> dict:
 def register_candidate(conn, slot_id: int, req: dict) -> int:
     """api.register_candidate_request → candidates 행 (기준 아님). checks.check_component 후 INSERT. 돌려주는 값: candidate_id"""
     contracts.validate("api", req, part="register_candidate_request")
-    comp = req["component_spec"]
+    comp = req["component_spec"]  # noqa: F841  ④ 구현 자리
     raise NotImplementedError("INSERT INTO candidates(..., spec_hash=canonical_hash(comp))")
 
 
@@ -29,6 +29,8 @@ def create_experiment_draft(conn, req: dict, user_id: int) -> int:
 
 
 def add_candidate(conn, experiment_id: int, candidate_id: int) -> int:
-    """experiment_candidates 한 행. config_snapshot 은 반드시 ①의 함수로"""
+    """experiment_candidates 한 행. config_snapshot 은 반드시 ①의 함수로.
+    template_scope = checks.template_scope(snap["tools"], 평가팩 templates) 를 같이 저장 (기획서 1.3 5.4).
+    needs_review 가 있으면 사람이 정한 뒤에만 저장 (DB 가 막음)"""
     snap, h = build_config_snapshot(conn, candidate_id)
     raise NotImplementedError

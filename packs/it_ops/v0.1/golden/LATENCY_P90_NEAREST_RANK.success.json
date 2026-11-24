@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "query_metric_latency",
+      "tool_args": {
+        "service": "payment"
+      },
+      "tool_result": "[{\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 10}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 20}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 30}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 40}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 50}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 60}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 70}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 80}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 90}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": 100}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": null}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"latency_ms\": -1}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:30:00+09:00\", \"latency_ms\": 99999}]",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:01Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"p90_ms\": 90, \"valid_count\": 10}",
+  "run_outcome": "completed"
+}

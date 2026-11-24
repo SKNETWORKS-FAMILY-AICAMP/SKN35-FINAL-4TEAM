@@ -73,6 +73,7 @@
           "additionalProperties": false,
           "required": [
             "connection_type",
+            "model_provider",
             "control_level",
             "model",
             "temperature",
@@ -86,6 +87,10 @@
                 "runner",
                 "api"
               ]
+            },
+            "model_provider": {
+              "description": "모델 회사 (기획서 1.3: Claude·GPT·Gemini·DeepSeek 4종)",
+              "$ref": "common.schema.json#/$defs/model_provider"
             },
             "questions_used": {
               "description": "등록 질문으로 정보를 채웠는지 (11/23). 연결 방식과 따로 셈. 비면 false",

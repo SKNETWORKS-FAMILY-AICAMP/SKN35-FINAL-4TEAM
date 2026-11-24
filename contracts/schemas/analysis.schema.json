@@ -163,7 +163,7 @@
               "minimum": 0
             },
             "out_of_scope": {
-              "description": "outcome_rules.out_of_scope = exclude 일 때만",
+              "description": "P-01 = fail 이라 범위 밖은 빼지 않음 → 항상 0. (문항 1.3 5.8 의 exclude_tasks 로 빠진 문항 유형은 plan 단계에서 이미 빠져 여기 안 셈)",
               "type": "integer",
               "minimum": 0
             }

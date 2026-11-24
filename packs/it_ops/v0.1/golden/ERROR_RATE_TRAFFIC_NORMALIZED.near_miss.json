@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "query_metric_traffic",
+      "tool_args": {
+        "service": "payment"
+      },
+      "tool_result": "[{\"service\": \"payment\", \"at\": \"2026-11-24T11:45:00+09:00\", \"requests\": 100, \"errors\": 5}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:10:00+09:00\", \"requests\": 150, \"errors\": 6}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:11:00+09:00\", \"requests\": 50, \"errors\": 2}, {\"service\": \"payment\", \"at\": \"2026-11-24T12:30:00+09:00\", \"requests\": 9999, \"errors\": 9999}]",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:01Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"before_rate_bp\": 501, \"after_rate_bp\": 400, \"delta_bp\": -100}",
+  "run_outcome": "completed"
+}

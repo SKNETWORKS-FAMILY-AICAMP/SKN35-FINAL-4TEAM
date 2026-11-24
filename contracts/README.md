@@ -90,6 +90,8 @@ tool_bundle / custom_tool 후보:
 
 tool_search 후보는 1~7 을 tool_bundle 과 똑같이 하고, 스냅숏에 `tool_search{method, top_k, deferred}` 를 붙임 — deferred 도구는 검색해야 모델에게 보임 (11/23, 고도화 D).
 prompt / model 후보는 도구는 그대로, 지시문·모델만 바꿈. skill / workflow 는 확장(지금은 거절).
+**기획서 1.3: Tool 자리 먼저** — 지금은 `tool_bundle`·`custom_tool`·`tool_search` 만 스냅숏을 만들고(`snapshot.PHASE1_KINDS`), 후보의 `mcp_server` 는 에이전트의 같은 이름 서버와 똑같아야 함. 프롬프트·Skill·MCP 서버 교체는 그다음 단계.
+스냅숏 `model.provider` 는 `agent_versions.model_provider` 그대로. 쓰기 도구는 `tools[].write_mode` 로 실행 방식을 정함(비면 fake).
 엔진 버전·풀이별 seed·모델 고정 버전은 스냅숏에 넣지 않음 (실행 때 정해짐 → trials·spans).
 
 ## 아직 정하지 않은 것 (⚠)

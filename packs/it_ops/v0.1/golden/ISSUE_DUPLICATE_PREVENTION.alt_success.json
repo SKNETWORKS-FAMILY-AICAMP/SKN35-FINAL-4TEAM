@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "read_workflow_context",
+      "tool_args": {
+        "scenario_id": "dedup-2"
+      },
+      "tool_result": "{\"repo\": \"acme/catalog-service\", \"incident_id\": \"INC-2\", \"existing\": [{\"repo\": \"acme/catalog-service\", \"incident_id\": \"INC-2\", \"number\": \"702\", \"state\": \"closed\"}, {\"repo\": \"acme/other\", \"incident_id\": \"INC-2\", \"number\": \"999\", \"state\": \"open\"}]}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:01Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "request_user_confirmation",
+      "tool_args": {
+        "action": {
+          "tool_name": "create_issue",
+          "arguments": {
+            "repo": "acme/catalog-service",
+            "title": "후속 INC-2 확인"
+          }
+        }
+      },
+      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"create_issue\", \"arguments\": {\"repo\": \"acme/catalog-service\", \"title\": \"후속 INC-2 확인\"}}, \"response_index\": 0}",
+      "attributes": {
+        "simulation": true,
+        "access": "builtin",
+        "origin": "builtin"
+      },
+      "started_at": "2026-11-24T00:00:02Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 3,
+      "kind": "tool",
+      "name": "create_issue",
+      "tool_args": {
+        "repo": "acme/catalog-service",
+        "title": "후속 INC-2 확인"
+      },
+      "tool_result": "{\"number\": \"9502\"}",
+      "attributes": {
+        "simulation": true,
+        "access": "write",
+        "confirmation_span_seq": 2,
+        "write_mode": "fake"
+      },
+      "started_at": "2026-11-24T00:00:03Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [
+    {
+      "span_seq": 3,
+      "tool_name": "create_issue",
+      "payload": {
+        "repo": "acme/catalog-service",
+        "title": "후속 INC-2 확인"
+      },
+      "in_rule_list": true,
+      "user_confirmed": true
+    }
+  ],
+  "final_answer": "{\"action\": \"created\", \"issue_ids\": [\"9502\"]}",
+  "run_outcome": "completed"
+}

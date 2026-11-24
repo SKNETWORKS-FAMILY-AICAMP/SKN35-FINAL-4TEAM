@@ -178,3 +178,17 @@ ERD 문서(11/22 밤): `erd_v1.2` 의 원본(product_db.sql = 0001, dictionary.p
 | 예시 | agent_version·api_and_jobs = spec_upload + questions_used, it_ops. slot_and_candidates 에 후보 C(도구 검색) |
 | 확인 | `scripts/test.ps1` 33 passed (도구 검색 스냅숏·거절, 질문 연결 방식 거절 3개 더함. e2e 예산 테스트는 후보 수로 셈) |
 | 남은 것 | ④ 확인. ERD v1.2 문서(erd_v1.2)에는 아직 반영 안 함 |
+
+## 8차 (11/23): 기획서 1.3 반영
+
+| 무엇 | 처리 |
+|------|------|
+| P-01 | **확정: 범위 밖은 실패로 셈** (1.3 5.4). prereg·settings 는 `fail` 만. 실행 전 판정: 도구 `capabilities` × 문항 유형 `required_capabilities` → `checks.template_scope` (in_scope / out_of_scope / excluded_write / needs_review). 리포트 `detail.in_scope` |
+| 쓰기 도구 | 1.3 5.8·8.1: 사용자가 실행 방식을 고름 → `tool_def.write_mode`. 업로드 fake·exclude_tasks, 러너 fake·test_space, API dry_run 만(필수). 쓰기 도구 10개까지. `checks.check_write_modes` |
+| 모델 | 회사 4종 `model_provider` (DB 칸 + 등록 요청 필수 + 스냅숏). 같은 회사 안에서 버전만 바꿈 |
+| 도구 개수 | 50개 한도 뺌 (1.3 8.2). 설명 토큰 합계 상한은 값 미정(P-11) |
+| Tool 먼저 | `snapshot.PHASE1_KINDS` = tool_bundle·custom_tool·tool_search. 새 MCP 서버 후보 거절 |
+| DB | 0003 끝에 `sa_agent_versions.model_provider`, `sa_templates.required_capabilities` |
+| 예시 | 도구에 capabilities, 쓰기 도구 write_mode=fake, pack 문항 유형에 required_capabilities, 리포트 in_scope (A 2/4 vs B 4/4, B 범위 밖 2) |
+| 확인 | `scripts/test.ps1` 38 passed (P-01·범위 판정·쓰기 방식·모델 회사·도구 개수·Tool 먼저 5개 더함) |
+| DB 추가 (8차 뒤) | `sa_experiment_candidates.template_scope` — 실행 전 범위 판정을 후보 넣을 때 저장, 잠금 뒤 못 바꿈, needs_review 는 CHECK 로 막음. `sa_agents.runner_token_hash`(UNIQUE)·`runner_token_revoked_at` — 러너 연결 토큰은 해시만. 테스트 38 passed (e2e 에 저장·거절 확인 더함) |

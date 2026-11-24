@@ -1,0 +1,120 @@
+{
+  "_note": "P-05 v1 수정안. 정책은 기능·대상만, 승인 요청과 실제 쓰기는 전체 행동 일치. 도구 기능은 엔진 소유 메타데이터.",
+  "task_confirmation": {
+    "schema_version": 1,
+    "responses": [
+      {
+        "capability": "slack.messages.write",
+        "target": [
+          "ops-alerts"
+        ],
+        "decision": "approve"
+      }
+    ]
+  },
+  "reject_confirmation": {
+    "schema_version": 1,
+    "responses": [
+      {
+        "capability": "slack.messages.write",
+        "target": [
+          "ops-alerts"
+        ],
+        "decision": "reject"
+      }
+    ]
+  },
+  "read_only_confirmation": {
+    "schema_version": 1,
+    "responses": []
+  },
+  "request": {
+    "action": {
+      "tool_name": "post_message",
+      "arguments": {
+        "channel": "ops-alerts",
+        "text": "배포 v2.1.0 완료"
+      }
+    }
+  },
+  "response": {
+    "schema_version": 1,
+    "decision": "approve",
+    "action": {
+      "tool_name": "post_message",
+      "arguments": {
+        "channel": "ops-alerts",
+        "text": "배포 v2.1.0 완료"
+      }
+    },
+    "response_index": 0
+  },
+  "trace": {
+    "schema_version": 1,
+    "trial_id": null,
+    "attempt": 1,
+    "spans": [
+      {
+        "seq": 1,
+        "kind": "tool",
+        "name": "request_user_confirmation",
+        "started_at": "2026-11-23T00:00:01Z",
+        "duration_sec": 0,
+        "tool_args": {
+          "action": {
+            "tool_name": "post_message",
+            "arguments": {
+              "channel": "ops-alerts",
+              "text": "배포 v2.1.0 완료"
+            }
+          }
+        },
+        "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-alerts\", \"text\": \"배포 v2.1.0 완료\"}}, \"response_index\": 0}",
+        "attributes": {
+          "origin": "builtin"
+        }
+      },
+      {
+        "seq": 2,
+        "kind": "tool",
+        "name": "post_message",
+        "started_at": "2026-11-23T00:00:02Z",
+        "duration_sec": 0,
+        "tool_args": {
+          "channel": "ops-alerts",
+          "text": "배포 v2.1.0 완료"
+        },
+        "tool_result": "{\"fake\":true}",
+        "attributes": {
+          "confirmation_span_seq": 1,
+          "write_mode": "fake"
+        }
+      }
+    ],
+    "write_intents": [
+      {
+        "span_seq": 2,
+        "tool_name": "post_message",
+        "payload": {
+          "channel": "ops-alerts",
+          "text": "배포 v2.1.0 완료"
+        },
+        "in_rule_list": true,
+        "user_confirmed": true
+      }
+    ],
+    "final_answer": "가짜 발송 기록을 생성했습니다.",
+    "run_outcome": "completed"
+  },
+  "tool_capabilities": {
+    "post_message": [
+      "slack.messages.write"
+    ],
+    "slack_send": [
+      "slack.messages.write"
+    ],
+    "create_issue": [
+      "github.issues.write"
+    ]
+  }
+}
