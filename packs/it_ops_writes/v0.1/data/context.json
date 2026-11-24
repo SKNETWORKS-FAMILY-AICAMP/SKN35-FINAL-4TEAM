@@ -1,0 +1,12 @@
+{
+  "snapshot_version": "it-ops-write-context-v0.1",
+  "contexts": [
+    {
+      "id": "release-1",
+      "version": "v2.1.0",
+      "channel": "ops-alerts",
+      "repo": "acme/payment-service",
+      "title": "배포 v2.1.0 결과 확인"
+    }
+  ]
+}

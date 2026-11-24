@@ -69,9 +69,9 @@ boolean·참조만 신뢰하지 않고 approved_write로 고정 정책 응답과
 
 ## 저장·해시 / ② loader 경로
 
-① 요청대로 `0003_review_1122.sql` 끝에 `sa_tasks.confirmation jsonb`를 추가했다. 기존 DB에는 0003 전체를 재실행하지 말고 해당 ALTER만 적용해야 한다. 마이그레이션은 작성했지만 로컬 DB에 실행하지 않았다.
+저장 위치 제안은 `sa_tasks.confirmation jsonb`, SQL NULL이면 고정 답 없음이다. 병합 후 저장소 마이그레이션과 Docker DB의 최근 확인에서는 해당 칼럼이 없었다. ①이 칼럼·ERD·적용 방식을 확정해야 하며 이번 ② 작업은 DB 구조를 바꾸지 않았다.
 
-loader의 `confirmation_for_storage(task)`가 검증하고, `store_task_confirmation(conn, task_id, task)`가 **기존 문항 행**의 confirmation을 저장한다. 생략/None은 Jsonb(null)이 아니라 SQL NULL이다. 트랜잭션과 잠긴 문항 제약은 호출자/DB가 관리한다. 전체 평가팩의 load_pack/lock_pack는 기존 미구현 상태로 유지했다. 전체 loader 구현 시 삽입 직후 이 함수를 호출하거나 검증된 값을 INSERT해야 한다.
+loader의 `confirmation_for_storage(task)`가 검증하고, `store_task_confirmation(conn, task_id, task)`가 **기존 문항 행**의 confirmation을 저장한다. 생략/None은 Jsonb(null)이 아니라 SQL NULL이다. 트랜잭션과 잠긴 문항 제약은 호출자/DB가 관리한다. load_pack은 구현됐고 칼럼이 있으면 문항 삽입 후 정책 저장 함수를 호출한다. 칼럼 없이 승인 정책 팩을 로딩하면 저장 전에 중단한다. lock_pack/pack_readiness도 구현됐지만 독립 환경·제품 골든 검증 증거가 없으면 잠금은 거절한다.
 
 `pack_content_hash(pack)`는 원본과 confirmation을 포함해 공통 canonical_hash로 계산한다. 미지정/NULL은 같은 의미로 정규화한다. 실제 파일 스냅샷 해시·DB의 최종 평가팩 해시 저장/사용은 ① 통합 시 연결해야 한다. 정책 변경에 따라 해시가 달라지는 테스트를 추가했다.
 
@@ -79,6 +79,6 @@ loader의 `confirmation_for_storage(task)`가 검증하고, `store_task_confirma
 
 스키마·예시·common 함수·loader 저장 함수·해시 테스트를 제공한다. 채점은 forbidden의 unless_user_confirmed=true와 별도 end_state로 나눈다. 승인 후 미실행은 종료 조건 실패다. 승인돼도 다른 금지 행동은 허용되지 않는다.
 
-기존 15개 조회형·47문항에 승인 정책을 강제로 추가하지 않았다. 실제 DB 통합 테스트와 엔진/write_proxy·default 적용·종료 조건 통합 검증은 남아 있다. 러너가 확인 응답을 받는 방식은 W5 이후 ④와 결정한다.
+기존 15개 조회형·47문항에 승인 정책을 강제로 추가하지 않았다. 조회 팩 DB 저장/조회와 승인 칼럼 부재 차단은 실제 DB에서 롤백 검증했다. 쓰기 팩 JSONB 저장 분기와 제품 엔진/write_proxy·default 적용·종료 조건 통합 검증은 남아 있다. 러너가 확인 응답을 받는 방식은 W5 이후 ④와 결정한다.
 
 ① 검토 후 4명 확인 전까지 계약 확정/제품 통합 완료로 표시하지 않는다.

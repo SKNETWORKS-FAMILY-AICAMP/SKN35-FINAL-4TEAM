@@ -56,7 +56,6 @@ def build():
                                     "design": {"notes": ["합성 데이터. 세 저장소별 배포·이슈·릴리스 스냅샷",
                                     "기간은 시작 포함·끝 제외, 오래됨은 cutoff 미만, 소요 시간은 threshold 초과",
                                     "라벨 중복 소속은 각 라벨에 따로 집계. 연결은 저장소와 커밋 SHA 모두 일치해야 함"]}})
-    catalog = ["# 추가 템플릿 10개 / 문항 30개", "", "모두 개발용 합성 데이터이며 실제 모델 성능 검증 전이다.", ""]
     for code, title in zip(CODES[:10], TITLES, strict=True):
         capability = "github.issues.read" if code.startswith("ISSUES_") else "github.actions.read"
         capabilities = [capability] + (["github.releases.read"] if code == "DEPLOY_RELEASE_LINK" else [])
@@ -108,12 +107,16 @@ def build():
             pack["tasks"].append({"template": code, "code": f"{code}-{index:03d}", "prompt": prompt,
                                   "slot_values": values, "seed": index, "conditions": conditions})
             prompts.append(prompt)
-            catalog.extend([f"### {code}-{index:03d}", prompt, "", f"정답: `{json.dumps(answer, ensure_ascii=False)}`", ""])
         pack["templates"].append({"code": code, "question_pattern": f"{title}: {{repo}} 및 slot_values의 조건으로 조회",
                                   "required_capabilities": capabilities, "is_representative": True, "split": "dev"})
     (PACK_DIR / "data/operations.json").write_text(json.dumps(data, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     path.write_text(json.dumps(pack, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    (PACK_DIR / "BATCH_10.md").write_text("\n".join(catalog), encoding="utf-8")
+    import sys
+
+    sys.path.insert(0, str(PACK_DIR.parents[2] / "scripts"))
+    from update_pack_catalog import write_catalog
+
+    write_catalog(PACK_DIR.parents[2])
 
 
 if __name__ == "__main__":

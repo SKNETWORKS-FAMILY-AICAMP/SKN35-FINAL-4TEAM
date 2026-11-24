@@ -31,6 +31,8 @@ def test_registered_golden_conditions():
     pack = json.loads((PACK_DIR / "pack.json").read_text(encoding="utf-8"))
     source = json.loads((PACK_DIR / "data/deployments.json").read_text(encoding="utf-8"))["deployments"]
     for entry in pack["golden"]:
+        if entry["template"] != "DEPLOY_LATEST_SUCCESS":
+            continue
         trace = json.loads((PACK_DIR / entry["trace"]).read_text(encoding="utf-8"))
         query = next(s for s in trace["spans"] if s.get("name") == "list_deployments")
         args = query["tool_args"]
@@ -52,7 +54,7 @@ def test_golden_mismatch_is_rejected(tmp_path, change):
     elif change == "task":
         pack["golden"][0]["task_code"] = "ISSUES_UNASSIGNED_OPEN-001"
     elif change == "missing":
-        pack["golden"].pop()
+        pack["golden"].pop(0)
     else:
         pack["golden"][0]["trace"] = "../outside.json"
     (tmp_path / "pack.json").write_text(json.dumps(pack), encoding="utf-8")

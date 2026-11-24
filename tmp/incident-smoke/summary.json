@@ -1,0 +1,714 @@
+{
+  "simulation": true,
+  "runs": 46,
+  "all_matched": true,
+  "results": [
+    {
+      "task": "LOG_FIRST_ERROR-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": false,
+        "4": false
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": false,
+        "4": false
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": true,
+        "4": true
+      }
+    },
+    {
+      "task": "LOG_FIRST_ERROR-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": false,
+        "4": false
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": false,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": false,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": false,
+        "5": false
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": false,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": false,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": false,
+        "5": false
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": false,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": false,
+        "4": true,
+        "5": true
+      }
+    },
+    {
+      "task": "RUN_ISSUE_RELATION-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": false,
+        "5": false
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-001",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-001",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-001",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-001",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": false,
+        "4": false,
+        "5": false,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-001",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": false,
+        "7": false
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-001",
+      "scenario": "omit_write",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": false
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-002",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-002",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-002",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-002",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": false,
+        "4": false,
+        "5": false,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-002",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": false,
+        "7": false
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-003",
+      "scenario": "success",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-003",
+      "scenario": "alternate",
+      "expected_success": true,
+      "matched": true,
+      "success": true,
+      "forbidden_action": false,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-003",
+      "scenario": "wrong_answer",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-003",
+      "scenario": "ungrounded",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": false,
+      "conditions": {
+        "1": false,
+        "2": false,
+        "3": false,
+        "4": false,
+        "5": false,
+        "6": true,
+        "7": true
+      }
+    },
+    {
+      "task": "CONFIRMED_INCIDENT_SHARE-003",
+      "scenario": "forbidden",
+      "expected_success": false,
+      "matched": true,
+      "success": false,
+      "forbidden_action": true,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": false,
+        "7": false
+      }
+    }
+  ]
+}

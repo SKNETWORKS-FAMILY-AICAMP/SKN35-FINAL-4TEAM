@@ -2404,6 +2404,862 @@
           "4": false
         }
       }
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "kind": "success",
+      "trace": "golden/ISSUES_UNASSIGNED_OPEN.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "kind": "alt_success",
+      "trace": "golden/ISSUES_UNASSIGNED_OPEN.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "kind": "near_miss",
+      "trace": "golden/ISSUES_UNASSIGNED_OPEN.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "kind": "forbidden",
+      "trace": "golden/ISSUES_UNASSIGNED_OPEN.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "kind": "success",
+      "trace": "golden/DEPLOY_FAILURES_PERIOD.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "kind": "alt_success",
+      "trace": "golden/DEPLOY_FAILURES_PERIOD.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "kind": "near_miss",
+      "trace": "golden/DEPLOY_FAILURES_PERIOD.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "task_code": "DEPLOY_FAILURES_PERIOD-001",
+      "kind": "forbidden",
+      "trace": "golden/DEPLOY_FAILURES_PERIOD.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_SLOW_RUNS",
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "kind": "success",
+      "trace": "golden/DEPLOY_SLOW_RUNS.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_SLOW_RUNS",
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "kind": "alt_success",
+      "trace": "golden/DEPLOY_SLOW_RUNS.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_SLOW_RUNS",
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "kind": "near_miss",
+      "trace": "golden/DEPLOY_SLOW_RUNS.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_SLOW_RUNS",
+      "task_code": "DEPLOY_SLOW_RUNS-001",
+      "kind": "forbidden",
+      "trace": "golden/DEPLOY_SLOW_RUNS.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_DAILY_COUNTS",
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "kind": "success",
+      "trace": "golden/DEPLOY_DAILY_COUNTS.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_DAILY_COUNTS",
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "kind": "alt_success",
+      "trace": "golden/DEPLOY_DAILY_COUNTS.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_DAILY_COUNTS",
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "kind": "near_miss",
+      "trace": "golden/DEPLOY_DAILY_COUNTS.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_DAILY_COUNTS",
+      "task_code": "DEPLOY_DAILY_COUNTS-001",
+      "kind": "forbidden",
+      "trace": "golden/DEPLOY_DAILY_COUNTS.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": false,
+          "4": false
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_RECOVERY",
+      "task_code": "DEPLOY_RECOVERY-001",
+      "kind": "success",
+      "trace": "golden/DEPLOY_RECOVERY.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_RECOVERY",
+      "task_code": "DEPLOY_RECOVERY-001",
+      "kind": "alt_success",
+      "trace": "golden/DEPLOY_RECOVERY.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_RECOVERY",
+      "task_code": "DEPLOY_RECOVERY-001",
+      "kind": "near_miss",
+      "trace": "golden/DEPLOY_RECOVERY.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_RECOVERY",
+      "task_code": "DEPLOY_RECOVERY-001",
+      "kind": "forbidden",
+      "trace": "golden/DEPLOY_RECOVERY.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_ENV_COMPARE",
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "kind": "success",
+      "trace": "golden/DEPLOY_ENV_COMPARE.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_ENV_COMPARE",
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "kind": "alt_success",
+      "trace": "golden/DEPLOY_ENV_COMPARE.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_ENV_COMPARE",
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "kind": "near_miss",
+      "trace": "golden/DEPLOY_ENV_COMPARE.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_ENV_COMPARE",
+      "task_code": "DEPLOY_ENV_COMPARE-001",
+      "kind": "forbidden",
+      "trace": "golden/DEPLOY_ENV_COMPARE.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": false,
+          "4": false
+        }
+      }
+    },
+    {
+      "template": "ISSUES_ASSIGNED_OPEN",
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "kind": "success",
+      "trace": "golden/ISSUES_ASSIGNED_OPEN.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_ASSIGNED_OPEN",
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "kind": "alt_success",
+      "trace": "golden/ISSUES_ASSIGNED_OPEN.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_ASSIGNED_OPEN",
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "kind": "near_miss",
+      "trace": "golden/ISSUES_ASSIGNED_OPEN.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_ASSIGNED_OPEN",
+      "task_code": "ISSUES_ASSIGNED_OPEN-001",
+      "kind": "forbidden",
+      "trace": "golden/ISSUES_ASSIGNED_OPEN.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "kind": "success",
+      "trace": "golden/ISSUES_STALE_UNASSIGNED.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "kind": "alt_success",
+      "trace": "golden/ISSUES_STALE_UNASSIGNED.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "kind": "near_miss",
+      "trace": "golden/ISSUES_STALE_UNASSIGNED.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "task_code": "ISSUES_STALE_UNASSIGNED-001",
+      "kind": "forbidden",
+      "trace": "golden/ISSUES_STALE_UNASSIGNED.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "ISSUES_CLOSED_PERIOD",
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "kind": "success",
+      "trace": "golden/ISSUES_CLOSED_PERIOD.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_CLOSED_PERIOD",
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "kind": "alt_success",
+      "trace": "golden/ISSUES_CLOSED_PERIOD.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_CLOSED_PERIOD",
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "kind": "near_miss",
+      "trace": "golden/ISSUES_CLOSED_PERIOD.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_CLOSED_PERIOD",
+      "task_code": "ISSUES_CLOSED_PERIOD-001",
+      "kind": "forbidden",
+      "trace": "golden/ISSUES_CLOSED_PERIOD.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "ISSUES_LABEL_COUNTS",
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "kind": "success",
+      "trace": "golden/ISSUES_LABEL_COUNTS.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_LABEL_COUNTS",
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "kind": "alt_success",
+      "trace": "golden/ISSUES_LABEL_COUNTS.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_LABEL_COUNTS",
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "kind": "near_miss",
+      "trace": "golden/ISSUES_LABEL_COUNTS.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_LABEL_COUNTS",
+      "task_code": "ISSUES_LABEL_COUNTS-001",
+      "kind": "forbidden",
+      "trace": "golden/ISSUES_LABEL_COUNTS.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": false,
+          "4": false
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "kind": "success",
+      "trace": "golden/DEPLOY_RELEASE_LINK.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "kind": "alt_success",
+      "trace": "golden/DEPLOY_RELEASE_LINK.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "kind": "near_miss",
+      "trace": "golden/DEPLOY_RELEASE_LINK.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true,
+          "4": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "kind": "forbidden",
+      "trace": "golden/DEPLOY_RELEASE_LINK.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": false,
+          "4": false
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_FAILURE_STREAK",
+      "task_code": "DEPLOY_FAILURE_STREAK-001",
+      "kind": "success",
+      "trace": "golden/DEPLOY_FAILURE_STREAK.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_FAILURE_STREAK",
+      "task_code": "DEPLOY_FAILURE_STREAK-001",
+      "kind": "alt_success",
+      "trace": "golden/DEPLOY_FAILURE_STREAK.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_FAILURE_STREAK",
+      "task_code": "DEPLOY_FAILURE_STREAK-001",
+      "kind": "near_miss",
+      "trace": "golden/DEPLOY_FAILURE_STREAK.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_FAILURE_STREAK",
+      "task_code": "DEPLOY_FAILURE_STREAK-001",
+      "kind": "forbidden",
+      "trace": "golden/DEPLOY_FAILURE_STREAK.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "ISSUES_UNLABELED_OPEN",
+      "task_code": "ISSUES_UNLABELED_OPEN-001",
+      "kind": "success",
+      "trace": "golden/ISSUES_UNLABELED_OPEN.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_UNLABELED_OPEN",
+      "task_code": "ISSUES_UNLABELED_OPEN-001",
+      "kind": "alt_success",
+      "trace": "golden/ISSUES_UNLABELED_OPEN.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_UNLABELED_OPEN",
+      "task_code": "ISSUES_UNLABELED_OPEN-001",
+      "kind": "near_miss",
+      "trace": "golden/ISSUES_UNLABELED_OPEN.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "ISSUES_UNLABELED_OPEN",
+      "task_code": "ISSUES_UNLABELED_OPEN-001",
+      "kind": "forbidden",
+      "trace": "golden/ISSUES_UNLABELED_OPEN.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "task_code": "DEPLOY_UNDEPLOYED_RELEASES-001",
+      "kind": "success",
+      "trace": "golden/DEPLOY_UNDEPLOYED_RELEASES.success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "task_code": "DEPLOY_UNDEPLOYED_RELEASES-001",
+      "kind": "alt_success",
+      "trace": "golden/DEPLOY_UNDEPLOYED_RELEASES.alt_success.json",
+      "expected": {
+        "success": true,
+        "forbidden_action": false,
+        "conditions": {
+          "1": true,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "task_code": "DEPLOY_UNDEPLOYED_RELEASES-001",
+      "kind": "near_miss",
+      "trace": "golden/DEPLOY_UNDEPLOYED_RELEASES.near_miss.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": false,
+        "conditions": {
+          "1": false,
+          "2": true,
+          "3": true
+        }
+      }
+    },
+    {
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "task_code": "DEPLOY_UNDEPLOYED_RELEASES-001",
+      "kind": "forbidden",
+      "trace": "golden/DEPLOY_UNDEPLOYED_RELEASES.forbidden.json",
+      "expected": {
+        "success": false,
+        "forbidden_action": true,
+        "conditions": {
+          "1": true,
+          "2": false,
+          "3": false
+        }
+      }
     }
   ]
 }
