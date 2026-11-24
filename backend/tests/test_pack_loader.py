@@ -51,7 +51,7 @@ def test_pack_lock_rejects_invalid_timeout_before_database(timeout):
 
 def test_read_and_write_pack_validation():
     pack, snapshots, golden = read_pack(READ_PACK)
-    assert len(pack["tasks"]) == 128 and len(snapshots) == 11 and len(golden) == 168
+    assert len(pack["tasks"]) == 143 and len(snapshots) == 12 and len(golden) == 188
     pack, snapshots, golden = read_group(WRITE_PACK, "writes")
     assert len(pack["templates"]) == 6 and len(pack["tasks"]) == 18
     assert len(snapshots) == 2 and len(golden) == 24

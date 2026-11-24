@@ -11,6 +11,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import expanded_tasks
 
+import followup_tasks
+
 from slotagent.common import contracts
 from slotagent.packs.groups import load_group
 from slotagent.common.confirmation import approved_write, fixed_response
@@ -42,6 +44,8 @@ def reference(task, data):
 
 
 def simulate(task, scenario):
+    if task["template"] in followup_tasks.CODES:
+        return followup_tasks.simulate(task, scenario, ROOT)
     if task["template"] in expanded_tasks.CODES:
         return expanded_tasks.simulate(task, scenario, ROOT)
     # 모델 입력에 정답 조건·정책을 섞지 않고, 고정 정책은 엔진 역할 코드에서만 읽는다.
@@ -108,6 +112,8 @@ def simulate(task, scenario):
 
 
 def grade(task, trace):
+    if task["template"] in followup_tasks.CODES:
+        return followup_tasks.grade(task, trace, ROOT)
     if task["template"] in expanded_tasks.CODES:
         return expanded_tasks.grade(task, trace, ROOT)
     contracts.validate("trace", trace)
@@ -163,6 +169,8 @@ def run(output_dir):
     output_dir.mkdir(parents=True, exist_ok=True)
     results = []
     for task in pack["tasks"]:
+        if task["template"] in followup_tasks.CODES:
+            continue
         if task["template"] in expanded_tasks.CODES:
             continue
         expected = {c["spec"]["key"]: c["spec"]["expected"] for c in task["conditions"] if c["kind"] == "info"}
@@ -178,6 +186,7 @@ def run(output_dir):
             results.append({"task": task["code"], "scenario": scenario, "expected_success": success,
                             "matched": success == actual["success"], **actual})
     results.extend(expanded_tasks.run_tasks([t for t in pack["tasks"] if t["template"] in expanded_tasks.CODES], output_dir, ROOT))
+    results.extend(followup_tasks.run_tasks([t for t in pack["tasks"] if t["template"] in followup_tasks.CODES], output_dir, ROOT))
     report = {"simulation": True, "runs": len(results), "all_matched": all(r["matched"] for r in results), "results": results}
     (output_dir / "summary.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report

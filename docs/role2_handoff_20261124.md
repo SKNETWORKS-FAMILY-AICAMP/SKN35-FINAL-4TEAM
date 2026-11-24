@@ -1,6 +1,6 @@
 # ② 독립 준비 결과 / ① 확인 요청 — 2026-11-24
 
-기준: 평가팩1개(it_ops/v0.1)·총42유형·128문항·골든168개. [현재 안내](../packs/README.md)와 [전체 문항 목록](../packs/QUESTIONS.md)을 함께 본다.
+현재: 활성 평가팩1개(it_ops/v0.1)·47유형·143문항·골든188개. 별도3유형9문항은 엔진/계약 대기 초안이며 아래 이전 수량은 당시 검증 이력이다. [현재 안내](../packs/README.md)와 [전체 문항 목록](../packs/QUESTIONS.md)을 함께 본다.
 
 7개 업무 그룹은 독립 평가팩이 아니다. 데이터·문항·골든·개발 어댑터를 단일 폴더에 통합했고 전체 가짜 실행은 reference/run_pack.py로 수행한다.
 
@@ -115,3 +115,13 @@ writes 그룹6문항의 하드코딩된 버전을 제거했다. context.json 단
 - tool_error는 구조 변경 없는 기록 규약으로 CHANGELOG에 기록했다. ① 구현과 실제 trace 예시가 오면 ② reliability/workflows를 조정한다. product_grader_version을 임시 검사기 버전으로 채우지 않는다.
 
 비중 재편 후에도 전체42유형/128문항/168골든은 유지한다. 새 유형7개는 required_capabilities의 기존 이름표를 재사용하지만 실제 도구 응답·매핑은 ①④ 확인 대기다. 문항 선택의 실제 출제 비율·held 계획까지 확정한 변경은 아니다.
+
+
+## 후보8개 후속 — 활성5 + 대기 초안3
+
+① 회신의1~5를 각3문항·골든4종으로 로컬 등록했다. 실제 MCP 지원은 조회8유형·26문항 유지다. 제한4·5의 다른 필드 유출/미기재 URL 탐지 한계는 문항/검수표에 명시했다. 후보6~8은 write_proxy가 아직 주석 상태라 pending_writes.json에 요구사항과9개 시나리오만 준비했고 활성 제외했다. 정확한 쓰기/횟수 계약과 trace 예시를 받은 뒤 골든·활성 등록을 진행한다. 기존 응답 규격/도구 정의19종/골든 불일치/DB/tool_error/held 선정 보완은 사용자 요청대로 보류 중이다.
+
+
+## 상세 MD 수신 후 추가5유형 정리
+
+role2_reply_8types.md의 제안에 맞춰 direct/indirect 단계 조회, cause/certainty, commit/file/function, [EMAIL]/[TOKEN], fetch_url의302/403을 반영했다. 신규20골든은 명시적 access 문맥으로 eng_rules.check 조건별 일치까지 확인한다. 원래188개 전체 제품 대조/파이프라인 연결이 완료된 것은 아니다. 이름표는 ops.dependencies.read/ops.status.read/github.code.content.read/ops.incidents.read/web.pages.read 제안으로 정리했으며 ②④ 최종 확인 대기다. 실제 MCP 서버 지원은8유형26문항 그대로다. 쓰기3유형·DB·기존tool_error 작업은 계속 보류한다.

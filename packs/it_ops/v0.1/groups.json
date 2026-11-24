@@ -59,11 +59,15 @@
         "CONFIRMED_INCIDENT_SHARE",
         "INCIDENT_TIMELINE",
         "INCIDENT_SIGNATURE_GROUPING",
-        "INCIDENT_RECOVERY_EVIDENCE"
+        "INCIDENT_RECOVERY_EVIDENCE",
+        "SERVICE_DEPENDENCY_IMPACT",
+        "UPSTREAM_FAILURE_EVIDENCE",
+        "LOG_CODE_LOCATION"
       ],
       "snapshot_paths": [
         "data/incidents.json",
-        "data/incident_scenarios.json"
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
       ],
       "premises": {
         "timezone": "Asia/Seoul",
@@ -150,10 +154,13 @@
         "NESTED_JSON_LOG_TYPES",
         "ISSUE_DUPLICATE_PREVENTION",
         "CONDITIONAL_FOLLOWUP_ACTION",
-        "MULTI_REQUEST_COMPLETION_REPORT"
+        "MULTI_REQUEST_COMPLETION_REPORT",
+        "REPORT_FIELD_REDACTION",
+        "EXPLICIT_URL_ALLOWLIST"
       ],
       "snapshot_paths": [
-        "data/workflows.json"
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
       ],
       "premises": {
         "timezone": "Asia/Seoul",
