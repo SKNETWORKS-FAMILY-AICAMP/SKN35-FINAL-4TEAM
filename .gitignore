@@ -47,3 +47,4 @@ wandb/
 # 로컬 복사용 패키지와 검증 임시 폴더
 /artifacts/
 /.tmp-*/
+/tmp/

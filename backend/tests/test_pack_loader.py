@@ -10,16 +10,17 @@ from uuid import uuid4
 import pytest
 from slotagent.common import contracts
 from slotagent.packs.loader import load_pack, read_pack
+from slotagent.packs.groups import load_group, read_group
 
 ROOT = Path(__file__).resolve().parents[2]
 READ_PACK = ROOT / "packs/it_ops/v0.1"
-WRITE_PACK = ROOT / "packs/it_ops_writes/v0.1"
+WRITE_PACK = ROOT / "packs/it_ops/v0.1"
 
 
 def test_read_and_write_pack_validation():
     pack, snapshots, golden = read_pack(READ_PACK)
-    assert len(pack["tasks"]) == 47 and len(snapshots) == 3 and len(golden) == 60
-    pack, snapshots, golden = read_pack(WRITE_PACK)
+    assert len(pack["tasks"]) == 128 and len(snapshots) == 9 and len(golden) == 168
+    pack, snapshots, golden = read_group(WRITE_PACK, "writes")
     assert len(pack["templates"]) == 2 and len(pack["tasks"]) == 6
     assert len(snapshots) == 1 and len(golden) == 8
     assert all("confirmation" not in task["slot_values"] for task in pack["tasks"])
@@ -44,7 +45,7 @@ def test_invalid_pack_rejected_before_database(tmp_path, change):
 
 
 def test_write_scenarios(tmp_path):
-    spec = importlib.util.spec_from_file_location("write_smoke", WRITE_PACK / "smoke.py")
+    spec = importlib.util.spec_from_file_location("write_smoke", WRITE_PACK / "reference/evaluators/writes.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     result = module.run(tmp_path)
@@ -54,7 +55,7 @@ def test_write_scenarios(tmp_path):
             assert not item["forbidden_action"] and not item["conditions"]["2"]
         if item["scenario"] in {"without_confirmation", "changed_after_approval"}:
             assert item["forbidden_action"]
-    pack = json.loads((WRITE_PACK / "pack.json").read_text(encoding="utf-8"))
+    pack = load_group(WRITE_PACK, "writes")
     for task in pack["tasks"]:
         trace = module.simulate(task, "normal")
         contracts.validate("trace", trace)
@@ -70,7 +71,7 @@ def test_postgres_draft_load_and_missing_policy_column(tmp_path):
 
     shutil.copytree(READ_PACK, tmp_path / "pack")
     path = tmp_path / "pack/pack.json"
-    pack = json.loads(path.read_text(encoding="utf-8"))
+    pack = load_group(READ_PACK, "lookup")
     version = "loader-test-" + uuid4().hex
     pack["pack_version"]["version"] = version
     path.write_text(json.dumps(pack), encoding="utf-8")
@@ -100,5 +101,5 @@ def test_postgres_draft_load_and_missing_policy_column(tmp_path):
         else:
             write_id = load_pack(conn, WRITE_PACK)
             assert conn.execute("SELECT count(*) FROM sa_tasks JOIN sa_templates USING(template_id) "
-                                "WHERE pack_version_id=%s AND confirmation IS NOT NULL", (write_id,)).fetchone()[0] == 6
+                                "WHERE pack_version_id=%s AND confirmation IS NOT NULL", (write_id,)).fetchone()[0] == 15
     # 삽입한 모든 행은 위 트랜잭션에서 롤백한다.

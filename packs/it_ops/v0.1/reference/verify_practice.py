@@ -56,13 +56,17 @@ def verify_practice(pack_dir=PACK_DIR, require_launchable=False):
             Draft202012Validator(tool["output_schema"]).validate(rows)
             capabilities.update(tool["capabilities"])
             tool_count += 1
-    required = {c for template in pack["templates"] for c in template["required_capabilities"]}
+    covered = set(manifest["template_codes"])
+    templates = [t for t in pack["templates"] if t["code"] in covered]
+    if not covered or len(templates) != len(covered):
+        raise ValueError("Practice manifest references unknown templates")
+    required = {c for template in templates for c in template["required_capabilities"]}
     if not required <= capabilities:
         raise ValueError(f"Missing capabilities: {required - capabilities}")
     if require_launchable and not launchable:
         raise ValueError("Practice server image/command is not built or pinned yet")
     return {"spec_checks_passed": True, "launchable": bool(launchable), "snapshots": len(datasets),
-            "tools": tool_count, "templates_covered_by_capability": len(pack["templates"]),
+            "tools": tool_count, "templates_covered_by_capability": len(templates), "pack_templates": len(pack["templates"]),
             "actual_mcp_verified": False}
 
 

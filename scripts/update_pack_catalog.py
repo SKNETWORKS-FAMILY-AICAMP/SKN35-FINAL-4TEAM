@@ -29,6 +29,11 @@ def render_catalog(root=ROOT):
                   f"템플릿 {len(pack['templates'])}개 · 문항 {len(pack['tasks'])}개 · 골든 {len(pack['golden'])}개", "",
                   "| 템플릿 | 문항 수 | 구분 |", "|---|---:|---|"]
         lines += [f"| {t['code']} | {counts[t['code']]} | {t.get('split', 'held')} |" for t in pack["templates"]]
+        groups_path = path.parent / "groups.json"
+        if groups_path.exists():
+            groups = json.loads(groups_path.read_text(encoding="utf-8"))["groups"]
+            lines += ["", "업무 그룹은 팩 내부 분류이며 별도 평가팩이 아니다.", "", "| 업무 그룹 | 템플릿 | 문항 |", "|---|---:|---:|"]
+            lines += [f"| {g['label']} | {len(g['template_codes'])} | {sum(counts[c] for c in g['template_codes'])} |" for g in groups.values()]
         lines += [""]
         for task in pack["tasks"]:
             lines += [f"### {task['code']}", "", f"유형: `{task['template']}`", "", task["prompt"], "",

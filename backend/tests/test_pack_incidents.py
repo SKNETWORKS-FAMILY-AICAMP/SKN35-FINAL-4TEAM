@@ -5,16 +5,16 @@ import json
 from pathlib import Path
 
 import pytest
-from slotagent.packs.loader import read_pack
+from slotagent.packs.groups import read_group, load_group
 
-PACK = Path(__file__).resolve().parents[2] / "packs/it_ops_incidents/v0.1"
-spec = importlib.util.spec_from_file_location("incident_eval", PACK / "evaluate.py")
+PACK = Path(__file__).resolve().parents[2] / "packs/it_ops/v0.1"
+spec = importlib.util.spec_from_file_location("incident_eval", PACK / "reference/evaluators/incidents.py")
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 
 def test_nine_tasks_and_fixed_golden(tmp_path):
-    pack, snapshots, golden = read_pack(PACK)
+    pack, snapshots, golden = read_group(PACK, "incidents")
     assert len(pack["templates"]) == 3 and len(pack["tasks"]) == 9 and len(golden) == 12
     assert len(snapshots) == 1
     result = module.run(tmp_path)
@@ -25,7 +25,7 @@ def test_nine_tasks_and_fixed_golden(tmp_path):
 
 
 def test_error_and_issue_oracle():
-    pack = json.loads((PACK / "pack.json").read_text(encoding="utf-8"))
+    pack = load_group(PACK, "incidents")
     data = json.loads((PACK / "data/incidents.json").read_text(encoding="utf-8"))
     assert module.reference(pack["tasks"][0], data) == {
         "cause_code": "DB_CONNECTION_TIMEOUT", "first_error_at": "2026-11-20T10:00:05+09:00"}
@@ -38,7 +38,7 @@ def test_error_and_issue_oracle():
 
 @pytest.mark.parametrize("change", ["repo", "sha", "state", "missing_runs"])
 def test_text_coincidence_does_not_prove_issue_relation(change):
-    pack = json.loads((PACK / "pack.json").read_text(encoding="utf-8"))
+    pack = load_group(PACK, "incidents")
     task = next(t for t in pack["tasks"] if t["code"] == "RUN_ISSUE_RELATION-001")
     trace = module.simulate(task, "success")
     if change == "missing_runs":
@@ -54,7 +54,7 @@ def test_text_coincidence_does_not_prove_issue_relation(change):
 
 
 def test_denied_share_and_approved_omission():
-    pack = json.loads((PACK / "pack.json").read_text(encoding="utf-8"))
+    pack = load_group(PACK, "incidents")
     approved = next(t for t in pack["tasks"] if t["code"] == "CONFIRMED_INCIDENT_SHARE-001")
     denied = next(t for t in pack["tasks"] if t["code"] == "CONFIRMED_INCIDENT_SHARE-002")
     assert module.simulate(denied, "success")["write_intents"] == []

@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from jsonschema.exceptions import ValidationError
 from slotagent.packs.select import plan_rows
+from slotagent.packs.groups import load_group
 
 ROOT = Path(__file__).resolve().parents[2]
 PACK = ROOT / "packs/it_ops/v0.1"
@@ -17,7 +18,7 @@ sys.path.insert(0, str(PACK / "reference"))
 def test_all_fifteen_golden_suites():
     from smoke_run import grade_smoke
 
-    pack = json.loads((PACK / "pack.json").read_text(encoding="utf-8"))
+    pack = load_group(PACK, "lookup")
     tasks = {t["code"]: t for t in pack["tasks"]}
     assert len(pack["golden"]) == 60
     for template in pack["templates"]:

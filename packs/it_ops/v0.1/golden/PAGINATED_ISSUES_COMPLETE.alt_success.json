@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "list_paged_issues",
+      "tool_args": {
+        "repo": "acme/payment-service",
+        "cursor": null
+      },
+      "tool_result": "{\"ok\": true, \"items\": [{\"repo\": \"acme/payment-service\", \"number\": \"101\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"repo\": \"acme/payment-service\", \"number\": \"102\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"repo\": \"acme/payment-service\", \"number\": \"109\", \"state\": \"closed\", \"labels\": [\"bug\"], \"assignees\": []}], \"next_cursor\": \"token-1-b\"}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:01Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_paged_issues",
+      "tool_args": {
+        "repo": "acme/payment-service",
+        "cursor": "token-1-b"
+      },
+      "tool_result": "{\"ok\": true, \"items\": [{\"repo\": \"acme/payment-service\", \"number\": \"102\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"repo\": \"acme/payment-service\", \"number\": \"103\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"repo\": \"acme/payment-service\", \"number\": \"108\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": [\"mina\"]}], \"next_cursor\": \"token-1-c\"}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:02Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 3,
+      "kind": "tool",
+      "name": "list_paged_issues",
+      "tool_args": {
+        "repo": "acme/payment-service",
+        "cursor": "token-1-c"
+      },
+      "tool_result": "{\"ok\": true, \"items\": [{\"repo\": \"acme/payment-service\", \"number\": \"104\", \"state\": \"open\", \"labels\": [\"bug\"], \"assignees\": []}, {\"repo\": \"acme/payment-service\", \"number\": \"107\", \"state\": \"open\", \"labels\": [\"enhancement\"], \"assignees\": []}], \"next_cursor\": null}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:03Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"status\": \"complete\", \"items\": [\"101\", \"102\", \"103\", \"104\"], \"call_count\": 3}",
+  "run_outcome": "completed"
+}

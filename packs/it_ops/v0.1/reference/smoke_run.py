@@ -181,7 +181,8 @@ def grade_smoke(task: dict, trace: dict) -> dict:
 
 def run(output_dir: Path) -> dict:
     answers = {**verify_pack(), **verify_issues(), **verify_batch()}
-    pack = json.loads((PACK_DIR / "pack.json").read_text(encoding="utf-8"))
+    from slotagent.packs.groups import load_group
+    pack = load_group(PACK_DIR, "lookup")
     output_dir.mkdir(parents=True, exist_ok=True)
     results = []
     for task in pack["tasks"]:

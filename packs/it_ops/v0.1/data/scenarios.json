@@ -1,0 +1,399 @@
+{
+  "snapshot_version": "it-ops-reliability-v0.1",
+  "cases": [
+    {
+      "id": "transient-1",
+      "kind": "transient",
+      "repo": "acme/payment-service",
+      "max_calls": 3,
+      "responses": [
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": true,
+          "items": [
+            "101",
+            "102"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "persistent-1",
+      "kind": "persistent",
+      "repo": "acme/payment-service",
+      "max_calls": 3,
+      "responses": [
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        }
+      ]
+    },
+    {
+      "id": "pages-1",
+      "kind": "pagination",
+      "repo": "acme/payment-service",
+      "label": "bug",
+      "max_calls": 4,
+      "pages": [
+        {
+          "cursor": null,
+          "items": [
+            {
+              "repo": "acme/payment-service",
+              "number": "101",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/payment-service",
+              "number": "102",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/payment-service",
+              "number": "109",
+              "state": "closed",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            }
+          ],
+          "next_cursor": "token-1-b"
+        },
+        {
+          "cursor": "token-1-b",
+          "items": [
+            {
+              "repo": "acme/payment-service",
+              "number": "102",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/payment-service",
+              "number": "103",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/payment-service",
+              "number": "108",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": [
+                "mina"
+              ]
+            }
+          ],
+          "next_cursor": "token-1-c"
+        },
+        {
+          "cursor": "token-1-c",
+          "items": [
+            {
+              "repo": "acme/payment-service",
+              "number": "104",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/payment-service",
+              "number": "107",
+              "state": "open",
+              "labels": [
+                "enhancement"
+              ],
+              "assignees": []
+            }
+          ],
+          "next_cursor": null
+        }
+      ]
+    },
+    {
+      "id": "transient-2",
+      "kind": "transient",
+      "repo": "acme/catalog-service",
+      "max_calls": 3,
+      "responses": [
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": true,
+          "items": [
+            "201",
+            "202"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "persistent-2",
+      "kind": "persistent",
+      "repo": "acme/catalog-service",
+      "max_calls": 3,
+      "responses": [
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        }
+      ]
+    },
+    {
+      "id": "pages-2",
+      "kind": "pagination",
+      "repo": "acme/catalog-service",
+      "label": "bug",
+      "max_calls": 4,
+      "pages": [
+        {
+          "cursor": null,
+          "items": [
+            {
+              "repo": "acme/catalog-service",
+              "number": "201",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/catalog-service",
+              "number": "202",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/catalog-service",
+              "number": "209",
+              "state": "closed",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            }
+          ],
+          "next_cursor": "token-2-b"
+        },
+        {
+          "cursor": "token-2-b",
+          "items": [],
+          "next_cursor": "token-2-c"
+        },
+        {
+          "cursor": "token-2-c",
+          "items": [
+            {
+              "repo": "acme/catalog-service",
+              "number": "204",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/catalog-service",
+              "number": "207",
+              "state": "open",
+              "labels": [
+                "enhancement"
+              ],
+              "assignees": []
+            }
+          ],
+          "next_cursor": null
+        }
+      ]
+    },
+    {
+      "id": "transient-3",
+      "kind": "transient",
+      "repo": "acme/auth-service",
+      "max_calls": 3,
+      "responses": [
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": true,
+          "items": [
+            "301",
+            "302"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "persistent-3",
+      "kind": "persistent",
+      "repo": "acme/auth-service",
+      "max_calls": 3,
+      "responses": [
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        },
+        {
+          "ok": false,
+          "error": "temporary_unavailable"
+        }
+      ]
+    },
+    {
+      "id": "pages-3",
+      "kind": "pagination",
+      "repo": "acme/auth-service",
+      "label": "security",
+      "max_calls": 4,
+      "pages": [
+        {
+          "cursor": null,
+          "items": [
+            {
+              "repo": "acme/auth-service",
+              "number": "301",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/auth-service",
+              "number": "302",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/auth-service",
+              "number": "309",
+              "state": "closed",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            }
+          ],
+          "next_cursor": "token-3-b"
+        },
+        {
+          "cursor": "token-3-b",
+          "items": [
+            {
+              "repo": "acme/auth-service",
+              "number": "302",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/auth-service",
+              "number": "303",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/auth-service",
+              "number": "308",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": [
+                "mina"
+              ]
+            }
+          ],
+          "next_cursor": "token-3-c"
+        },
+        {
+          "cursor": "token-3-c",
+          "items": [
+            {
+              "repo": "acme/auth-service",
+              "number": "304",
+              "state": "open",
+              "labels": [
+                "bug"
+              ],
+              "assignees": []
+            },
+            {
+              "repo": "acme/auth-service",
+              "number": "307",
+              "state": "open",
+              "labels": [
+                "enhancement"
+              ],
+              "assignees": []
+            }
+          ],
+          "next_cursor": null
+        }
+      ]
+    }
+  ]
+}

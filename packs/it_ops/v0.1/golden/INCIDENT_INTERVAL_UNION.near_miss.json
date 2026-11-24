@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "query_metric_incidents",
+      "tool_args": {
+        "service": "payment"
+      },
+      "tool_result": "[{\"service\": \"payment\", \"start\": \"2026-11-24T11:20:00+09:00\", \"end\": \"2026-11-24T11:40:00+09:00\"}, {\"service\": \"payment\", \"start\": \"2026-11-24T11:35:00+09:00\", \"end\": \"2026-11-24T12:00:00+09:00\"}, {\"service\": \"payment\", \"start\": \"2026-11-24T12:10:00+09:00\", \"end\": \"2026-11-24T12:20:00+09:00\"}, {\"service\": \"payment\", \"start\": \"2026-11-24T12:20:00+09:00\", \"end\": \"2026-11-24T12:25:00+09:00\"}]",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:01Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"downtime_sec\": 2701}",
+  "run_outcome": "completed"
+}

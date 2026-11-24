@@ -1,14 +1,20 @@
 # ② 독립 준비 결과 / ① 확인 요청 — 2026-11-24
 
-기준: 평가팩3개·총20유형·62문항·골든80개. [현재 안내](../packs/README.md)와 [전체 문항 목록](../packs/QUESTIONS.md)을 함께 본다.
+기준: 평가팩1개(it_ops/v0.1)·총42유형·128문항·골든168개. [현재 안내](../packs/README.md)와 [전체 문항 목록](../packs/QUESTIONS.md)을 함께 본다.
+
+7개 업무 그룹은 독립 평가팩이 아니다. 데이터·문항·골든·개발 어댑터를 단일 폴더에 통합했고 전체 가짜 실행은 reference/run_pack.py로 수행한다.
 
 ## 준비한 것
 
 | 항목 | 결과 | 제품 통합 상태 |
 |---|---|---|
-| 조회 팩 | 15유형·47문항·골든60개 | 전부 dev, 독립 검수 전 |
-| 쓰기 팩 | 2유형·6문항·골든8개·가짜28실행 | confirmation 칼럼 적용 대기, 실제 write_proxy 미검증 |
-| 장애 분석 팩 | 3유형·9문항·골든12개·가짜46실행 | 로그·관계근거·승인공유. MCP 확장/제품 채점 미연동 |
+| 조회 그룹 | 15유형·47문항·골든60개 | 전부 dev, 독립 검수 전 |
+| 쓰기 그룹 | 2유형·6문항·골든8개·가짜28실행 | confirmation 칼럼 적용 대기, 실제 write_proxy 미검증 |
+| 장애 분석 그룹 | 3유형·9문항·골든12개·가짜46실행 | 로그·관계근거·승인공유. MCP 확장/제품 채점 미연동 |
+| 오류복구/페이지 그룹 | 3유형·9문항·골든12개·가짜60실행 | 순서 재생·한도·cursor 검사. 전용 MCP/제품 의미검증 미연동 |
+| 정보충돌 그룹 | 3유형·9문항·골든12개·가짜69실행 | 동급 충돌/신선도/근거부족. 제품 출처 매핑·MCP 미연동 |
+| 운영계산 그룹 | 6유형·18문항·골든24개·가짜108실행 | JSON 원본 어댑터. 요청/장애/지연 기능 제안·파생 지표 제품 채점 미연동 |
+| 운영절차 그룹 | 10유형·30문항·골든40개·가짜189실행 | 고정 상태·단일 풀이. ops.traces.read 제안/실제 도구·제품 채점 대기 |
 | MCP 연습 서버 | GitHub 조회 도구5개, resource 메타데이터, 시작 시 데이터 검증 | Docker stdio 20호출 통과 |
 | DB loader | 정책·참조·스키마 사전 검사, 단일 트랜잭션 draft 저장 | 실제 DB에 47문항·골든60개 저장/조회 후 롤백 확인 |
 | 문항 선택 | split 분리, 유형 전체 노출 제외, 동일 유형 동일 묶음 | 순수 선택 테스트 및 draft 선택 거절 확인 |
@@ -33,9 +39,9 @@
 
 ## DB 경계
 
-① DB 칼럼·ERD·migration은 변경하지 않았다. 현재 DB에는 sa_tasks.confirmation이 없어 쓰기 팩은 저장 전 안내 오류를 낸다. 조회 팩은 NULL 정책이므로 기존 DB에서도 로딩 가능하다.
+① DB 칼럼·ERD·migration은 변경하지 않았다. 현재 DB에는 sa_tasks.confirmation이 없어 쓰기 그룹은 저장 전 안내 오류를 낸다. 통합 팩은 정책이 있는 문항을 포함하므로 해당 칼럼이 없으면 전체 팩 로딩을 차단한다. 과거 조회 그룹만의 롤백 검증은 통합 팩 전체 DB 검증이 아니다.
 
-① 칼럼 적용 후 `SLOTAGENT_RUN_DB_TESTS=1`로 쓰기 팩 JSONB 저장 분기를 다시 확인해야 한다. 테스트 행은 롤백하지만 PostgreSQL 시퀀스 번호는 소비될 수 있다. 이번에 제품 평가팩 행을 영구 등록하거나 잠그지는 않았다.
+① 칼럼 적용 후 `SLOTAGENT_RUN_DB_TESTS=1`로 쓰기 그룹 JSONB 저장 분기를 다시 확인해야 한다. 테스트 행은 롤백하지만 PostgreSQL 시퀀스 번호는 소비될 수 있다. 이번에 제품 평가팩 행을 영구 등록하거나 잠그지는 않았다.
 
 전체 manifest 해시는 pack_content_hash로 제공하고 데이터별 해시는 sa_data_snapshots에 저장한다. 전체 해시의 최종 DB 칼럼/제품 snapshot 저장 위치는 ①과 합의가 남아 있다.
 
@@ -59,7 +65,7 @@
 ```powershell
 .venv/Scripts/python.exe packs/it_ops/v0.1/practice/check_mcp.py --docker-image slotagent-it-ops-practice:0.1.0
 .venv/Scripts/python.exe packs/it_ops/v0.1/reference/verify_golden.py --all
-.venv/Scripts/python.exe packs/it_ops_writes/v0.1/smoke.py
+.venv/Scripts/python.exe packs/it_ops/v0.1/reference/run_pack.py --group writes
 .venv/Scripts/python.exe -m pytest -c backend/pyproject.toml backend/tests/test_pack_independent.py backend/tests/test_pack_loader.py
 ```
 
@@ -70,3 +76,23 @@
 ## ② 다음 단계
 
 ① 연동 피드백 후 어댑터/스키마 조정, 독립 검수자 배정, held 유형 확보, 실제 모델 파일럿 비용·시간 측정, 사람이 라벨한 데이터로 판정기 사전 검증을 진행한다. 독립 사람 라벨·공급자 모델 설정·GPU 없이 LLM 판정기 정확도/LoRA 채택 여부를 임의로 확정하지 않는다.
+
+
+## 오류복구/페이지 그룹 추가 확인 요청
+
+②에서 it_ops/v0.1 내부 reliability 그룹에 고정된 도구 오류 순서·페이지 응답과 9문항/골든12개/가짜60실행을 준비했다. 전체 목록은 기존 packs/QUESTIONS.md, 사용법은 packs/README.md를 갱신했다. query_issue_ids/list_paged_issues 실제 도구 연결, 후보·trial·attempt별 독립 상태, 도구 결과 오류와 env_error 구분, 엔진의 자동 재시도가 에이전트 한도에 중복 집계되지 않는 방식을 검토 부탁드린다. 현행 조건의 status/items/call_count뿐 아니라 trace 응답 재생·순서·페이지 완전성까지 제품 채점에서 확인해야 한다.
+
+
+## 정보 충돌 팩 추가 확인 요청
+
+it_ops/v0.1 내부 conflicts 그룹의9문항은 동급 주 원본 불일치, 과거 캐시/미래 관측 제외, 확인된 상태와 미확정 버전 구분을 평가한다. 고정 판단시각·24시간 범위·주 원본 등급은 문항에 명시했다. get_run_facts/list_version_evidence 실제 도구와 신뢰할 수 있는 출처 매핑, 구조화 conflict/resolved/insufficient 의미 검증을 제품 채점에 연결할지 검토 부탁드린다. 모든 정책은 합성 평가 문제의 가정이며 source 이름이 본문에 보인다는 이유만으로 제품에서 신뢰하면 안 된다.
+
+
+## 운영계산 27~32번 추가 확인 요청
+
+it_ops/v0.1 내부 metrics 그룹에 에러 수 비교·트래픽 정규화 비율·중복 제거·장애 합집합·nearest-rank p90·최소 표본의6유형을 추가했다. raw 레코드의 계산으로 도출한 bp/p90/중단시간을 제품 채점기의 출처 추적에서 어떻게 검증할지 확인이 필요하다. exact 비교를 위해 단위/반올림/시간 구간을 문항에 고정했다. db.requests.read/db.incidents.read/db.latency.read는 ② 제안이며 ④ 확인 전 자동 매핑하지 않는다. 실제 DB/SQL/MCP는 아직 연결하지 않았다.
+
+
+## 독립 제작10유형 추가 확인 요청
+
+it_ops/v0.1 내부 workflows 그룹에 설정 우선순위·trace 복원·점검 누락·본문 악성 지시 무시·고정 저장소 범위·권한오류 구별·JSON 파싱·중복 이슈 방지·조건부 승인 쓰기·완료 범위 보고를 추가했다. 30문항/골든40개/가짜189실행을 준비했으며 50개 목표까지 남은8유형은 선협의 상태다. read_workflow_context/lookup_workflow_items의 실제 도구 매핑, ops.traces.read 기능 확정, 관계·범위·정확한 쓰기 횟수·부분완료 의미 검증을 ①④와 확인해야 한다. 일반 보안 통제나 동시 쓰기 검증을 완료한 것은 아니다.

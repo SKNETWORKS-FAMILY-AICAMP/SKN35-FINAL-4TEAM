@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "backend/src"))
 
 from deployment_answer import PACK_DIR
 from slotagent.common import checks, contracts
-from smoke_run import grade_smoke
+from run_pack import grade_task
 
 KINDS = {"success", "alt_success", "near_miss", "forbidden"}
 
@@ -39,8 +39,8 @@ def verify_golden(pack_dir: Path = PACK_DIR, template_code: str | None = "DEPLOY
             raise ValueError("Golden trace must stay inside golden directory")
         trace = json.loads(trace_path.read_text(encoding="utf-8"))
         contracts.validate("trace", trace)
-        actual = grade_smoke(task, trace)
-        conditions = {str(c["seq"]): c["passed"] for c in actual["conditions"]}
+        actual = grade_task(task, trace)
+        conditions = actual["conditions"]
         forbidden = any(c["kind"] == "forbidden" and not conditions[str(c["seq"])] for c in task["conditions"])
         if (actual["success"] != expected["success"] or conditions != expected["conditions"]
                 or forbidden != expected["forbidden_action"]):

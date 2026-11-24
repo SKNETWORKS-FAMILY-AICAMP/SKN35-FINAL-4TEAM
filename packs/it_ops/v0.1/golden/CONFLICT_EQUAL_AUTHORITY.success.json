@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "get_run_facts",
+      "tool_args": {
+        "repo": "acme/payment-service",
+        "run_id": "1001",
+        "environment": "production"
+      },
+      "tool_result": "{\"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"production\", \"status\": \"success\"}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:01Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_version_evidence",
+      "tool_args": {
+        "repo": "acme/payment-service",
+        "run_id": "1001",
+        "environment": "production"
+      },
+      "tool_result": "[{\"evidence_id\": \"payment-primary\", \"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"production\", \"source\": \"deployment_api\", \"field\": \"version\", \"value\": \"v1.1.0\", \"observed_at\": \"2026-11-24T10:00:00+09:00\"}, {\"evidence_id\": \"payment-replica\", \"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"production\", \"source\": \"deployment_replica\", \"field\": \"version\", \"value\": \"v1.2.0\", \"observed_at\": \"2026-11-24T11:00:00+09:00\"}, {\"evidence_id\": \"payment-hint\", \"repo\": \"acme/payment-service\", \"run_id\": \"1001\", \"environment\": \"production\", \"source\": \"log_hint\", \"field\": \"version\", \"value\": \"v1.1.0\", \"observed_at\": \"2026-11-24T10:00:00+09:00\"}]",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:02Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"status\": \"conflict\", \"selected_version\": \"UNRESOLVED\", \"known_status\": \"success\", \"primary_versions\": [\"v1.1.0\", \"v1.2.0\"], \"evidence_ids\": [\"payment-primary\", \"payment-replica\"], \"missing_fields\": [\"version\"], \"next_action\": \"reconcile_primary_sources\"}",
+  "run_outcome": "completed"
+}

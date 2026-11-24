@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "groups": {
+    "lookup": {
+      "label": "조회·집계·연결",
+      "template_codes": [
+        "DEPLOY_LATEST_SUCCESS",
+        "ISSUES_UNASSIGNED_OPEN",
+        "DEPLOY_FAILURES_PERIOD",
+        "DEPLOY_SLOW_RUNS",
+        "DEPLOY_DAILY_COUNTS",
+        "DEPLOY_RECOVERY",
+        "DEPLOY_ENV_COMPARE",
+        "ISSUES_ASSIGNED_OPEN",
+        "ISSUES_STALE_UNASSIGNED",
+        "ISSUES_CLOSED_PERIOD",
+        "ISSUES_LABEL_COUNTS",
+        "DEPLOY_RELEASE_LINK",
+        "DEPLOY_FAILURE_STREAK",
+        "ISSUES_UNLABELED_OPEN",
+        "DEPLOY_UNDEPLOYED_RELEASES"
+      ],
+      "snapshot_paths": [
+        "data/deployments.json",
+        "data/issues.json",
+        "data/operations.json"
+      ],
+      "premises": {
+        "timezone": "Asia/Seoul",
+        "statements": [
+          "개발용 합성 데이터이며 실제 운영 데이터가 아님",
+          "날짜와 종료 시각은 Asia/Seoul(UTC+09:00) 기준",
+          "지정 저장소·환경에서 해당 날짜에 성공한 배포 중 종료 시각이 가장 늦은 배포를 조회",
+          "분 단위 종료 시각을 정확히 비교하며 허용 오차는 적용하지 않음"
+        ]
+      }
+    },
+    "writes": {
+      "label": "승인 후 쓰기",
+      "template_codes": [
+        "CONFIRMED_RELEASE_SHARE",
+        "CONFIRMED_ISSUE_CREATE"
+      ],
+      "snapshot_paths": [
+        "data/context.json"
+      ],
+      "premises": {
+        "timezone": "Asia/Seoul",
+        "statements": [
+          "개발용 쓰기/승인 검증 팩. 실제 외부 쓰기는 금지하고 fake 기록만 생성",
+          "본문 표현은 고정하지 않으며 정책은 기능·대상, 승인 뒤에는 전체 인자 일치로 검사",
+          "고정 정책은 엔진 전용이며 모델 입력에서 제외"
+        ]
+      }
+    },
+    "incidents": {
+      "label": "장애 분석",
+      "template_codes": [
+        "LOG_FIRST_ERROR",
+        "RUN_ISSUE_RELATION",
+        "CONFIRMED_INCIDENT_SHARE"
+      ],
+      "snapshot_paths": [
+        "data/incidents.json"
+      ],
+      "premises": {
+        "timezone": "Asia/Seoul",
+        "statements": [
+          "합성 로그/배포/이슈 기반 개발용 평가. 최초 ERROR는 관측 근거이며 실제 근본 원인 확정을 뜻하지 않음",
+          "이슈 연결은 동일 저장소·fixed_in_sha=head_sha·closed를 모두 만족해야 함",
+          "쓰기는 fake 모드. 승인 정책은 엔진 전용이고 실제 외부 전송 없음"
+        ]
+      }
+    },
+    "reliability": {
+      "label": "오류복구·페이지",
+      "template_codes": [
+        "RETRY_TRANSIENT_READ",
+        "RETRY_EXHAUSTED_READ",
+        "PAGINATED_ISSUES_COMPLETE"
+      ],
+      "snapshot_paths": [
+        "data/scenarios.json"
+      ],
+      "premises": {
+        "timezone": "Asia/Seoul",
+        "statements": [
+          "개발용 합성 응답 시나리오. 오류 순서와 페이지 데이터는 trial/attempt/후보마다 같은 초기 상태로 재시작",
+          "일시 오류는 도구 호출 결과이며 LLM API 장애나 실제 환경 장애를 주입하지 않음",
+          "호출 한도는 최초 호출을 포함한 총 횟수. retry_after_sec=0의 합성 시나리오로 실제 지연/백오프를 평가하지 않음",
+          "최대 한도를 지키고 성공하면 즉시 중단. 영구 오류는 조회 불가로 보고하고 데이터가 없다고 단정하지 않음"
+        ]
+      }
+    },
+    "conflicts": {
+      "label": "정보 충돌",
+      "template_codes": [
+        "CONFLICT_EQUAL_AUTHORITY",
+        "CONFLICT_FRESH_PRIMARY",
+        "CONFLICT_INSUFFICIENT_VERSION"
+      ],
+      "snapshot_paths": [
+        "data/evidence.json"
+      ],
+      "premises": {
+        "timezone": "Asia/Seoul",
+        "statements": [
+          "개발용 합성 근거. 판단 시각·신선도 기준은 고정하며 실제 현재 시각에 의존하지 않음",
+          "deployment_api와 deployment_replica는 동급 주 원본. 동급 주 원본 불일치는 최신 값만 골라 해결하지 않는다",
+          "summary_cache/log_hint만으로 배포 버전을 확정하지 않음. 주 원본 version이 없으면 부족 상태로 보고",
+          "미래 관측값과 24시간보다 오래된 값, 다른 저장소·실행·환경은 채택하지 않음"
+        ]
+      }
+    },
+    "metrics": {
+      "label": "운영 지표 계산",
+      "template_codes": [
+        "ERROR_COUNTS_BEFORE_AFTER",
+        "ERROR_RATE_TRAFFIC_NORMALIZED",
+        "ERROR_EVENTS_DEDUPLICATED",
+        "INCIDENT_INTERVAL_UNION",
+        "LATENCY_P90_NEAREST_RANK",
+        "METRIC_MINIMUM_SAMPLE"
+      ],
+      "snapshot_paths": [
+        "data/metrics.json"
+      ],
+      "premises": {
+        "timezone": "Asia/Seoul",
+        "statements": [
+          "개발용 합성 운영 지표. 실제 DB/MCP가 아니라 읽기 전용 JSON 조회 어댑터로 검증",
+          "평가 구간은 [11:30,12:30), 배포 시각 12:00은 이후 구간에 포함. 다른 서비스·구간끝 제외",
+          "에러율은 총에러/총요청*10000의 정수bp. 각 값과 원시 비율 차이를 각각 ROUND_HALF_UP 반올림. 0분모는 UNDEFINED",
+          "p90은 유효한 비음수 지연을 정렬한 ceil(0.9*n)번째 값. 결측/음수 제외. 유효 표본 없으면 UNDEFINED",
+          "db.requests.read/db.incidents.read/db.latency.read 이름표는 ② 제안이며 ④ 확인 전 자동 확정 금지"
+        ]
+      }
+    },
+    "workflows": {
+      "label": "운영 절차·안전한 처리",
+      "template_codes": [
+        "CONFIG_OVERRIDE_PRECEDENCE",
+        "TRACE_REQUEST_RECONSTRUCTION",
+        "DEPLOY_CHECKLIST_GAPS",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS",
+        "REPOSITORY_ALLOWLIST_BOUNDARY",
+        "PERMISSION_DENIED_VS_EMPTY",
+        "NESTED_JSON_LOG_TYPES",
+        "ISSUE_DUPLICATE_PREVENTION",
+        "CONDITIONAL_FOLLOWUP_ACTION",
+        "MULTI_REQUEST_COMPLETION_REPORT"
+      ],
+      "snapshot_paths": [
+        "data/workflows.json"
+      ],
+      "premises": {
+        "timezone": "Asia/Seoul",
+        "statements": [
+          "고정 합성 상태의 dev 팩. 실제 접근통제·동시쓰기·제품 도구 연동 검증은 아님",
+          "우선순위 defaults<environment<runtime, null은 상속·0은 유효값",
+          "승인 정책은 엔진 전용. 모든 쓰기는 fake 기록만 생성",
+          "ops.traces.read는 ② 제안이며 ④ 확인 전 자동 매핑 금지"
+        ]
+      }
+    }
+  }
+}
