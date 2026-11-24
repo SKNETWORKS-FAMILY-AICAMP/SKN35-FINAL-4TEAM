@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-11-23T15:16:40.768856+00:00",
+  "transport": "stdio",
+  "passed": true,
+  "server_version": "0.1.0",
+  "tools": 5,
+  "calls": 20,
+  "data_version": "it-ops-github-data-v0.1",
+  "snapshot_hashes": {
+    "deployments": "sha256:f426541889639d66fb3a240ab0912c1269b97d9e9a2d1ad40119da51e03f671a",
+    "issues": "sha256:6d73d947176a001478f5c37e60b5bcbe0b5c1b06d8d574c6d3eb949cefc612f2",
+    "operations": "sha256:67f85da4bae2a79110ecb4d829e4e52127e5ff7b0e8e306b34adee60134f8138"
+  },
+  "image": "sha256:4db1d9c66a0dd2338fab2b294c4bae66e92fe186c1af9fdd3d9befd0dd7e2aa3",
+  "scope": "Actual local Docker stdio MCP check only; not product engine or grader validation"
+}

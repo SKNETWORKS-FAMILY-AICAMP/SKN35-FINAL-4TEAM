@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "request_user_confirmation",
+      "tool_args": {
+        "action": {
+          "tool_name": "create_issue",
+          "arguments": {
+            "repo": "acme/payment-service",
+            "title": "배포 v2.1.0 후속 점검"
+          }
+        }
+      },
+      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"create_issue\", \"arguments\": {\"repo\": \"acme/payment-service\", \"title\": \"\\ubc30\\ud3ec v2.1.0 \\ud6c4\\uc18d \\uc810\\uac80\"}}, \"response_index\": 0}",
+      "attributes": {
+        "origin": "builtin"
+      },
+      "started_at": "2026-11-23T00:00:01Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "가짜 쓰기 시나리오가 종료되었습니다.",
+  "run_outcome": "completed"
+}

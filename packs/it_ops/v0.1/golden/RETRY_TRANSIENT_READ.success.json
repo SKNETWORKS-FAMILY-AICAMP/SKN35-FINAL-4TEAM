@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "query_issue_ids",
+      "tool_args": {
+        "repo": "acme/payment-service"
+      },
+      "tool_result": "{\"ok\": false, \"error\": \"temporary_unavailable\", \"retry_after_sec\": 0}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:01Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "query_issue_ids",
+      "tool_args": {
+        "repo": "acme/payment-service"
+      },
+      "tool_result": "{\"ok\": true, \"items\": [\"101\", \"102\"]}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T00:00:02Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"status\": \"complete\", \"items\": [\"101\", \"102\"], \"call_count\": 2}",
+  "run_outcome": "completed"
+}

@@ -5,6 +5,7 @@
 
 | 날짜 | 스키마 | 버전 | 바뀐 것 | 누가 |
 |------|--------|------|---------|------|
+| 2026-11-24 | 평가팩 구성만 (JSON 계약 변경 없음) | 1 | IT 운영 개발 팩7개를 `packs/it_ops/v0.1/pack.json` 하나로 통합(42유형·128문항·골든168개). 기존 코드는 보존하고 업무 분류는 groups.json으로 분리. 그룹별 원래 전제는 pack_version.premises에도 보존해 팩 해시에 포함. 전체 가짜 실행·골든 검사·목록을 단일 팩에 연결. DB/마이그레이션·제품 잠금은 변경하지 않음. | ② |
 | 2026-11-23 | DB만 (JSON 계약 변경 없음) | 1 | 사용자 승인: `0003_review_1122.sql` 끝에 `sa_cost_ledger.attempt`·`span_seq`(nullable), source='trial' 부분 UNIQUE(ref_id,attempt,span_seq) 추가. 중간 비용 보존·최종 저장 중복 방지. **②④ 코드 영향 없음**, judge·chat·validation과 기존 행은 그대로 허용. | ① |
 | 2026-11-22 | 전체 | 1 | 첫 판 (ERD v1.2 11/22판 기준) | 태민 |
 | 2026-11-22 | 전체 | 1 | 11/22 뼈대 검토 반영 (아직 아무도 안 썼으므로 버전은 1 그대로). 바뀐 것 요약: agent_spec.source 뺌 · config_snapshot 의 harness_version·model.seed·resolved 뺌, runtime.max_output_tokens · prereg.test = ni_then_sup 등 3값·env_error_reasons 필수·지표 이름 한 목록 · plan 의 n_templates·estimate.trials 뺌 · answer_condition 에 gate · trace spans[].output, outcome_reason 값 목록 · judge_settings·trial_metrics 가 {} 받음 · analysis.method.sequential.stop · job analyze 에서 experiment_id 뺌 · report evidence 에 trial_id, detail 칸 · api 에 등록·평가팩 목록·plan-proposal·stop·results·report, 실험 요청 후보는 id 만. 자세히 docs/review_1122.md | 태민 |

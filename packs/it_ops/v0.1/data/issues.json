@@ -1,0 +1,98 @@
+{
+  "snapshot_version": "it_ops-issues-v0.1",
+  "issues": [
+    {
+      "number": "145",
+      "repo": "acme/ops-service",
+      "state": "open",
+      "labels": [
+        "bug"
+      ],
+      "assignees": []
+    },
+    {
+      "number": "148",
+      "repo": "acme/ops-service",
+      "state": "open",
+      "labels": [
+        "bug",
+        "urgent"
+      ],
+      "assignees": []
+    },
+    {
+      "number": "140",
+      "repo": "acme/ops-service",
+      "state": "open",
+      "labels": [
+        "bug"
+      ],
+      "assignees": [
+        "mina"
+      ]
+    },
+    {
+      "number": "147",
+      "repo": "acme/ops-service",
+      "state": "closed",
+      "labels": [
+        "bug"
+      ],
+      "assignees": []
+    },
+    {
+      "number": "152",
+      "repo": "acme/ops-service",
+      "state": "open",
+      "labels": [
+        "enhancement"
+      ],
+      "assignees": []
+    },
+    {
+      "number": "153",
+      "repo": "acme/ops-service",
+      "state": "open",
+      "labels": [],
+      "assignees": []
+    },
+    {
+      "number": "145",
+      "repo": "acme/other-service",
+      "state": "open",
+      "labels": [
+        "bug"
+      ],
+      "assignees": []
+    },
+    {
+      "number": "210",
+      "repo": "acme/other-service",
+      "state": "open",
+      "labels": [
+        "bug"
+      ],
+      "assignees": []
+    },
+    {
+      "number": "211",
+      "repo": "acme/other-service",
+      "state": "closed",
+      "labels": [
+        "bug"
+      ],
+      "assignees": []
+    },
+    {
+      "number": "212",
+      "repo": "acme/other-service",
+      "state": "open",
+      "labels": [
+        "bug"
+      ],
+      "assignees": [
+        "jun"
+      ]
+    }
+  ]
+}
