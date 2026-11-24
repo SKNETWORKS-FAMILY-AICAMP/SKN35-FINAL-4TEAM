@@ -32,6 +32,21 @@ def pack_content_hash(pack: dict) -> str:
     return canonical_hash({**pack, "tasks": tasks})
 
 
+def store_pack_content_hash(conn, pack_version_id: int, pack: dict) -> bool:
+    """①의 content_hash 칼럼 적용 후 저장. 기존 DB는 지원하며 DDL은 수행하지 않는다."""
+    present = conn.execute(
+        "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_schema() "
+        "AND table_name = 'sa_pack_versions' AND column_name = 'content_hash')"
+    ).fetchone()[0]
+    if not present:
+        return False
+    result = conn.execute("UPDATE sa_pack_versions SET content_hash=%s WHERE pack_version_id=%s",
+                          (pack_content_hash(pack), pack_version_id))
+    if result.rowcount != 1:
+        raise ValueError(f"Unknown pack_version_id: {pack_version_id}")
+    return True
+
+
 def read_pack(pack_dir):
     """파일·참조·계약을 DB 변경 전에 검사한다. 로컬 동결 JSON만 지원."""
     root = Path(pack_dir).resolve()
@@ -95,7 +110,7 @@ def load_pack(conn, pack_dir) -> int:
     """검증된 팩을 draft로 원자적 저장. 중복 버전은 DB UNIQUE로 거절, 임의 덮어쓰기 없음.
 
     confirmation 칼럼은 ① 마이그레이션 책임. 읽기 팩은 칼럼 없이도 저장 가능하다.
-    전체 load/lock 게이트 검증 완료를 의미하지 않는다. 해시는 pack_content_hash로 별도 제공.
+    content_hash 칼럼이 있으면 원본 해시도 같은 트랜잭션으로 저장한다. 없으면 이전 DB 경로를 유지한다.
     """
     pack, snapshots, golden = read_pack(pack_dir)
     with conn.transaction():
@@ -111,6 +126,7 @@ def load_pack(conn, pack_dir) -> int:
             "RETURNING pack_version_id",
             (version["domain_code"], version["pack_code"], version["version"], Jsonb(version["premises"])),
         ).fetchone()[0]
+        store_pack_content_hash(conn, pack_id, pack)
         for snapshot, content_hash in snapshots:
             conn.execute(
                 "INSERT INTO sa_data_snapshots(pack_version_id,source_kind,location,design,content_hash,frozen_at) "
@@ -152,9 +168,13 @@ def load_pack(conn, pack_dir) -> int:
         return pack_id
 
 
-def lock_pack(conn, pack_version_id: int) -> None:
+def lock_pack(conn, pack_version_id: int, *, lock_timeout_ms: int = 5000) -> None:
     """DB 내용 fingerprint에 묶인 독립 환경/제품 골든 검증 기록이 있을 때만 잠근다."""
+    if type(lock_timeout_ms) is not int or not 1 <= lock_timeout_ms <= 2147483647:
+        raise ValueError("lock_timeout_ms must be a positive PostgreSQL millisecond integer")
     with conn.transaction():
+        previous_timeout = conn.execute("SELECT current_setting('lock_timeout')").fetchone()[0]
+        conn.execute("SELECT set_config('lock_timeout',%s,true)", (f"{lock_timeout_ms}ms",))
         row = conn.execute("SELECT status FROM sa_pack_versions WHERE pack_version_id=%s FOR UPDATE",
                            (pack_version_id,)).fetchone()
         if row is None or row[0] != "draft":
@@ -167,6 +187,8 @@ def lock_pack(conn, pack_version_id: int) -> None:
             raise ValueError("Pack lock blocked: " + "; ".join(report["blockers"]))
         conn.execute("UPDATE sa_pack_versions SET status='locked',locked_at=now() WHERE pack_version_id=%s",
                      (pack_version_id,))
+        # 외부 트랜잭션이 있더라도 성공 후 호출자 설정을 유지한다. 실패 시 savepoint/transaction이 복원한다.
+        conn.execute("SELECT set_config('lock_timeout',%s,true)", (previous_timeout,))
 
 
 def pack_readiness(conn, pack_version_id: int) -> dict:

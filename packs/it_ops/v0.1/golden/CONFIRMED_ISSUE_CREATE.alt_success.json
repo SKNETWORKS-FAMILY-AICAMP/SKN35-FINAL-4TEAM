@@ -6,6 +6,21 @@
     {
       "seq": 1,
       "kind": "tool",
+      "name": "get_write_context",
+      "tool_args": {
+        "context_id": "release-1"
+      },
+      "tool_result": "{\"id\": \"release-1\", \"version\": \"v2.1.0\", \"channel\": \"ops-alerts\", \"repo\": \"acme/payment-service\", \"title\": \"\\ubc30\\ud3ec v2.1.0 \\uacb0\\uacfc \\ud655\\uc778\"}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-23T00:00:01Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
       "name": "request_user_confirmation",
       "tool_args": {
         "action": {
@@ -20,11 +35,11 @@
       "attributes": {
         "origin": "builtin"
       },
-      "started_at": "2026-11-23T00:00:01Z",
+      "started_at": "2026-11-23T00:00:02Z",
       "duration_sec": 0
     },
     {
-      "seq": 2,
+      "seq": 3,
       "kind": "tool",
       "name": "create_issue",
       "tool_args": {
@@ -33,16 +48,16 @@
       },
       "tool_result": "{\"fake\": true}",
       "attributes": {
-        "confirmation_span_seq": 1,
+        "confirmation_span_seq": 2,
         "write_mode": "fake"
       },
-      "started_at": "2026-11-23T00:00:02Z",
+      "started_at": "2026-11-23T00:00:03Z",
       "duration_sec": 0
     }
   ],
   "write_intents": [
     {
-      "span_seq": 2,
+      "span_seq": 3,
       "tool_name": "create_issue",
       "payload": {
         "repo": "acme/payment-service",

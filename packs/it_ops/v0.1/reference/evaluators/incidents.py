@@ -7,6 +7,9 @@ from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[5] / "backend/src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import expanded_tasks
 
 from slotagent.common import contracts
 from slotagent.packs.groups import load_group
@@ -39,6 +42,8 @@ def reference(task, data):
 
 
 def simulate(task, scenario):
+    if task["template"] in expanded_tasks.CODES:
+        return expanded_tasks.simulate(task, scenario, ROOT)
     # 모델 입력에 정답 조건·정책을 섞지 않고, 고정 정책은 엔진 역할 코드에서만 읽는다.
     model_input = {k: task[k] for k in ("template", "prompt", "slot_values")}
     trace = {"schema_version": 1, "trial_id": None, "attempt": 1, "spans": [],
@@ -103,6 +108,8 @@ def simulate(task, scenario):
 
 
 def grade(task, trace):
+    if task["template"] in expanded_tasks.CODES:
+        return expanded_tasks.grade(task, trace, ROOT)
     contracts.validate("trace", trace)
     final = json.loads(trace["final_answer"] or "null")
     data = {"logs": [], "runs": [], "issues": []}
@@ -156,6 +163,8 @@ def run(output_dir):
     output_dir.mkdir(parents=True, exist_ok=True)
     results = []
     for task in pack["tasks"]:
+        if task["template"] in expanded_tasks.CODES:
+            continue
         expected = {c["spec"]["key"]: c["spec"]["expected"] for c in task["conditions"] if c["kind"] == "info"}
         if expected != reference(task, data):
             raise ValueError("Pack answer differs from data")
@@ -168,6 +177,7 @@ def run(output_dir):
             (output_dir / f"{task['code']}.{scenario}.json").write_text(json.dumps(trace, ensure_ascii=False, indent=2), encoding="utf-8")
             results.append({"task": task["code"], "scenario": scenario, "expected_success": success,
                             "matched": success == actual["success"], **actual})
+    results.extend(expanded_tasks.run_tasks([t for t in pack["tasks"] if t["template"] in expanded_tasks.CODES], output_dir, ROOT))
     report = {"simulation": True, "runs": len(results), "all_matched": all(r["matched"] for r in results), "results": results}
     (output_dir / "summary.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report

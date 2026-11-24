@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from slotagent.common import checks, contracts
 
 PACK_DIR = Path(__file__).resolve().parents[2] / "packs" / "it_ops" / "v0.1"
