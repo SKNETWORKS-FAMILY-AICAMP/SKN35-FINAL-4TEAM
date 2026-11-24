@@ -302,9 +302,9 @@ def grade(task, trace, root):
         matching = [
             s for s in calls if s["name"] == name and s.get("tool_args") == args
         ]
-        if len(matching) != 1:
-            raise ValueError("Missing or repeated required read")
-        span = matching[0]
+        if not matching:
+            raise ValueError("Missing required read")
+        span = min(matching, key=lambda s: s["seq"])
         used.append(span["seq"])
         return json.loads(span["tool_result"])
 

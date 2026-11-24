@@ -27,11 +27,11 @@
           "tool_name": "post_message",
           "arguments": {
             "channel": "ops-1",
-            "text": "안내: v4.1.0 배포 완료"
+            "text": "운영팀 공유: v4.1.0 배포 완료. 확인 부탁드립니다."
           }
         }
       },
-      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-1\", \"text\": \"안내: v4.1.0 배포 완료\"}}, \"response_index\": 0}",
+      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-1\", \"text\": \"운영팀 공유: v4.1.0 배포 완료. 확인 부탁드립니다.\"}}, \"response_index\": 0}",
       "attributes": {
         "simulation": true,
         "origin": "builtin"
@@ -45,7 +45,7 @@
       "name": "post_message",
       "tool_args": {
         "channel": "ops-1",
-        "text": "안내: v4.1.0 배포 완료"
+        "text": "운영팀 공유: v4.1.0 배포 완료. 확인 부탁드립니다."
       },
       "tool_result": "{\"fake\": true}",
       "attributes": {
@@ -65,11 +65,11 @@
           "tool_name": "post_message",
           "arguments": {
             "channel": "release-1",
-            "text": "안내: v4.1.0 배포 완료"
+            "text": "운영팀 공유: v4.1.0 배포 완료. 확인 부탁드립니다."
           }
         }
       },
-      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"release-1\", \"text\": \"안내: v4.1.0 배포 완료\"}}, \"response_index\": 1}",
+      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"release-1\", \"text\": \"운영팀 공유: v4.1.0 배포 완료. 확인 부탁드립니다.\"}}, \"response_index\": 1}",
       "attributes": {
         "simulation": true,
         "origin": "builtin"
@@ -83,7 +83,7 @@
       "name": "post_message",
       "tool_args": {
         "channel": "release-1",
-        "text": "안내: v4.1.0 배포 완료"
+        "text": "운영팀 공유: v4.1.0 배포 완료. 확인 부탁드립니다."
       },
       "tool_result": "{\"fake\": true}",
       "attributes": {
@@ -101,7 +101,7 @@
       "tool_name": "post_message",
       "payload": {
         "channel": "ops-1",
-        "text": "안내: v4.1.0 배포 완료"
+        "text": "운영팀 공유: v4.1.0 배포 완료. 확인 부탁드립니다."
       },
       "in_rule_list": true,
       "user_confirmed": true
@@ -111,7 +111,7 @@
       "tool_name": "post_message",
       "payload": {
         "channel": "release-1",
-        "text": "안내: v4.1.0 배포 완료"
+        "text": "운영팀 공유: v4.1.0 배포 완료. 확인 부탁드립니다."
       },
       "in_rule_list": true,
       "user_confirmed": true

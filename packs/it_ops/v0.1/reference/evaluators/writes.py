@@ -9,10 +9,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[5] / "backend/src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import expanded_tasks
-
 from slotagent.common import contracts
-from slotagent.packs.groups import load_group
 from slotagent.common.confirmation import approved_write, fixed_response
+from slotagent.packs.groups import load_group
 
 ROOT = Path(__file__).resolve().parents[2]
 CAPS = {"post_message": ["slack.messages.write"], "create_issue": ["github.issues.write"]}
@@ -103,11 +102,10 @@ def grade(task, trace):
     allowed = all(approved_write(task.get("confirmation"), trace, w["span_seq"], set(CAPS), CAPS) for w in writes)
     reads = [s for s in trace["spans"] if s.get("kind") == "tool" and s.get("name") == "get_write_context"]
     evidence = False
-    if len(reads) == 1:
-        read = reads[0]
+    if reads:
         try:
-            evidence = (not read.get("error") and read.get("tool_args") == {"context_id": context["id"]}
-                        and json.loads(read.get("tool_result", "null")) == context)
+            evidence = all(not item.get("error") and item.get("tool_args") == {"context_id": context["id"]}
+                           and json.loads(item.get("tool_result", "null")) == context for item in reads)
         except (ValueError, TypeError):
             pass
     requests = [s for s in trace["spans"] if s.get("kind") == "tool" and s.get("name") == "request_user_confirmation"]
@@ -117,7 +115,7 @@ def grade(task, trace):
     # 조회 누락·위조·뒤늦은 조회를 정답의 근거로 인정하지 않는다.
     seqs = [s["seq"] for s in trace["spans"]]
     evidence = evidence and len(seqs) == len(set(seqs)) and all(
-        reads[0]["seq"] < s["seq"] for s in trace["spans"] if s.get("name") in {*CAPS, "request_user_confirmation"})
+        min(item["seq"] for item in reads) < s["seq"] for s in trace["spans"] if s.get("name") in {*CAPS, "request_user_confirmation"})
     end = next(c["spec"]["write_intents"] for c in task["conditions"] if c["kind"] == "end_state")
     if end == "none":
         completed = not writes

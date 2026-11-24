@@ -2,6 +2,7 @@
 
 import copy
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -10,16 +11,48 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[5] / "backend/src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import expanded_tasks
-
 import followup_tasks
-
 from slotagent.common import contracts
-from slotagent.packs.groups import load_group
 from slotagent.common.confirmation import approved_write, fixed_response
+from slotagent.packs.groups import load_group
 
 ROOT = Path(__file__).resolve().parents[2]
 CAPS = {"post_message": ["slack.messages.write"]}
 READ_TOOLS = {"get_incident_logs": "logs", "list_incident_runs": "runs", "list_incident_issues": "issues"}
+
+
+def message_matches(text, facts):
+    """JSON 또는 순서 무관한 사실 표기만 검사. 일반 자연어 의미 판정은 별도다."""
+    if not isinstance(facts, dict):
+        return False
+    try:
+        parsed = json.loads(text)
+    except (ValueError, TypeError):
+        parsed = {}
+        if not isinstance(text, str):
+            return False
+        names = {"최초 오류": "cause_code", "오류 코드": "cause_code", "원인 코드": "cause_code",
+                 "배포 커밋": "head_sha", "커밋": "head_sha", "관련 이슈": "issue_ids", "종료 이슈": "issue_ids", "이슈": "issue_ids"}
+        for part in re.split(r"[;\n]", text):
+            match = re.fullmatch(r"\s*([^:=]+)\s*[:=]\s*(.*?)\s*", part)
+            if not match or match[1].strip() not in names:
+                return False
+            key, value = names[match[1].strip()], match[2]
+            if key in parsed:
+                return False
+            if key == "issue_ids":
+                if value in {"[]", "없음"}:
+                    value = []
+                elif re.fullmatch(r"#?\d+(?:\s*,\s*#?\d+)*", value):
+                    value = re.findall(r"\d+", value)
+                else:
+                    return False
+            parsed[key] = value
+    if not isinstance(parsed, dict) or set(parsed) != {"cause_code", "head_sha", "issue_ids"}:
+        return False
+    ids = parsed["issue_ids"]
+    return (parsed["cause_code"] == facts.get("cause_code") and parsed["head_sha"] == facts.get("head_sha")
+            and isinstance(ids, list) and all(isinstance(i, str) for i in ids) and set(ids) == set(facts.get("issue_ids", [])))
 
 
 def reference(task, data):
@@ -61,7 +94,10 @@ def simulate(task, scenario):
         return seq
 
     observed = {"logs": [], "runs": [], "issues": []}
-    for tool, key in READ_TOOLS.items():
+    read_tools = list(READ_TOOLS.items())
+    if scenario == "alternate":
+        read_tools.reverse()
+    for tool, key in read_tools:
         if (model_input["template"] == "LOG_FIRST_ERROR" and key != "logs") or (
             model_input["template"] == "RUN_ISSUE_RELATION" and key == "logs"
         ):
@@ -93,6 +129,8 @@ def simulate(task, scenario):
         trace["spans"] = []  # 정답을 알아도 조회 기록이 없으면 실패하도록 하는 테스트 사례.
     write_task = model_input["template"] == "CONFIRMED_INCIDENT_SHARE"
     action = {"tool_name": "post_message", "arguments": {"channel": "ops-alerts", "text": json.dumps(answer, ensure_ascii=False)}}
+    if scenario == "alternate" and write_task:
+        action["arguments"]["text"] = f"관련 이슈: {', '.join('#'+i for i in answer['issue_ids'])}; 배포 커밋: {answer['head_sha']}; 최초 오류: {answer['cause_code']}"
     response = {"decision": "no_response"}
     confirmation_seq = None
     if write_task:
@@ -119,10 +157,16 @@ def grade(task, trace):
     contracts.validate("trace", trace)
     final = json.loads(trace["final_answer"] or "null")
     data = {"logs": [], "runs": [], "issues": []}
+    seen_rows = {key: set() for key in data}
     evidence = []
     for span in trace["spans"]:
         if span.get("name") in READ_TOOLS and not span.get("error"):
-            data[READ_TOOLS[span["name"]]].extend(json.loads(span["tool_result"]))
+            key = READ_TOOLS[span["name"]]
+            for row in json.loads(span["tool_result"]):
+                fingerprint = json.dumps(row, sort_keys=True, ensure_ascii=False)
+                if fingerprint not in seen_rows[key]:
+                    seen_rows[key].add(fingerprint)
+                    data[key].append(row)
             evidence.append(span["seq"])
     try:
         source_answer = reference(task, data)
@@ -155,7 +199,7 @@ def grade(task, trace):
                 writes[0]["payload"].get(k) == v for k, v in end[0]["args_include"].items())
             if passed and writes:
                 # 임시 제품 어댑터에서 JSON 메시지의 핵심 사실을 정확히 검증한다.
-                passed = json.loads(writes[0]["payload"]["text"]) == final
+                passed = message_matches(writes[0]["payload"].get("text"), final)
         else:
             raise ValueError(f"Unsupported condition {kind}")
         results[str(condition["seq"])] = bool(passed)

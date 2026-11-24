@@ -7,6 +7,7 @@ from datetime import datetime
 
 from slotagent.common import contracts
 from slotagent.common.confirmation import approved_write, fixed_response
+from text_facts import text_facts_match
 
 WRITE_CODES = {
     "ISSUE_ROUTING_APPROVAL",
@@ -160,8 +161,18 @@ def simulate(task, scenario, root):
                 action["arguments"]["text"] = (
                     f"{public_case['version']} 후속 이슈 #{observed_receipt['number']} 생성"
                 )
-            if scenario == "alternate" and action["tool_name"] == "post_message":
-                action["arguments"]["text"] = "안내: " + action["arguments"]["text"]
+            if scenario == "alternate":
+                if action["tool_name"] == "post_message":
+                    action["arguments"]["text"] = (
+                        "운영팀 공유: "
+                        + action["arguments"]["text"]
+                        + ". 확인 부탁드립니다."
+                    )
+                else:
+                    action["arguments"]["title"] = (
+                        f"운영 확인 요청 ({public_case['version']})"
+                    )
+                    action["arguments"]["labels"].reverse()
             if scenario == "wrong_answer" and index == len(actions) - 1:
                 key = "text" if action["tool_name"] == "post_message" else "labels"
                 action["arguments"][key] = (
@@ -248,8 +259,15 @@ def args_match(actual, expected):
         return False
     for key, value in expected.items():
         received = actual[key]
-        if key == "text":
-            if received not in (value, "안내: " + value):
+        if key in {"text", "title"}:
+            if not text_facts_match(received, value):
+                return False
+        elif key in {"labels", "assignees"}:
+            if (
+                not isinstance(received, list)
+                or not all(isinstance(v, str) for v in received)
+                or set(received) != set(value)
+            ):
                 return False
         elif received != value:
             return False
@@ -262,14 +280,15 @@ def grade(task, trace, root):
     tool = "get_write_case" if code in WRITE_CODES else "get_incident_case"
     spans = trace["spans"]
     reads = [s for s in spans if s.get("name") == tool and s.get("kind") == "tool"]
-    evidence = len(reads) == 1 and len({s["seq"] for s in spans}) == len(spans)
+    evidence = bool(reads) and len({s["seq"] for s in spans}) == len(spans)
     if evidence:
         try:
-            evidence = (
-                not reads[0].get("error")
-                and reads[0].get("tool_args") == {"scenario_id": case["id"]}
-                and json.loads(reads[0]["tool_result"])
+            evidence = all(
+                not read.get("error")
+                and read.get("tool_args") == {"scenario_id": case["id"]}
+                and json.loads(read["tool_result"])
                 == {k: v for k, v in case.items() if k != "receipt"}
+                for read in reads
             )
         except (ValueError, KeyError, TypeError):
             evidence = False
@@ -308,7 +327,7 @@ def grade(task, trace, root):
             completed
             and evidence
             and all(
-                reads[0]["seq"] < s["seq"]
+                min(read["seq"] for read in reads) < s["seq"]
                 for s in spans
                 if s.get("name") in {*CAPS, "request_user_confirmation"}
             )

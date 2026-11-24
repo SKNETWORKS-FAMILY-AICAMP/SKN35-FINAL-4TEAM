@@ -125,3 +125,22 @@ writes 그룹6문항의 하드코딩된 버전을 제거했다. context.json 단
 ## 상세 MD 수신 후 추가5유형 정리
 
 role2_reply_8types.md의 제안에 맞춰 direct/indirect 단계 조회, cause/certainty, commit/file/function, [EMAIL]/[TOKEN], fetch_url의302/403을 반영했다. 신규20골든은 명시적 access 문맥으로 eng_rules.check 조건별 일치까지 확인한다. 원래188개 전체 제품 대조/파이프라인 연결이 완료된 것은 아니다. 이름표는 ops.dependencies.read/ops.status.read/github.code.content.read/ops.incidents.read/web.pages.read 제안으로 정리했으며 ②④ 최종 확인 대기다. 실제 MCP 서버 지원은8유형26문항 그대로다. 쓰기3유형·DB·기존tool_error 작업은 계속 보류한다.
+
+
+## ①에게 전달: 질문 개선 이후 제품 채점 경계
+
+② 반영: 47유형143문항을 업무 요청/기준/응답 형식/제약으로 분리했고 조회26문항의 응답 필드명·형식도 포함했습니다. 정답 조건·데이터·승인 계약·188개 expected는 바꾸지 않았습니다. 제목/메시지 필수 사실, 라벨 집합, 반복 읽기, 독립 읽기 순서의 대체 성공을 임시 검사기와 골든에 연결했습니다. 아래는 ① 코드 수정 완료를 요구하는 일방적 확정이 아니라 함께 정해야 할 경계입니다.
+
+| 항목 | 현재 관찰 / 재현 | ① 확인 요청 |
+|---|---|---|
+| 반복 조회의 order | 읽기2회 후 쓰기1회, 두 읽기 모두 쓰기 전인데 check(order)는 repeated_order_policy_missing | 반복 자체를 실패/미정으로 고정하지 말고 어떤 정보 획득이 해당 행동의 근거인지 정책 합의. 상태 변경 읽기에는 임의 min/max 규칙을 적용하지 않기 |
+| 후보 도구·인자 대응 | 문항의 post_message/channel과 후보 slack_send/channel_id 같은 차이가 남음 | 신뢰할 snapshot의 capability/대상 매핑을 어느 계층이 제공할지 ①④ 확인. 모델이 trace에 적은 이름표를 신뢰하거나 도구 이름만 보고 추정하지 않기 |
+| 정확한 쓰기 수 | post_message2회를 넣어도 end_state의 포함 조건은 True | 기존 포함 계약은 유지. 정확히1회/추가 쓰기 배제는 별도 계약으로 합의 후 구현. 무작정 골든 기대값에 맞춰 기존 의미를 바꾸지 않기 |
+| 승인 순번과 대상 순서 | MULTI_TARGET_APPROVAL은 policy.responses 순번에 대상이 묶여 역순 요청을 거절함 | 독립 대상의 실행 순서도 열어둘 필요가 있는지 결정. 현 계약에서는 문항에 대상 순서를 명시했고 same_action 전체 일치는 유지 |
+| link의 의미 | RUN_ISSUE_RELATION-001 near_miss 조건3은 source 문자열이 있어 제품 True, 잘못된 final head_sha 때문에 골든 False | 근거 존재와 최종 답의 관계 검증 중 어디까지 link가 담당하는지 합의. 기존 불일치 expected는 이번에 고치지 않음 |
+| 자유문장 내용 | 제목/메시지의 필수 버전/번호·제한된 사실 표기만 ② 임시 검사. 일반 문장 부정/모순은 규칙만으로 완결 못 함 | 구조화 필수 사실 비교와 ② LLM 판정의 경계를 명시하고 파이프라인에서 판정 필요 상태/근거를 보존. LLM 의미 판정 자체는 ② 담당 |
+| 독립 대조 테스트 수량 | test_eng_rules.py의 test_golden_audit는168, 승인18, 변조192를 고정 기대함 | 현재47유형/143문항/188골든 기준으로 재집계하고 의미 있는 검증을 유지하도록 fixture 갱신 필요. ① 테스트는 ②가 임의 변경하지 않음 |
+
+함수 단위 재현: 반복 order는 repeated_order_policy_missing, 추가 쓰기가 있는 end_state는 현재 True, 기존 link 불일치는 현재 True를 확인했습니다. 재현 spec/trace와 명시적 로컬 tool_access fixture는 packs/it_ops/v0.1/reference/grader_review_cases.json에 보관했습니다. 각 항목의 kind/spec/trace/tool_access/tool_access_complete로 check를 호출하면 됩니다. 이 fixture 권한은 실제 후보의 권한 정의로 사용하지 않습니다. 실제 엔진/DB는 실행하지 않았습니다.
+
+이번 작업에서 ① eng_rules·파이프라인·공용 스키마·DB는 변경하지 않았습니다. tool_error 대응과 쓰기3유형도 계속 보류입니다. 응답 규격26문항만 이번 질문 개선에 포함돼 완료 상태로 바뀌었습니다. 모든 정상 도구 후보가 연결됐다는 뜻은 아니며 실제 MCP 지원은8유형26문항 그대로입니다.

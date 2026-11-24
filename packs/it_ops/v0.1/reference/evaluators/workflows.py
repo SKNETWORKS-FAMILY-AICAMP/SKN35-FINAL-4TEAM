@@ -10,11 +10,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[5] / "backend/src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import followup_tasks
-
 from slotagent.common import contracts
-from slotagent.packs.groups import load_group
 from slotagent.common.confirmation import approved_write, fixed_response
 from slotagent.common.hashing import canonical_json
+from slotagent.packs.groups import load_group
 
 ROOT = Path(__file__).resolve().parents[2]
 CAPS = {"post_message": ["slack.messages.write"], "create_issue": ["github.issues.write"]}
@@ -228,7 +227,9 @@ def grade(task, trace):
         elif span["name"] not in {*CAPS, "request_user_confirmation"}:
             valid = False
     needed = int(case["kind"] == "permission" or (case["kind"] == "scope" and context["requested_repo"] in context["allowed_repos"]))
-    valid = valid and context_seen and lookup_count == needed and not scope_violation
+    valid = valid and context_seen and not scope_violation
+    denied = case["kind"] == "permission" and not case["lookup_reply"]["ok"]
+    valid = valid and (lookup_count == needed if denied or not needed else lookup_count >= needed)
     writes = trace["write_intents"]
     write_spans = [s for s in trace["spans"] if s["kind"] == "tool" and s["name"] in CAPS]
     approved = True
