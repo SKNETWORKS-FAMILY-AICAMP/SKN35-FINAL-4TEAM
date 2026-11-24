@@ -11,6 +11,196 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-24 · Codex · taemin (MCP timeout 환경 오류 분류·span 오류 코드 검토)
+- **1번 변경**: eng_stdio._rpc의 초기화/호출 무응답 기한 소진을 기존 `ToolEnvironmentError(reason='env_mcp_server_down')`으로 올리도록 수정했습니다. start에서 TimeoutError를 그대로 재전파하던 별도 catch를 제거해 native OSError 계열 시간 초과도 기존 환경 오류 처리로 들어갑니다. MCP 전용 timeout을 후보의 풀이 시간 초과로 세지 않습니다. advance.JOB_FAILURE_REASONS의 클래스명 `TimeoutError` 대응은 발생 위치를 확정할 수 없어 삭제했고, 명시적으로 기록된 기존 코드 `timeout_wall_clock`만 유지했습니다.
+- **2번 보류·제안**: span.error는 계약상 자유 문자열일 뿐 도구 실행 실패용 기존 코드/의미가 정의돼 있지 않습니다. common.first_fail_type의 `tool_error`는 ②의 채점 단계 값이라 span 코드로 그대로 재사용한다는 합의도 없습니다. 사용자 조건대로 loop/계약을 이번에 수정하지 않았습니다. **②와 `span.error='mcp_tool_error'`를 유효한 MCP isError 실행 실패 코드로 합의하고, 오류 원문은 tool_result에만 두는 방식**을 제안합니다. 기술적으로 현재 스키마가 문자열을 받더라도 새 코드의 역할 간 의미를 혼자 확정하지 않았습니다. 코드 전용 error 테스트는 해당 동작을 아직 구현하지 않아 추가하지 않았고 기존 isError 회복 테스트는 그대로 유지했습니다.
+
+### 실패 상황 표 — 최종본
+
+| # | 상황·입력 | 기대 결과 | 테스트 이름 | 결과 |
+|---|---|---|---|---|
+| 1 | MCP 초기화 무응답 3회 | job failed/3·last_error=env_mcp_server_down, 모델/신규 비용 0, 수동 재개 거절 후 trial error/env_error, DB 분석 단위 제외 | test_mcp_initialize_timeout_exhaustion_is_environment_error | 통과 |
+| 2 | 초기화/호출 무응답·손자 무응답 | 환경 오류, closed·트리 정리, 호출 전 받은 비용 보존 | test_initialize_timeout / test_concurrent_call_rejected / test_call_failure_is_saved[call_timeout-env_mcp_server_down] / test_process_tree_abort[timeout] | 통과 |
+| 3 | 과거 job.last_error=TimeoutError | 발생 위치 추정 없이 UnmappedFailureError, 상태/원래 오류 보존 | test_resume_unknown_failure_is_reported[TimeoutError] | 통과 |
+| 4 | 명시적 timeout_wall_clock 기록·실제 루프 시간 소진 | 기존 timeout 결과/실패 분류 유지 | test_resume_exhausted_is_terminal[timeout_wall_clock-timeout_wall_clock] / 기존 loop timeout 검사 | 통과 |
+| 5 | span 오류 코드 미합의 | 새 코드·원문 저장 위치 변경 보류, ② 합의할 코드 제안 | 구현 안 함, 기존 isError 회복 검사 유지 | 보류 |
+
+- 검증: 이전 Windows **312 passed → 314 passed, 실패 0건**(`314 passed in 76.20s`), Linux python:3.12-slim의 읽기 전용 저장소 복사본에서 일반 사용자 uv sync --frozen → uv run pytest는 **309 passed, 5 skipped, 1 warning in 45.13s**, 실패 0건입니다. 기존 Windows Job 전용 5개 skip과 XDG_RUNTIME_DIR 경고 1건은 동일합니다. backend 전체 Ruff·변경 실행 코드/회귀 테스트 format·diff 검사 통과. 새 통합 테스트를 먼저 추가해 기존 TimeoutError 전파로 실패하는 것을 확인한 뒤 구현했습니다. 분석 제외는 prereg 문자열 검사뿐 아니라 DB `analysis_units`가 `(included=false, exclude_reason='env_error')`를 돌려주는 것까지 확인했습니다.
+- 바꾼 파일: engine/eng_stdio.py(MCP 기한 소진 환경 오류), engine/advance.py(모호한 클래스 대응 제거), tests/test_eng_stdio.py(새 요구에 맞춘 MCP timeout 기대만 변경), tests/test_eng_resume.py(명시적 timeout 코드/과거 클래스명 구분·초기화 소진 통합 검사), docs/handoff.md(이 기록). conftest/worker/eng_main/loop/계약/DB/다른 역할 파일은 이번에 수정하지 않았습니다. 커밋·push·브랜치 전환 없음.
+- 남은 위험: 코드 합의 전이므로 span.error에 도구 오류 원문이 들어가는 기존 문제는 **아직 남아 있습니다**. 과거 TimeoutError 클래스명만 남은 소진 작업은 원인을 복원할 수 없어 자동 종결하지 않고 Unmapped로 보고합니다. MCP 원인을 확정할 자료가 있을 때만 사람이 검토해야 합니다. 실제 모델·외부 MCP/API 호출은 없고 이번 수정으로 재시도·재개 상한이나 prereg 정책을 바꾸지 않았습니다.
+
+## 2026-11-24 · Codex · taemin (워커 stdio 연결·도구 실패 피드백·수동 재개)
+- 한 일: 사용자 승인에 따라 `engine/loop.py`의 ToolExecutionError 경로와 `eng_stdio.StdioTools`의 isError=true 처리를 연결했습니다. 유효한 실패 콘텐츠는 예외로 모델 루프에 전달하되 세션은 ready를 유지합니다. 루프는 기존 자유 문자열 `span.error`에 오류 텍스트를 넣고 `tool_result`/tool 메시지에도 동일 텍스트를 넣어 대화를 계속합니다. 새 trace 필드·오류 코드·enum·계약·DB 변경은 없습니다. 빈 content·비텍스트 content·JSON-RPC error·다른 id·잘못된 JSON·서버 종료는 기존처럼 환경 오류와 세션 폐기를 유지합니다.
+- 워커 연결: `LocalStdioConfig({서버명: 신뢰한 argv}, timeout_sec=...)`를 추가했습니다. `run_once(..., deps=..., stdio=설정)` → `run_trial` → `_execute_trial` 경로에서 DB 스냅샷에 있는 MCP 조회 도구만 서버별로 모아 새 StdioTools를 with/ExitStack으로 엽니다. 설정·예산·스냅샷 검사를 통과하고 trial running을 커밋한 뒤, 모델 호출 전에 초기화/목록/스키마 검사를 마칩니다. 준비 실패도 run_trial의 복구 경로에 들어가며 모델 호출은 0회입니다. 완료/오류/취소 때 세션을 최종 DB 저장 전에 닫습니다. 후보/모델/DB 메타데이터에서 임의 실행 명령을 만들지 않습니다. 실제 유료 모델이나 ② 서버를 기본 실행하지 않으며, 로컬 명령 설정은 운영자가 명시해야 합니다.
+- 임대 상실: run_once의 `lost.is_set`을 cancel_signals에 직접 넘기고 기존 deps.cancelled도 함께 확인합니다. heartbeat는 기본 20초(기존 정책), 클라이언트는 전달받은 신호를 약 20ms 간격으로 확인하므로 신호 설정 후 MCP timeout까지 기다리지 않습니다. 실제 DB lease_until을 만료시키고 heartbeat가 renew 실패를 감지하는 통합 테스트에서 MCP 상한 10초 대신 3초 이내 RunCancelled·세션 종료를 확인했습니다. 옛 결과·trace는 0행, 이미 받은 모델 비용은 1행 유지됐고 만료 회수 뒤 trial pending/attempt=2·job queued가 됐습니다. 실제 임대 만료에서 감지까지의 지연은 heartbeat 주기·DB 응답에 좌우되므로 즉시 감지를 보장하는 표현은 쓰지 않습니다.
+- 수동 재개: `advance.resume_failed_trial(conn, trial_id)`는 IDLE 연결의 짧은 트랜잭션에서 job → experiment → trial 순서로 잠그고 lock/statement timeout 5초를 적용합니다. 같은 최신 failed job만 queued로 바꾸며 attempts·last_error·trial attempt·비용은 초기화하지 않습니다. 이미 queued/leased이면 재개하지 않은 결과를 반환하고, 다른 활성 작업이 있으면 거절합니다. 두 연결이 같은 trial을 동시에 재개해도 새 job은 생성되지 않고 resumed=True는 한 번뿐입니다. 공통 `TRIAL_JOB_MAX_ATTEMPTS=3`을 사용해 run_once도 3을 넘는 상한 설정을 거절합니다. 자동 재개 호출·상한 초기화·새 run_no 생성은 없습니다.
+- 소진 종결: 사용자 확인대로 새 failed 상태 대신 기존 `trial.status='error'`를 씁니다. 재개 함수 호출 시 이미 3회를 소진했고 원인을 대응할 수 있으면 같은 트랜잭션에서 outcome_reason·기존 prereg 기반 run_outcome·finished_at을 기록하고 `on_trial_finished`로 기존 다음 단계 게이트를 확인합니다. 작업은 failed/attempts=3으로, job.last_error와 비용은 그대로 남습니다. 종결 커밋을 롤백시키지 않도록 예외 대신 `ResumeResult(resumed=False, exhausted=True)`로 재개 거절을 반환합니다. 현재 자동 워커의 기존 failed/pending 처리 자체는 바꾸지 않았으므로, 소진 종결은 사람이 이 함수를 호출할 때 수행됩니다. 재개 거절 뒤 대상 실험에 pending이 0개가 되는 경우를 실제 DB로 검증했습니다.
+
+### 마지막 작업 오류 대응표 — 코드 한 곳
+
+`engine/advance.py:JOB_FAILURE_REASONS`만 대응표를 관리합니다. 현재 저장소의 이전 ToolEnvironmentError 발생처는 기본 MCP 오류를 사용하는 stdio이므로 과거 클래스명 기록을 호환합니다. 새 워커 기록은 ToolEnvironmentError의 reason을 직접 보존하고, lost가 설정된 RunCancelled는 env_worker_lost로 식별합니다. 수동 재개/종결은 기존 last_error를 덮어쓰지 않습니다.
+
+| job.last_error | 기존 outcome_reason |
+|---|---|
+| ToolEnvironmentError / env_mcp_server_down | env_mcp_server_down |
+| lease_expired / LeaseLost / env_worker_lost | env_worker_lost |
+| TimeoutError / timeout_wall_clock | timeout_wall_clock |
+
+- **임의 대응하지 않은 원인**: RuntimeError, ValueError, TypeError, NotImplementedError, CostPersistenceError, CostConflictError, OperationalError/InterfaceError 등 DB 오류, lost가 확인되지 않은 RunCancelled, NULL 및 표에 없는 모든 분류입니다. 엔진 설정/비용 저장 오류를 agent_crash나 연습 DB 오류로 바꾸면 잘못된 통계가 되므로 추정하지 않았습니다. 상한 소진 시 이들은 `UnmappedFailureError.classification`으로 보고하고 상태를 보존합니다. 따라서 이 경우에는 pending이 남을 수 있으며 **"모든 원인의 pending 제거 완료"를 주장하지 않습니다**. RuntimeError/ValueError/CostPersistenceError/NULL의 거절·원본 보존 테스트를 추가했습니다. 원인 확인 또는 팀이 합의한 기존 값 대응이 더 필요합니다.
+- **③ 통계 한 줄**: 현재 예시 prereg에서 env_mcp_server_down/env_worker_lost는 env_error → retry_then_exclude이며 DB analysis_units는 해당 후보 쌍을 제외합니다. timeout_wall_clock은 timeout → 실패로 셉니다. 실제 실험은 그 실험의 prereg.outcome_rules.env_error_reasons를 그대로 따릅니다. 정책·③ 계산 코드는 수정하지 않았고 실제 통계 리포트 생성 완료를 주장하지 않습니다.
+
+### 실패 상황 표 — 최종본
+
+| # | 상황·입력 | 기대 결과 / 확인 결과 | 테스트 이름 | 결과 |
+|---|---|---|---|---|
+| 1 | isError=true 후 같은 세션으로 재호출 | ready 유지, 실패 텍스트 피드백, 다음 성공·최종 답변, 환경 오류 span 없음 | test_iserror_then_success_and_trace / test_worker_iserror_is_not_environment_failure | 통과 |
+| 2 | 빈/잘못된 응답·다른 ID·서버 종료 | 기존 환경 오류·폐기 유지 | 기존 test_bad_response_closes_session의 나머지 5종 | 통과·기존 본문/나머지 사례 무수정 |
+| 3 | 워커 stdio 정상 연결 | worker가 세션 생성·종료, finished/done, trace 3행·비용 2행 | test_worker_creates_and_closes_stdio_session | 통과 |
+| 4 | 같은 설정으로 두 풀이 | 각 풀이에 서로 다른 새 세션, 둘 다 종료 | test_worker_session_is_per_trial | 통과 |
+| 5 | MCP 시작 실패 3회 | 모델 0회·비용 0행, 기존 복구·상한으로 failed/3 | test_worker_setup_failure_is_recovered | 통과 |
+| 6 | MCP 대기 중 실제 DB 임대 만료 | heartbeat 상실 신호 후 timeout 전 취소·세션 정리, 회수·비용 보존 | test_worker_lost_interrupts_stdio_wait | 통과 |
+| 7 | 성공 응답 뒤 최종 인계 예외 | trace/결과 롤백, pending 복구, 비용 2행·세션 정리 | test_worker_stdio_handoff_rollback | 통과 |
+| 8 | attempts=1인 failed 작업 수동 재개 | 동일 job 1→2→3 누적, 재실패 후에도 상한 초기화 없음 | test_resume_preserves_attempt_budget | 통과 |
+| 9 | 두 연결 동시 재개 | queued 1개, 새 job 없음, 한 호출만 resumed=True | test_resume_concurrently_once | 통과 |
+| 10 | 3회 소진 MCP/임대/timeout | 재개 거절·error 종결·last_error/비용 보존, pending 0 | test_resume_exhausted_is_terminal (3종) | 통과 |
+| 11 | 대응할 수 없는 소진 원인 | 명시적 오류·원인 분류 보존, 임의 종결 없음 | test_resume_unknown_failure_is_reported (4종) | 통과 |
+| 12 | 중단/완료/없는 trial | 재개 거절·추가 작업 없음 | test_resume_invalid_state (3종) | 통과 |
+| 13 | 종결 후 다음 단계 트랜잭션 실패 | error 전이 롤백, failed job/시도 횟수 보존 | test_resume_transaction_rollback | 통과 |
+| 14 | 상한 4로 워커 호출 | 작업 임대 전에 거절 | test_worker_cannot_raise_global_attempt_limit | 통과 |
+| 15 | 중복 임대·강제 종료·DB 단절 등 | 기존 복구/비용/펜싱 유지 | 기존 전체 큐·비용·엔진 검사 | 통과 |
+
+- **요구 변경으로 기존 테스트 1건 교체**: 사용자 승인에 따라 test_bad_response_closes_session의 tool_error 사례만 제거했습니다. 이유는 isError=true의 의미 변경이며, 이전 기대 "환경 오류·세션 폐기" → 새 기대 "같은 세션 재호출 성공·대화 계속·trace 도구 오류 기록"입니다. bad_json/empty/wrong_id/bad_content/exit와 기존 테스트 본문은 한 글자도 바꾸지 않았고, 다른 기존 테스트는 수정하지 않았습니다.
+- 검증: 이전 Windows **292 passed → 312 passed, 실패 0건**(`312 passed in 60.39s`). Linux python:3.12-slim의 읽기 전용 저장소 복사본에서 일반 사용자 uv sync --frozen → uv run pytest는 **307 passed, 5 skipped, 1 warning in 46.05s**, 실패 0건입니다. Windows Job 전용 5개만 skip, XDG_RUNTIME_DIR 경고는 이전과 같습니다. 기존 1건 교체 + 신규 20건(워커 6·재개 14)입니다. 테스트 선작성 후 LocalStdioConfig/재개 함수가 없어 실패하는 것을 먼저 확인했습니다. backend 전체 Ruff 0건, 변경된 실행 코드·새 테스트 등 7개 format 검사·diff 검사 통과. 기존 advance.py는 범위 밖의 포맷만 바꾸는 수정을 피했고 추가 코드의 Ruff check는 통과했습니다. 실제 모델·외부 MCP/API 호출·② 파일 수정·새 의존성·계약·마이그레이션 변경 없음.
+
+### 실험 종료 시 미처리 pending 정리 — 제안만
+
+- `advance.on_reports_done`에서 done 전환 전에 "failed run_trial job + pending trial"을 확인하고 정상 done을 거절하는 종료 게이트를 두는 방안을 제안합니다. 사람이 재개를 포기하고 종료를 선택한 경우 별도 명시적 정리 함수가 상태를 잠근 뒤 `stop_experiment(..., 'job_failed')`로 실험을 failed로 끝내고 남은 pending은 기존 규칙대로 cancelled로 정리할 수 있습니다. 이 경우 원인을 알 수 없는 trial을 후보 실패로 꾸며 넣지 않고 last_error·비용도 보존합니다. 현재 P-08은 채점/분석 작업 실패만 실험 failed로 정하므로 이 확대 정책은 합의 후 구현해야 합니다. 이번에는 사용자 요청대로 제안만 남겼습니다.
+- **3회 소진 뒤에도 다시 실행하는 새 정책은 이번에 만들지 않았습니다. 필요해지면 총시도 한도·사람 승인 기록을 별도로 정합니다.**
+
+### 남은 위험·사용 범위
+
+- 신뢰한 명령을 제공한 run_once/run_trial 경로에는 실제로 연결됐지만 배포용 반복 워커 진입점·registry 기본 설정·UI/API 운영 화면은 이번 범위 밖입니다. `resume_failed_trial`도 사람이 호출하는 내부 함수이며 엔드포인트는 만들지 않았습니다.
+- 소진 종결은 명시적 재개 함수 호출 시 수행합니다. 원인 미분류·DB 실패·운영자 미호출에서는 pending이 남을 수 있으며 이를 숨기지 않습니다. 자동 무한 재개로 이를 덮지 않았습니다. 대응표의 과거 ToolEnvironmentError 매핑은 현재 저장소 발생처 기준입니다. 외부 코드에서 다른 reason으로 같은 옛 클래스명만 저장한 이력이 있으면 먼저 검토해야 합니다.
+- 기본 heartbeat 20초와 DB 응답 지연은 실제 상실 감지 시간을 좌우합니다. 신호가 설정되면 즉시 취소 확인 경로를 타지만 DB 호출 자체의 강제 중단 기능을 추가한 것은 아닙니다. 사용자 취소를 StdioTools의 신호에 넣지 않고 DB 상태만 바꾸는 외부 경로는 기존 단계 사이 검사를 따릅니다.
+- Windows Job 생성·등록 사이 suspended 자식 잔존 틈, POSIX 워커 강제 종료 시 자식 자동 정리 부재, 파일/네트워크 비격리, 비용 커밋 전 사망 구간은 여전히 남습니다. Docker·② 실제 서버·데이터/이미지 환경 검사는 다음 단계입니다.
+- 이번 변경 파일: engine/advance.py(수동 재개·대응표·상한), loop.py(도구 실패 피드백), worker.py(세션 수명), eng_stdio.py(isError/로컬 설정), workers/eng_main.py(lost 주입·정확한 실패 분류), tests/eng_stdio_server.py(실패 후 성공 모드), test_eng_stdio.py(승인한 1건 교체), test_eng_worker_stdio.py(신규), test_eng_resume.py(신규), docs/checklist.md(① 부분 완료), docs/handoff.md(이 기록). 이전 conftest 등 작업은 그대로 보존했습니다. 커밋·push·브랜치 전환 없음.
+
+## 2026-11-24 · Codex · taemin (공용 pg 픽스처 — Linux 소켓 URL 보존)
+- 한 일: `backend/tests/conftest.py`의 pgserver 주소 처리만 작은 `database_url(url, dbname)` 함수로 분리했습니다. `urllib.parse.urlsplit(...)._replace(path=...).geturl()`로 DB 경로만 바꾸며 사용자 정보·TCP 호스트/포트·소켓 host query를 보존합니다. pg의 관리자 연결은 /postgres, 마이그레이션·yield는 /e2e URL을 사용합니다. 픽스처 이름·scope·반환값의 PostgreSQL URL 문자열 형식은 유지했습니다. key=value conninfo는 사용하지 않습니다.
+- 변경 범위: conftest의 URL import/함수와 pg 내 주소 생성, 새 `tests/test_eng_conftest_url.py`, 이 기록만입니다. `common/db.py`의 URL 검사, 다른 기존 테스트·마이그레이션·계약·체크리스트·의존성 파일은 이번에 수정하지 않았습니다. 기존 미커밋 stdio 작업은 보존했습니다. 커밋·push·브랜치 전환 없음.
+- 검증: 테스트를 먼저 추가해 helper 미구현으로 import 오류가 나는 것을 확인한 뒤 구현했습니다. Windows 전체는 **288 passed → 292 passed, 실패 0건**(`scripts/test.ps1`, `292 passed in 59.86s`). Linux `python:3.12-slim`(Debian 13, Python 3.12.16)에서는 **287 passed, 5 skipped, 실패 0건**, `287 passed, 5 skipped, 1 warning in 32.88s`입니다. Windows Job 전용 5개만 skip됐습니다. backend 전체 Ruff 0건, 변경 Python 2개 format 검사·git diff --check 통과. 실제 모델·외부 API 호출은 없습니다. 컨테이너에는 기존 lock의 패키지를 uv sync --frozen으로 설치했으며 저장소 의존성 추가는 없습니다.
+
+### 실패 상황 표 — 최종본
+
+| # | 상황 | 입력/상태 | 기대 결과 | 테스트 이름 | 통과 여부 |
+|---|---|---|---|---|---|
+| 1 | Windows TCP URL | 사용자 정보·포트·sslmode query 포함 | /postgres만 /e2e로 교체, 나머지 보존 | test_windows_url_changes_only_database | Windows·Linux 통과 |
+| 2 | Linux 소켓 URL | postgresql://postgres:@/postgres?host=/tmp/tmpabc | postgresql://postgres:@/e2e?host=/tmp/tmpabc | test_socket_url_preserves_host_query | Windows·Linux 통과 |
+| 3 | 제품 DB 설정 검사 | 위 두 주소를 변환해 DATABASE_URL로 설정 | db.get_database_url 통과, URL 문자열 유지 | test_database_url_passes_product_validation (2종) | Windows·Linux 통과 |
+
+- 큐 running 복구·재시도·중복 워커·비용·트랜잭션은 URL을 바꾸는 순수 함수의 변경 범위가 아니며 동작을 수정하지 않았습니다. 해당 기존 검사는 양쪽 OS 전체 실행에 포함됐습니다. Linux에서 기존 제품 DB 연결/커밋/롤백 검사도 통과해 key=value conninfo 변경에 따른 4건의 DatabaseConfigurationError가 발생하지 않았습니다.
+
+### Linux 재현 명령 — 저장소 파일 그대로 실행
+
+저장소는 /src에 읽기 전용 마운트하고 /work로 복사합니다. 가상환경·Git·node_modules·캐시·비밀 환경 파일은 복사하지 않습니다. slim 이미지의 실행 라이브러리와 uv 설치/복사 준비만 root로 하고, uv sync --frozen → uv run pytest는 새 일반 사용자로 실행합니다. 실행 전후 cmp로 conftest가 원본과 같은지 검사합니다. 컨테이너 복사본의 conftest를 따로 수정하는 단계는 없습니다.
+
+```powershell
+$pgLinuxScript = @'
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y --no-install-recommends libicu76 libxml2 libxslt1.1 libldap2 liblz4-1 libpq5 >/dev/null
+python -m pip install --no-cache-dir -q uv
+useradd --create-home --shell /bin/bash slotagent_test
+mkdir /work
+tar -C /src --exclude=.git --exclude=.venv --exclude=node_modules --exclude=__pycache__ --exclude=.pytest_cache --exclude=.ruff_cache --exclude=.env --exclude=.aws --exclude=.codex -cf - . | tar -C /work -xf -
+chown -R slotagent_test:slotagent_test /work
+cmp /src/backend/tests/conftest.py /work/backend/tests/conftest.py
+runuser -u slotagent_test -- bash -c 'set -euo pipefail; cd /work/backend; uv sync --frozen; uv run pytest'
+cmp /src/backend/tests/conftest.py /work/backend/tests/conftest.py
+'@
+docker run --rm --name slotagent-conftest-url-check -v 'D:/final_project:/src:ro' python:3.12-slim bash -c $pgLinuxScript
+```
+
+### 남은 위험·팀 공지
+
+- conftest.py는 모든 역할이 함께 쓰므로 ②③④의 DB 테스트에도 영향을 줍니다. 픽스처 인터페이스는 유지했고 현재 저장소의 양쪽 OS 전체 테스트는 통과했지만, 각 역할의 미병합 테스트까지 검증한 것은 아닙니다.
+- 팀에 알릴 한 줄: **공용 pg 픽스처의 DB명 변경을 URL path 교체로 수정해 Linux 소켓 host query를 보존했습니다. pg 이름·PostgreSQL URL 반환 형식은 유지했으며 Windows 292 passed / Linux 287 passed·5 skipped로 확인했습니다.** 실제 메시지 전송은 하지 않았습니다.
+- Linux는 `test_eng_costs.py::test_error_before_model_response_records_no_cost[ValueError]`에서 XDG_RUNTIME_DIR 미설정에 따른 platformdirs RuntimeDirWarning 1건이 있었으며 /tmp/runtime-1000으로 대체됐습니다. 실패는 아닙니다. Docker 이미지 태그와 OS 패키지 저장소는 시간에 따라 바뀔 수 있으므로 재현 시 동일 환경 확인이 필요합니다.
+
+## 2026-11-24 · Codex · taemin (eng_stdio 보완 — 프로세스 트리·종료 실패·스키마 비교)
+- 한 일: 이번 수정은 `engine/eng_stdio.py`, `tests/test_eng_stdio.py`, `tests/eng_stdio_server.py`, 이 기록만입니다. loop/worker/eng_main/계약/DB/체크리스트는 이번에 수정하지 않았습니다. 작업 시작 때 이미 남아 있던 이전 stdio 구현·체크리스트·인계 기록 변경은 보존했습니다. 새 의존성·커밋·push·브랜치 전환 없음.
+- Windows 트리: 새 의존성 없이 ctypes로 익명·비상속 Job Object를 만들고 `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`를 설정합니다. 자식은 `CREATE_NO_WINDOW | CREATE_SUSPENDED`로 생성 → AssignProcessToJobObject → Toolhelp/OpenThread/ResumeThread로 실행 재개합니다. Popen이 주 스레드 핸들을 닫으므로 문서화된 API로 주 스레드를 다시 엽니다. Job 생성/설정/등록/재개 실패는 시작 거절·ToolEnvironmentError로 올리며, 등록 실패한 suspended 자식도 종료합니다. close는 루트가 이미 종료됐어도 TerminateJobObject로 손자 전체를 종료하고 QueryInformationJobObject의 ActiveProcesses=0 및 루트 wait를 확인한 뒤 핸들을 닫습니다. 손자가 Job 핸들을 상속하지 않아 준비 완료 후 워커 강제 종료 때도 마지막 핸들 소멸로 트리가 종료됩니다.
+- POSIX 트리: `start_new_session=True`로 생성하고 close에서 루트 PID를 그룹 ID로 `os.killpg(..., SIGKILL)`합니다. 루트가 이미 종료됐어도 그룹 종료를 시도합니다. 현재 실행 환경은 Windows라 POSIX 실제 실행 검증은 **못 했음**입니다.
+- 작은 보완: 스키마 비교는 양쪽 최상위 `$schema`만 제외하고 나머지는 그대로 완전 일치시킵니다. 중첩 `$schema`도 비교하며 원본을 변경하지 않습니다. `cancel_signals=(사용자_취소, 임대_상실, ...)`를 추가해 기존 cancelled와 OR 결합하고 시작 전·응답 대기 중 확인합니다. close의 각 정리 단계 오류를 모아, 앞 단계가 실패해도 프로세스/Job 종료 확인·Job 핸들 해제·closed 전이를 수행한 뒤 RuntimeError를 올립니다. 이미 closed이면 다시 close해도 아무 작업도 하지 않습니다. 실제 IO가 계속 살아 있으면 파이프 close가 내부 lock에서 무한 대기하지 않도록 파이프를 닫지 않고 오류로 보고합니다.
+- 검증: 이전 전체 **272 passed → 이번 전체 288 passed, 실패 0건**. 최종 출력은 `288 passed in 48.42s` (`scripts/test.ps1`, backend 전체)입니다. backend 전체 Ruff 0건, 지정 Python 3개 format 검사 통과. 기존 31개 stdio 테스트의 기대값은 유지하고 16개를 추가했습니다. 구현 전에 신규 스키마·복합 취소 테스트 3개가 실패함을 확인했습니다. 중간 실행에서 테스트 중간 실행기의 stdout/stdin 상속이 불명확해 트리 테스트 6개가 실패했으며, 서버의 Popen에 stdin/stdout/stderr 상속을 명시한 뒤 트리 관련 7개가 통과했습니다. 그 후 전체 테스트를 통과했습니다. 실제 모델·외부 API 호출은 0건입니다.
+
+### 실패 상황 표 — 최종본
+
+| # | 상황·입력 | 기대 결과 / 확인 결과 | 테스트 이름 | 통과 여부 |
+|---|---|---|---|---|
+| 1 | stdout을 상속한 손자 서버, 정상 조회 후 close | 루트·손자 종료, IO 정리, closed | test_process_tree_close | 통과 |
+| 2 | 실행기 먼저 종료, 손자만 파이프 유지 | 루트 생존 여부와 무관하게 트리 종료, close 성공 | test_exited_launcher_tree_close | 통과 |
+| 3 | 손자 호출 무응답, timeout/취소 | TimeoutError/RunCancelled 유지, 손자 종료·closed | test_process_tree_abort (2종) | 통과 |
+| 4 | 별도 Python 워커에서 시작 완료 후 worker.kill | 루트·손자 PID 모두 종료, Job 핸들 사망 정리 | test_worker_kill_closes_job_tree | 통과 (Windows 실제 프로세스) |
+| 5 | Job 생성·설정·등록·재개 OSError | ToolEnvironmentError, 생성된 프로세스와 Job 핸들 정리 | test_job_setup_failure (4종) | 통과 |
+| 6 | IO join에서 RuntimeError 모의 | 프로세스/Job 종료·핸들 해제·closed, 오류 보고, 재close 안전 | test_close_failure_still_closes_tree | 통과 |
+| 7 | 트리 종료 단계 오류 모의 | 종료 확인 단계도 실행, Job 해제·closed 뒤 오류 | test_tree_termination_failure_still_closes | 통과 |
+| 8 | 양쪽 최상위 $schema만 다름 | 시작 검사 통과, 원본 불변 | test_top_level_schema_keyword_ignored | 통과 |
+| 9 | properties 또는 중첩 $schema 차이 | 이전처럼 시작 거절 | test_other_schema_differences_rejected (2종) | 통과 |
+| 10 | 복합 취소 신호 중 하나 설정 | 어느 신호든 대기 중 RunCancelled·세션 정리 | test_combined_cancel_signals (2종) | 통과 |
+| 11 | 작업 3회 시작 실패 | 기존 job failed/3, trial pending/4 유지, 더는 임대 안 됨 | 기존 test_start_failure_retry_limit | 통과 (수정 없음) |
+| 12 | isError=true 정상 MCP 결과 | 아래 인터페이스 제약으로 변경 보류, 기존 동작 유지 | 기존 test_bad_response_closes_session[tool_error] | 기존 동작 통과 / 새 기능 미구현 |
+
+### 작업 2 — isError 구분은 범위 조건에 따라 미구현
+
+- 조사: `engine/loop.py:run_agent`의 잘못된 도구 호출 피드백은 도구 이름/JSON/스키마 검사에서 `call_tool` 호출 **전에** 지역 변수 error/result를 만드는 경로입니다. `Dependencies.call_tool`은 문자열만 반환하며, 반환 후 오류 표시를 읽는 코드가 없습니다. 현재 catch는 ToolEnvironmentError(환경 오류로 종료)와 TimeoutError(시간 초과로 종료)뿐입니다. 따라서 eng_stdio만 바꿔 isError 내용을 문자열로 반환하면 모델 전달은 되지만 span.error가 남지 않습니다. 문자열 subclass나 내용에서 오류 여부를 추정해 이 제약을 우회하지 않았습니다. 사용자가 "loop나 계약을 고쳐야 하면 구현하지 말 것"이라고 한 조건에 따라 isError 처리와 기존 테스트 기대값을 유지했습니다.
+- 제안(미수정): `engine/loop.py`에 텍스트를 담은 별도 ToolExecutionError를 정의하고 도구 호출부에서 잡아 `error='mcp_tool_error'`, `result=도구가 준 텍스트`, `reason=None`으로 기록한 뒤 기존 tool 메시지 추가 경로를 계속 타게 합니다. 그 후 eng_stdio는 유효한 isError=true를 이 예외로 전달하되 ready를 유지하고, 프로토콜/콘텐츠 오류만 세션을 폐기합니다. trace.span.error는 현재 자유 문자열이므로 이 방식에는 JSON 스키마 변경이 필요하지 않아 보이지만 loop 수정 승인이 필요합니다. `test_iserror_then_success` 및 run_agent trace/모델 피드백 테스트를 그 작업에 추가해야 합니다.
+
+### 작업 3 — 맡을 작업이 없는 pending trial은 실제로 남을 수 있음 (코드 미수정)
+
+- 순서: `worker.run_trial`이 running을 커밋 → 준비/실행 예외 → `worker._release_attempt`가 pending으로 반환하며 attempt 증가 → `eng_main.run_once`가 should_retry를 검사 → 3회째에는 `queue.fail(retry=False)` → `_recover_trial`의 queued 결과를 job failed로 저장합니다. 최종 job failed/attempts=3, trial pending/attempt=4이며 다음 lease는 queued만 보므로 이 trial을 더는 잡지 않습니다. 예외 경로는 `advance.on_trial_finished`도 호출하지 않습니다.
+- 정리 경로: `advance.stop_experiment`를 명시적으로 부르면 pending을 cancelled로 바꾸지만, run_trial 작업 상한 때문에 자동으로 이 함수를 부르는 경로는 없습니다. `queue.reclaim`도 leased 만료만 보므로 failed 작업을 재등록하지 않습니다. `advance._scope_for`가 부르는 DB `grading_scope_unfinished`는 pending을 미완료로 세어 채점 진행도 막습니다. 현재 api 폴더에는 이를 재개하는 구현도 없습니다. 따라서 외부 조작/명시적 중단 없이는 실험 running과 pending trial이 계속 남을 수 있습니다. 어제 기록의 의도인 "원인 수정 뒤 작업 재등록"은 맞지만 그 운영 절차/API가 아직 구현되지 않은 상태입니다.
+- 제안(미수정): 상태 책임자인 `engine/advance.py`에 명시적 재개 함수(예: requeue_failed_trial)를 두고, 같은 트랜잭션에서 experiment/trial을 잠가 실험 running·trial pending·마지막 작업 failed·queued/leased 중복 없음 확인 후 `advance.enqueue`로 새 run_trial 작업을 한 번만 생성합니다. 기존 실패 작업·attempt·비용은 보존하고 새 실행에서도 기존 예산 검사를 수행합니다. `workers/eng_main.py:run_once`의 최종 failed 분기에 운영 조치 필요를 노출하고, 이후 승인받은 API/운영 명령에서만 재개 함수를 호출하는 방안을 권합니다. 재시도 상한을 자동 초기화하는 무한 재등록이나 trial 실패만으로 실험 failed를 확정하는 정책은 넣지 않습니다(P-08 범위 유지).
+
+### 작업 4 — 어댑터 준비 완료, 워커 연결은 제안만
+
+- 구현한 부분: StdioTools의 cancelled와 추가 cancel_signals를 OR로 결합합니다. 이미 제공받은 Event.is_set 신호는 응답 대기 중에도 약 20ms 간격으로 확인합니다. 이 주기는 OS 스케줄링·콜백 실행 시간에 따라 달라지는 확인 간격이며 보장된 종료 지연이 아닙니다.
+- 제안(미수정): `workers/eng_main.py:run_once`의 stopped/lost 생성 후에 풀이별 deps/도구 세션을 만드는 factory 경로를 두고 `lost.is_set`과 기존 deps.cancelled를 새 StdioTools에 전달해야 합니다. 지금처럼 완성된 deps를 먼저 받고 replace만 하면 기존 client 내부에는 lost가 전달되지 않습니다. 공유 client의 콜백을 뒤늦게 바꾸기보다 attempt마다 새 세션을 만들고 finally/ExitStack에서 종료하는 구조를 권합니다. `engine/worker.py:_execute_trial`의 실험 중단·현재 attempt 검사까지 즉시 연결하려면 그 최종 cancelled 콜백을 도구 수명주기에 주입하는 별도 확장이 필요합니다. 이번에는 두 파일을 수정하지 않아 내부 lost는 아직 자동 연결되지 않습니다.
+
+### 남은 위험 — Windows Job Object 한계 포함
+
+- **생성과 등록 사이 틈**: CREATE_SUSPENDED로 Job 등록 전 서버 실행/손자 생성을 막았습니다. 그러나 Popen이 자식을 만든 직후 AssignProcessToJobObject 이전에 워커가 강제 종료되면 Job 밖의 정지된 자식이 남을 수 있습니다. 이번 강제 종료 검증은 start 완료 후이며 이 틈의 완전 제거를 주장하지 않습니다. 완전히 없애려면 Job을 생성 시 원자적으로 지정하는 PROC_THREAD_ATTRIBUTE_JOB_LIST 기반 CreateProcess 경로를 별도 검토해야 합니다(현재 Popen 래퍼 범위보다 큼).
+- **중첩 Job·권한**: 이미 다른 Job에 속한 실행 환경의 UI 제한·중첩 정책, 관리자/보안 토큰 차이 등으로 등록/종료가 거절될 수 있습니다. 이 경우 보장을 낮춰 실행하지 않고 ToolEnvironmentError로 시작을 거절합니다. 실제 API 자체의 종료/핸들 해제 실패는 close에서 오류를 보고하며 정상 종료로 숨기지 않습니다. 보호 프로세스·모든 권한 조합은 검증하지 않았습니다. CPython 3.12 Windows Popen의 `_handle`을 사용하므로 Python 구현 변경 시 재검토가 필요합니다.
+- **격리 범위**: Job은 프로세스 수명 관리이며 파일·네트워크 격리가 아닙니다. Docker 단계는 여전히 필요합니다. POSIX는 새 session/group 안의 프로세스만 종료하므로 서버가 setsid 등으로 탈출하면 이 방식만으로 막지 못하며, 워커 SIGKILL 때 그룹이 자동 종료되는 기능도 없습니다. POSIX 실제 실행 검증은 못 했습니다.
+- **기타 미완료**: isError 구분, failed 작업의 명시적 재개, run_once 내부 임대 신호 자동 주입은 위 제안대로 남아 있습니다. 모델 응답 뒤 비용 커밋 전 종료의 기존 미보존 구간과 최종 저장 전 메모리 trace 유실은 이번 작업으로 해결하지 않았습니다.
+- 공식 근거: [Job과 마지막 핸들 소멸](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects), [등록·중첩·suspended 요구](https://learn.microsoft.com/en-us/windows/win32/api/jobapi2/nf-jobapi2-assignprocesstojobobject), [트리 종료](https://learn.microsoft.com/en-us/windows/win32/api/jobapi2/nf-jobapi2-terminatejobobject), [주 스레드 재개](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread).
+
+## 2026-11-24 · Codex · taemin (로컬 MCP stdio 최소 연결 — Docker 전 단계)
+- 한 일: 어제 채팅의 다음 목표인 "가짜 모델 → 로컬 MCP 조회 → 최종 답변"을 완료했습니다. `engine/eng_stdio.py`에 신뢰한 호출자가 지정한 argv로 시작하는 조회 전용 `StdioTools`를 추가했습니다. MCP 2025-11-25 initialize → initialized → tools/list → tools/call 순서로 실행하고, 후보 도구 이름·입력 스키마를 검사합니다. 모델에는 기존 후보 정의만 노출하고, 서버에 추가 도구가 있어도 호출 허용 목록을 넓히지 않습니다. TextContent 문자열은 JSON 배열을 포함해 원문대로 연결합니다. 기존 loop/worker/run_once의 명시적 Dependencies.call_tool 주입을 사용했고 기존 실행 파일은 변경하지 않았습니다.
+- 상한·정리: 기본 연결/요청 상한 5초(도구 호출은 풀이 남은 시간과 둘 중 작은 값), 메시지 1MiB, 요청당 수신 메시지 128개입니다. 페이지 목록·멀티미디어·서버 역방향 요청은 최소 연결에서 지원하지 않습니다. 연결 재시도·모델 자동 재호출은 없습니다. 시작/호출 실패는 세션을 폐기합니다. 상태 전이는 한 함수로 검사하며 동시 호출은 거절합니다. API 키·DATABASE_URL 등 부모 환경은 상속하지 않고 Windows 기본 환경과 PYTHONUTF8만 전달합니다. stderr는 DEVNULL로 보내 버퍼 정체를 막습니다. 프로세스 terminate 대기 0.5초 → kill 대기 0.5초, IO 스레드 대기 0.5초 상한으로 정리합니다.
+- 사용 범위: 풀이 attempt마다 새 인스턴스를 만들고 모델 호출 전에 `with StdioTools(argv, 해당_서버의_조회_도구) as client:`로 시작 검사 후 `Dependencies(fake_model, client)`를 run_trial 또는 run_once에 주입합니다. 실행 중 취소 신호를 즉시 전파하려면 client.cancelled와 deps.cancelled에 같은 신호를 주입합니다. 현재 run_once의 내부 임대 상실 신호는 client에 자동 연결되지 않으므로, 대기 중 임대 상실은 요청 시간 상한 뒤 기존 guard로 차단합니다. 실제 시험에서 만료 회수 뒤 옛 결과·trace 저장이 차단되고 비용 1행은 유지됐습니다.
+- 검증: 시작 전 전체 **241 passed → 272 passed, 실패 0건**(`scripts/test.ps1`, backend 전체), Ruff 전체 0건, 추가 Python 3개 format 검사 통과. 새 테스트 31개는 ① 전용 `tests/eng_stdio_server.py`의 실제 로컬 자식 프로세스와 임시 PostgreSQL, 가짜 모델만 사용합니다. 실제 공급자 API·GitHub·② 서버 호출은 0건입니다. 먼저 테스트를 추가해 미구현 모듈 오류를 확인한 뒤 구현했습니다. 중간 실행의 새 테스트 구성에 쓰기 도구가 포함된 오류를 조회 전용으로 바로잡았고, 초기화 TimeoutError가 OSError에 잡혀 환경 오류로 바뀌던 구현 오류도 수정했습니다. 기존 테스트는 수정하지 않았습니다.
+
+### 실패 상황 표 — 최종 검증
+
+| # | 상황·입력 | 기대 결과 / 확인한 상태 | 테스트 이름 | 결과 |
+|---|---|---|---|---|
+| 1 | 없는 실행 파일·초기화 무응답 | 오류/timeout, 프로세스·IO 정리 | test_start_failure / test_initialize_timeout | 통과 |
+| 2 | 빈/누락/중복 목록·다른 스키마 | 실행 전 환경 오류, 세션 폐기 | test_tool_inventory_rejected (4종) | 통과 |
+| 3 | 호출 중 종료·무응답 | trial error, job done, 환경 오류/timeout span, 받은 비용 1행 유지, 모델 1회 | test_call_failure_is_saved (2종) | 통과 |
+| 4 | 빈/잘못된 JSON·다른 ID·빈 결과·isError | 환경 오류, 세션 폐기, 다시 호출 거절 | test_bad_response_closes_session (6종) | 통과 |
+| 5 | None/빈 명령·없는 도구·None/잘못된 인자·0/NaN 시간 | 시작 또는 전송 전에 ValueError | test_invalid_command (4종) / test_invalid_input_not_sent (5종) | 통과 |
+| 6 | 동시 요청·완료 trial 중복 실행 | 동시 요청 거절, 완료 trial의 모델·도구 호출 증가 없음 | test_concurrent_call_rejected / test_trial_round_trip | 통과 |
+| 7 | 대기 중 취소·임대 만료 회수 | 세션 종료, trial pending/attempt=2·job queued, 옛 결과/trace 0행·받은 비용 1행 | test_cancel_during_call / test_cancel_during_call_restores_trial / test_lease_loss_during_call_is_fenced | 통과 |
+| 8 | 작업 준비 중 시작 실패 3회 | 기존 재시도 상한 후 job failed/attempts=3, trial pending/attempt=4, 비용 0행, 이후 임대 없음 | test_start_failure_retry_limit | 통과 |
+| 9 | MCP 성공 뒤 최종 인계 RuntimeError | 결과/trace 롤백, trial pending/attempt=2·job queued, 비용 2행 보존 | test_handoff_failure_keeps_cost | 통과 |
+| 10 | 조회→최종 답변·stderr 대량 출력 | trial finished·job done, trace 3행·비용 2행, 모델에 조회 JSON 전달, 프로세스/IO 종료·키 미상속 | test_trial_round_trip / test_text_content_and_stderr | 통과 |
+
+- 범위 밖: Docker·컨테이너별 환경 검사(sa_env_checks)·데이터/이미지 fingerprint·② 평가팩 실제 연결·P-05·실제 모델·채점 완료는 이번에 구현하지 않았습니다. 새 의존성·계약·DB·다른 역할 파일·기존 테스트·기존 워커를 변경하지 않았고 커밋·push·브랜치 전환도 하지 않았습니다. 시작 실패 재시도 검사는 가짜 모델의 준비 단계에 client.start를 주입해 기존 run_once 복구 경로를 확인한 것이며, 배포용 자동 준비/연결 진입점을 만든 것은 아닙니다.
+- 남은 위험: 로컬 실행은 격리가 아닙니다. 워커 자체 강제 종료 시 자식/손자 프로세스 종료 보장은 이번 범위에 없고 Docker 단계에서 보완해야 합니다. 기존 강제 종료·DB 단절의 trial/job 임대 회수 테스트는 전체 실행에 포함됐습니다. 취소/예외의 최종 저장 전 메모리 trace는 기존대로 남지 않을 수 있으나 이미 커밋한 모델 비용은 보존됩니다. isError/미지원 콘텐츠 등은 현재 최소 어댑터에서 env_mcp_server_down으로 거절하므로 제품 도구 오류 의미 구분은 후속 연결 검토가 필요합니다. MCP 연결/서버 동작은 자체 테스트 서버 기준으로만 확인했고 범용 MCP 호환 완료가 아닙니다. 기존 개발 DB의 전날 비용 칼럼 추가 SQL 적용은 이번에 수행하지 않았습니다.
+- ② 인계 보류 사항: Downloads의 role2_handoff_20261124.md는 후속 준비 완료를 보고하지만, 11/24 fetch한 origin/minha 최신 593f9ad에는 `packs/it_ops/v0.1/practice/servers.json`, `test_pack_independent.py`, `test_pack_loader.py`가 없습니다. 평가팩 일부·P-05 계약 커밋 e7bdee7은 있으나 load_pack/lock_pack/select_tasks는 미구현입니다. 문서의 후속 작업 커밋을 받기 전 ①이 대신 구현하지 않습니다. fetch만 했고 minha 병합/파일 반영은 하지 않았습니다.
+
 ## 2026-11-23 · Codex · taemin (중간 비용 보존 완료 — 임시 DB·가짜 모델)
 - 한 일: 사용자 승인 조건대로 `0003_review_1122.sql` 끝에 nullable `sa_cost_ledger.attempt`·`span_seq`와 `source='trial'` 부분 UNIQUE(ref_id,attempt,span_seq)인 `sa_cost_ledger_trial_call_once`만 추가했습니다. 칼럼·인덱스 COMMENT, db_names·NAMES 대응표, contracts/CHANGELOG의 DB 변경 한 줄(②④ 코드 영향 없음)을 맞췄습니다. JSON 스키마·새 마이그레이션 파일·judge/chat/validation 구현은 변경하지 않았습니다. db_names는 Ruff 형식도 맞췄습니다.
 - 실행 경로: DB 없는 loop의 `Dependencies.on_model_span`이 모델 응답을 받은 직후, 소유권·취소·시간 검사보다 먼저 호출됩니다. worker가 `engine/costs.record_trial_cost`로 짧은 트랜잭션을 커밋합니다. 비용에는 queue.guard·현재 attempt·실험 상태 조건을 걸지 않으므로 옛 워커나 stopped 실험의 이미 받은 응답 비용도 보존됩니다. 기존 결과·trace 저장은 계속 현재 임대·attempt를 검사합니다. stopped 확인을 단계 사이와 최종 저장에 반영해 비용 기록 뒤 새 호출을 막습니다.

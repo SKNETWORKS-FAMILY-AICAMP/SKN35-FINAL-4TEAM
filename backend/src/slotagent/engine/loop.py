@@ -29,6 +29,14 @@ class ToolEnvironmentError(RuntimeError):
         self.reason = reason
 
 
+class ToolExecutionError(Exception):
+    """유효한 도구 실패 응답. 원문을 기록·피드백하고 대화는 계속합니다."""
+
+    def __init__(self, text: str):
+        super().__init__(text)
+        self.text = text
+
+
 @dataclass
 class Dependencies:
     model: ChatModel
@@ -139,6 +147,8 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
                             result = deps.call_tool(call.name, args, seconds)
                             if not isinstance(result, str):
                                 raise TypeError("도구는 모델에 전달할 문자열을 반환해야 합니다.")
+                        except ToolExecutionError as exc:
+                            error = result = exc.text
                         except ToolEnvironmentError as exc:
                             error = reason = exc.reason
                             result = json.dumps({"error": error}, ensure_ascii=False)

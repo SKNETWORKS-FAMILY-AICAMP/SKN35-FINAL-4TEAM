@@ -1,12 +1,15 @@
 """① 읽기 실행 코어를 제품 DB와 임대 작업에 연결합니다.
 
-첫 단계는 명시적으로 주입한 모델·읽기 도구만 실행합니다. 기본값으로 실제 모델을 과금 호출하지 않습니다.
+모델은 명시적으로 주입하고 읽기 도구는 deps 또는 신뢰한 stdio 설정으로 연결합니다.
+stdio 설정이 있으면 풀이마다 새 세션을 열어 모델 호출 전에 검사하고 최종 저장 전에 닫습니다.
+기본값으로 실제 모델을 과금 호출하지 않습니다.
 실행 중 DB 트랜잭션을 붙잡지 않고 시작·소유권 확인·응답별 비용·최종 저장을 짧게 처리합니다.
 """
 
 from __future__ import annotations
 
 import copy
+from contextlib import ExitStack
 from dataclasses import replace
 from decimal import Decimal
 
@@ -23,7 +26,15 @@ from slotagent.engine.costs import record_trial_cost
 from slotagent.engine.loop import Dependencies, RunCancelled, RunResult, run_agent
 
 
-def run_trial(conn, trial_id: int, *, deps: Dependencies | None = None, job: dict | None = None) -> RunResult | None:
+def run_trial(
+    conn,
+    trial_id: int,
+    *,
+    deps: Dependencies | None = None,
+    job: dict | None = None,
+    stdio=None,
+    cancel_signals=(),
+) -> RunResult | None:
     """풀이 하나를 시작하고 결과와 다음 단계 요청을 저장합니다.
 
     외부 트랜잭션이 없는 연결을 넘겨야 합니다. 완료된 풀이·예산 중단은 아무것도 실행하지 않습니다.
@@ -89,7 +100,7 @@ def run_trial(conn, trial_id: int, *, deps: Dependencies | None = None, job: dic
         )
 
     try:
-        return _execute_trial(conn, row, snap, price_id, price, deps, job)
+        return _execute_trial(conn, row, snap, price_id, price, deps, job, stdio, cancel_signals)
     except BaseException as exc:
         # 모델·도구·최종 저장 어디서 실패해도 현재 시도만 반환합니다.
         # 자동 재호출은 하지 않습니다. 호출자가 원인을 고친 뒤 다시 실행합니다.
@@ -121,7 +132,7 @@ def _release_attempt(conn, trial_id, attempt, experiment_id):
             conn.execute("UPDATE sa_trials SET status='cancelled' WHERE trial_id=%s", (trial_id,))
 
 
-def _execute_trial(conn, row, snap, price_id, price, deps, job):
+def _execute_trial(conn, row, snap, price_id, price, deps, job, stdio=None, cancel_signals=()):
     trial_id = row["trial_id"]
 
     def cancelled() -> bool:
@@ -152,13 +163,18 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job):
         )
         deps.on_model_span(span)
 
-    result = run_agent(
-        snap,
-        row["prompt"],
-        trial_seed(row["seed"], row["rep"]),
-        replace(deps, price=price, cancelled=cancelled, on_model_span=model_received),
-        prereg=row["prereg"],
-    )
+    with ExitStack() as stack:
+        active = replace(deps, price=price, cancelled=cancelled, on_model_span=model_received)
+        if stdio is not None:
+            call_tool = stack.enter_context(stdio.open(snap, cancel_signals=(deps.cancelled, *cancel_signals)))
+            active = replace(active, call_tool=call_tool)
+        result = run_agent(
+            snap,
+            row["prompt"],
+            trial_seed(row["seed"], row["rep"]),
+            active,
+            prereg=row["prereg"],
+        )
     trace = copy.deepcopy(result.trace)
     trace.update(trial_id=trial_id, attempt=row["attempt"])
     contracts.validate("trace", trace)

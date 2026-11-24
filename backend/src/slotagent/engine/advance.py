@@ -28,10 +28,111 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 
-from slotagent.common import contracts
+from psycopg import sql
+from psycopg.pq import TransactionStatus
+
+from slotagent.common import checks, contracts
+from slotagent.common.db_names import col, table
 
 GRADER_VERSION = "0.1.0"
+TRIAL_JOB_MAX_ATTEMPTS = 3
+
+# 실행 중 실제 원인이 보존된 분류만 연결합니다. 일반 RuntimeError 등은 추측하지 않습니다.
+JOB_FAILURE_REASONS = {
+    "ToolEnvironmentError": "env_mcp_server_down",  # 이전 stdio 시작 실패 기록과 호환
+    "env_mcp_server_down": "env_mcp_server_down",
+    "lease_expired": "env_worker_lost",
+    "LeaseLost": "env_worker_lost",
+    "env_worker_lost": "env_worker_lost",
+    "timeout_wall_clock": "timeout_wall_clock",
+}
+
+
+class UnmappedFailureError(ValueError):
+    """원래 분류만으로 계약의 실패 원인을 확정할 수 없어 사람이 검토해야 합니다."""
+
+    def __init__(self, classification):
+        super().__init__("기존 실패 원인에 대응하지 않는 작업 오류입니다. 원인을 확인하세요.")
+        self.classification = classification
+
+
+@dataclass(frozen=True)
+class ResumeResult:
+    job_id: int
+    resumed: bool
+    exhausted: bool = False
+
+
+def resume_failed_trial(conn, trial_id: int) -> ResumeResult:
+    """사람이 요청한 재개만 처리합니다. 같은 작업·누적 attempts·오류·비용을 보존합니다.
+
+    소진된 경우 종결을 커밋해야 하므로 예외 대신 exhausted=True로 재개 거절을 반환합니다.
+    모르는 실패 원인은 상태를 바꾸지 않고 UnmappedFailureError로 보고합니다.
+    """
+    if isinstance(trial_id, bool) or not isinstance(trial_id, int) or trial_id < 1:
+        raise ValueError("유효한 trial 번호가 필요합니다.")
+    if conn.info.transaction_status != TransactionStatus.IDLE:
+        raise ValueError("재개에는 외부 트랜잭션이 없는 연결을 넘기세요.")
+    jobs, trials, experiments = (sql.Identifier(table(e)) for e in ("jobs", "trials", "experiments"))
+    j = {name: sql.Identifier(col("jobs", name)) for name in (
+        "id", "kind", "payload", "status", "attempts", "last_error", "leased_by", "lease_until", "updated_at",
+    )}
+    t = {name: sql.Identifier(col("trials", name)) for name in (
+        "id", "experiment_id", "status", "run_outcome", "outcome_reason", "finished_at",
+    )}
+    e = {name: sql.Identifier(col("experiments", name)) for name in ("id", "status", "prereg")}
+    with conn.transaction():
+        conn.execute("SET LOCAL lock_timeout='5s'")
+        conn.execute("SET LOCAL statement_timeout='5s'")
+        # queue.guard/fail과 동일하게 job → experiment → trial 순서로 잠급니다.
+        job = conn.execute(sql.SQL(
+            "SELECT {id},{status},{attempts},{last_error} FROM {jobs} "
+            "WHERE {kind}='run_trial' AND {payload}->>'trial_id'=%s "
+            "ORDER BY {id} DESC LIMIT 1 FOR UPDATE"
+        ).format(jobs=jobs, **j), (str(trial_id),)).fetchone()
+        if job is None:
+            raise ValueError("이 풀이의 실행 작업이 없습니다.")
+        job_id, job_status, attempts, last_error = job
+        exp_row = conn.execute(sql.SQL("SELECT {experiment_id} FROM {trials} WHERE {id}=%s").format(
+            trials=trials, **t), (trial_id,)).fetchone()
+        if exp_row is None:
+            raise ValueError("풀이가 없습니다.")
+        exp_id = exp_row[0]
+        exp_status, prereg = conn.execute(sql.SQL(
+            "SELECT {status},{prereg} FROM {experiments} WHERE {id}=%s FOR UPDATE"
+        ).format(experiments=experiments, **e), (exp_id,)).fetchone()
+        trial_status = conn.execute(sql.SQL("SELECT {status} FROM {trials} WHERE {id}=%s FOR UPDATE").format(
+            trials=trials, **t), (trial_id,)).fetchone()[0]
+        if exp_status not in {"locked", "running"}:
+            raise ValueError("중단·완료된 실험은 재개할 수 없습니다.")
+        if job_status in {"queued", "leased"} and trial_status in {"pending", "running"}:
+            return ResumeResult(job_id, False)
+        if job_status != "failed" or trial_status != "pending":
+            raise ValueError("failed 작업에 남은 pending 풀이만 재개할 수 있습니다.")
+        active = conn.execute(sql.SQL(
+            "SELECT 1 FROM {jobs} WHERE {kind}='run_trial' AND {payload}->>'trial_id'=%s "
+            "AND {status} IN ('queued','leased') LIMIT 1"
+        ).format(jobs=jobs, **j), (str(trial_id),)).fetchone()
+        if active is not None:
+            raise ValueError("같은 풀이의 다른 활성 작업이 있습니다.")
+        if attempts >= TRIAL_JOB_MAX_ATTEMPTS:
+            reason = JOB_FAILURE_REASONS.get(last_error)
+            if reason is None:
+                raise UnmappedFailureError(last_error)
+            contracts.validate("common", reason, part="outcome_reason")
+            outcome = checks.run_outcome_for(reason, prereg)
+            conn.execute(sql.SQL(
+                "UPDATE {trials} SET {status}='error',{run_outcome}=%s,{outcome_reason}=%s,{finished_at}=now() "
+                "WHERE {id}=%s"
+            ).format(trials=trials, **t), (outcome, reason, trial_id))
+            on_trial_finished(conn, trial_id)
+            return ResumeResult(job_id, False, True)
+        conn.execute(sql.SQL(
+            "UPDATE {jobs} SET {status}='queued',{leased_by}=NULL,{lease_until}=NULL,{updated_at}=now() WHERE {id}=%s"
+        ).format(jobs=jobs, **j), (job_id,))
+        return ResumeResult(job_id, True)
 
 
 def _one(conn, sql: str, *args):
