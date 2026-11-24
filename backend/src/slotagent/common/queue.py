@@ -4,10 +4,37 @@
 재시도 상한은 호출자가 정합니다(fail 의 retry, reclaim 의 max_attempts).
 """
 
+from contextlib import contextmanager
+
+from psycopg import errors
 from psycopg.pq import TransactionStatus
 from psycopg.rows import dict_row
 
 from slotagent.common import contracts
+
+SQL_LOCK_TIMEOUT_MS = 1000
+SQL_STATEMENT_TIMEOUT_MS = 5000
+# 서버가 롤백을 확정한 일시 오류. 커밋 여부를 모르는 연결 오류는 넣지 않습니다.
+TRANSIENT_ERRORS = (errors.LockNotAvailable, errors.QueryCanceled, errors.DeadlockDetected)
+
+
+@contextmanager
+def transaction(conn, *, lock_ms=None, statement_ms=None):
+    """중첩 성공·롤백 모두 기존 설정을 복원하는 짧은 DB 작업 상한입니다."""
+    lock_ms = SQL_LOCK_TIMEOUT_MS if lock_ms is None else lock_ms
+    statement_ms = SQL_STATEMENT_TIMEOUT_MS if statement_ms is None else statement_ms
+    if any(type(value) is not int or value < 1 for value in (lock_ms, statement_ms)):
+        raise ValueError("SQL 상한은 양의 정수 밀리초여야 합니다.")
+    with conn.transaction():
+        previous = conn.execute(
+            "SELECT current_setting('lock_timeout'),current_setting('statement_timeout')"
+        ).fetchone()
+        conn.execute(
+            "SELECT set_config('lock_timeout',%s,true),set_config('statement_timeout',%s,true)",
+            (f"{lock_ms}ms", f"{statement_ms}ms"),
+        )
+        yield
+        conn.execute("SELECT set_config('lock_timeout',%s,true),set_config('statement_timeout',%s,true)", previous)
 
 
 class LeaseLost(RuntimeError):
@@ -35,7 +62,7 @@ def lease(conn, worker_id: str, *, kinds=("run_trial",), lease_sec=None) -> dict
     _idle(conn)
     if not worker_id.strip() or not kinds:
         raise ValueError("워커 이름과 처리할 종류가 필요합니다.")
-    with conn.transaction():
+    with transaction(conn):
         seconds = _duration(conn, lease_sec)
         with conn.cursor(row_factory=dict_row) as cur:
             job = cur.execute(
@@ -73,7 +100,7 @@ def guard(conn, job: dict) -> None:
 
 def renew(conn, job: dict, *, lease_sec=None) -> bool:
     _idle(conn)
-    with conn.transaction():
+    with transaction(conn):
         seconds = _duration(conn, lease_sec)
         try:
             guard(conn, job)
@@ -108,7 +135,9 @@ def _recover_trial(conn, job):
     exp = conn.execute("SELECT experiment_id FROM sa_trials WHERE trial_id=%s", (trial_id,)).fetchone()
     if not exp:
         raise ValueError("작업이 가리키는 풀이가 없습니다.")
-    status = conn.execute("SELECT status FROM sa_experiments WHERE experiment_id=%s FOR UPDATE", exp).fetchone()[0]
+    status = conn.execute("SELECT status FROM sa_experiments WHERE experiment_id=%s FOR NO KEY UPDATE", exp).fetchone()[
+        0
+    ]
     trial = conn.execute("SELECT status FROM sa_trials WHERE trial_id=%s FOR UPDATE", (trial_id,)).fetchone()[0]
     if trial in {"finished", "error"}:
         return "done"
@@ -127,7 +156,7 @@ def _recover_trial(conn, job):
 def fail(conn, job: dict, *, retry: bool, error: str = "worker_error") -> None:
     """오류에는 비밀값 없는 분류명만 전달합니다. 재시도 여부는 호출자가 정합니다."""
     _idle(conn)
-    with conn.transaction():
+    with transaction(conn):
         guard(conn, job)
         status = _recover_trial(conn, job)
         if not retry and status == "queued":
@@ -135,7 +164,7 @@ def fail(conn, job: dict, *, retry: bool, error: str = "worker_error") -> None:
         _return_job(conn, job, status, error)
 
 
-def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None) -> int:
+def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None, cleanup_expired=None) -> int:
     """죽거나 DB가 끊긴 워커의 만료 임대와 실행 중 풀이를 원자적으로 회수합니다.
 
     max_attempts 를 주면 그 횟수만큼 빌려 간 작업은 다시 넣지 않고 failed 로 둡니다
@@ -146,13 +175,16 @@ def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None) -> int:
         raise ValueError("회수 개수는 1 이상이어야 합니다.")
     if max_attempts is not None and max_attempts < 1:
         raise ValueError("최대 시도 횟수는 1 이상이어야 합니다.")
-    with conn.transaction():
+    with transaction(conn):
         with conn.cursor(row_factory=dict_row) as cur:
             jobs = cur.execute(
                 """SELECT * FROM sa_jobs WHERE status='leased' AND lease_until<=clock_timestamp()
                    ORDER BY job_id FOR UPDATE SKIP LOCKED LIMIT %s""",
                 (limit,),
             ).fetchall()
+        if cleanup_expired is not None:
+            # 만료 임대 잠금을 유지한 채 해당 컨테이너부터 정리합니다. 실패하면 DB도 반환하지 않습니다.
+            cleanup_expired(jobs)
         for job in jobs:
             status = _recover_trial(conn, job)
             if status == "queued" and max_attempts is not None and job["attempts"] >= max_attempts:

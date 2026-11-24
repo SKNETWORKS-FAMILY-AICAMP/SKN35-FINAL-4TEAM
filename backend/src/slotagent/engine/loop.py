@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 from jsonschema import Draft202012Validator
 
 from slotagent.common import checks, contracts
-from slotagent.common.llm import ChatModel, ModelError, Price, openai_tools
+from slotagent.common.llm import ChatModel, ModelError, Price, openai_tools, storage_text
 from slotagent.engine.tracing import Recorder
 
 
@@ -27,6 +27,14 @@ class ToolEnvironmentError(RuntimeError):
     def __init__(self, reason: str = "env_mcp_server_down"):
         super().__init__(reason)
         self.reason = reason
+
+
+class ToolExecutionError(Exception):
+    """유효한 도구 실패 응답. 원문을 기록·피드백하고 대화는 계속합니다."""
+
+    def __init__(self, text: str):
+        super().__init__(text)
+        self.text = text
 
 
 @dataclass
@@ -101,6 +109,7 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
             record.model(snap["model"]["name"], at, reply)
             # 소유권·취소 검사보다 먼저, 이미 받은 응답의 비용을 호출자에게 넘깁니다.
             deps.on_model_span(copy.deepcopy(record.spans[-1]))
+            storage_text(reply.message())
             remaining()
             messages.append(reply.message())
             if reply.finish_reason == "refusal":
@@ -129,6 +138,7 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
                         args = {}
                     error = "agent_invalid_tool_call"
                     result = json.dumps({"error": error}, ensure_ascii=False)
+                storage_text(args)
                 if error is None:
                     if definition["access"] != "read" or call.name in snap["write_tools"]:
                         raise NotImplementedError("쓰기 프록시는 아직 연결하지 않았습니다.")
@@ -139,12 +149,15 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
                             result = deps.call_tool(call.name, args, seconds)
                             if not isinstance(result, str):
                                 raise TypeError("도구는 모델에 전달할 문자열을 반환해야 합니다.")
+                        except ToolExecutionError as exc:
+                            error, result = "tool_error", exc.text
                         except ToolEnvironmentError as exc:
                             error = reason = exc.reason
                             result = json.dumps({"error": error}, ensure_ascii=False)
                         except TimeoutError:
                             error = reason = "timeout_wall_clock"
                             result = json.dumps({"error": error}, ensure_ascii=False)
+                storage_text(result)
                 record.add(
                     "tool",
                     call.name,

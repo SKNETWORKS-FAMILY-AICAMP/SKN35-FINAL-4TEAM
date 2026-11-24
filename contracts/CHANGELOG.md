@@ -5,11 +5,8 @@
 
 | 날짜 | 스키마 | 버전 | 바뀐 것 | 누가 |
 |------|--------|------|---------|------|
-| 2026-11-24 | 평가팩 내용만 (공용 계약 변경 없음) | 1 | 42유형·128문항·168골든 유지, lookup15→8/writes2→6/incidents3→6 재편. 조회7유형은 archive/lookup-retired에 보관·활성 제외, 신규 승인4·장애3유형과 합성 데이터2개/골든28개 추가. 기존 서버 도구·원본9개 유지, 활성 MCP 목록8유형. 실제 엔진/DB/MCP 연동·보류8후보·tool_error 변경은 미포함. | ② |
-| 2026-11-24 | confirmation · pack · answer_condition · trace (② 초안 기록 보완) | 1 | 기존 작업의 P-05 변경 기록: confirmation 스키마/예시 추가, policy.responses에 capability·target·approve/reject, request/response에 전체 action·response_index. pack.$defs.confirmation 참조 추가. answer_condition.forbidden.unless_user_confirmed로 승인 예외 표현. trace는 기존 자유 문자열 error·attributes·tool_result·write_intents를 사용하며 스키마 구조 변경 없음; 확인 연결은 attributes.confirmation_span_seq, 응답은 tool_result. **① 계약 검토·4명 확인 대기**, DB confirmation 칼럼은 ① 제안이며 이번에 적용하지 않음. | ② |
-| 2026-11-24 | 도구 오류 기록 규약 (구조 변경 없음) | 1 | ① 회신: isError=true이면 span.error=tool_error, 오류 원문은 tool_result만. 서버 무응답 env_mcp_server_down, 잘못된 호출 agent_invalid_tool_call 유지. **① 구현·trace 예시 수신 후 ② reliability/workflows 반영 예정**, 현재 완료 아님. | ② 기록 / ① 구현 |
-| 2026-11-24 | loader·팩 잠금 (계약 변경 없음) | 1 | lock_pack에 양수 lock_timeout_ms(기본5000) 추가, 행/테이블 잠금 전에 트랜잭션 로컬 설정, 성공 시 호출자 설정 복원. sa_pack_versions.content_hash 칼럼이 있으면 loader가 pack_content_hash를 같은 트랜잭션에 저장하도록 준비; 없으면 기존 DB 경로 유지(해시 미저장). 칼럼 DDL·실제 DB 적용은 ① 담당, product_grader_version은 제품 검증 때만 기록. | ② |
-
+| 2026-11-24 | DB만 (JSON 계약 변경 없음) | 1 | `0004_task_confirmation.sql`: `sa_tasks.confirmation`(jsonb, NULL 허용, 객체만) 추가. ② loader가 기다리던 칸. P-05 계약은 확정 아님(4명 확인 대기) | 태민 |
+| 2026-11-24 | trace (설명만) | 1 | 사용자 승인: spans[].error의 도구 실패는 tool_error, 원문은 tool_result에만 보존·모델에는 그대로 전달. 기존 원문 error 행은 재작성하지 않음. 모양·예시 계약·DB 변경 없음. **4명 확인 대기** | ① |
 | 2026-11-24 | 평가팩 구성만 (JSON 계약 변경 없음) | 1 | IT 운영 개발 팩7개를 `packs/it_ops/v0.1/pack.json` 하나로 통합(42유형·128문항·골든168개). 기존 코드는 보존하고 업무 분류는 groups.json으로 분리. 그룹별 원래 전제는 pack_version.premises에도 보존해 팩 해시에 포함. 전체 가짜 실행·골든 검사·목록을 단일 팩에 연결. DB/마이그레이션·제품 잠금은 변경하지 않음. | ② |
 | 2026-11-23 | DB만 (JSON 계약 변경 없음) | 1 | 사용자 승인: `0003_review_1122.sql` 끝에 `sa_cost_ledger.attempt`·`span_seq`(nullable), source='trial' 부분 UNIQUE(ref_id,attempt,span_seq) 추가. 중간 비용 보존·최종 저장 중복 방지. **②④ 코드 영향 없음**, judge·chat·validation과 기존 행은 그대로 허용. | ① |
 | 2026-11-22 | 전체 | 1 | 첫 판 (ERD v1.2 11/22판 기준) | 태민 |

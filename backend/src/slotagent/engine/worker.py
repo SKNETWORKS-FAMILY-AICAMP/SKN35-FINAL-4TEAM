@@ -1,12 +1,16 @@
 """① 읽기 실행 코어를 제품 DB와 임대 작업에 연결합니다.
 
-첫 단계는 명시적으로 주입한 모델·읽기 도구만 실행합니다. 기본값으로 실제 모델을 과금 호출하지 않습니다.
+모델은 명시적으로 주입하고 읽기 도구는 deps 또는 신뢰한 stdio 설정으로 연결합니다.
+stdio 설정이 있으면 풀이마다 새 세션을 열어 모델 호출 전에 검사하고 최종 저장 전에 닫습니다.
+기본값으로 실제 모델을 과금 호출하지 않습니다.
 실행 중 DB 트랜잭션을 붙잡지 않고 시작·소유권 확인·응답별 비용·최종 저장을 짧게 처리합니다.
 """
 
 from __future__ import annotations
 
 import copy
+import time
+from contextlib import ExitStack
 from dataclasses import replace
 from decimal import Decimal
 
@@ -15,15 +19,27 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 from slotagent.common import contracts, queue
+from slotagent.common.db_names import col
 from slotagent.common.hashing import canonical_hash
-from slotagent.common.llm import Price
+from slotagent.common.llm import Price, add_cost
 from slotagent.common.snapshot import HARNESS_VERSION, trial_seed
 from slotagent.engine import advance
 from slotagent.engine.costs import record_trial_cost
 from slotagent.engine.loop import Dependencies, RunCancelled, RunResult, run_agent
 
+# 시도 사이 대기(초). 시도마다 잠금 대기 상한이 따로 있습니다.
+FINAL_SAVE_DELAYS = (0.5, 1, 2, 4)
 
-def run_trial(conn, trial_id: int, *, deps: Dependencies | None = None, job: dict | None = None) -> RunResult | None:
+
+def run_trial(
+    conn,
+    trial_id: int,
+    *,
+    deps: Dependencies | None = None,
+    job: dict | None = None,
+    stdio=None,
+    cancel_signals=(),
+) -> RunResult | None:
     """풀이 하나를 시작하고 결과와 다음 단계 요청을 저장합니다.
 
     외부 트랜잭션이 없는 연결을 넘겨야 합니다. 완료된 풀이·예산 중단은 아무것도 실행하지 않습니다.
@@ -33,14 +49,14 @@ def run_trial(conn, trial_id: int, *, deps: Dependencies | None = None, job: dic
         raise NotImplementedError("모델과 읽기 도구 어댑터를 deps로 명시하세요. Docker 연결은 다음 단계입니다.")
     if conn.info.transaction_status != TransactionStatus.IDLE:
         raise ValueError("실행 시작 전 외부 트랜잭션을 끝내고 독립된 연결을 넘기세요.")
-    with conn.transaction():
+    with queue.transaction(conn):
         if job is not None:
             if job["kind"] != "run_trial" or job["payload"]["trial_id"] != trial_id:
                 raise ValueError("풀이와 작업이 일치하지 않습니다.")
             queue.guard(conn, job)
         conn.execute(
             """SELECT e.experiment_id FROM sa_experiments e JOIN sa_trials t USING (experiment_id)
-               WHERE t.trial_id=%s FOR UPDATE OF e""",
+               WHERE t.trial_id=%s FOR NO KEY UPDATE OF e""",
             (trial_id,),
         )
         with conn.cursor(row_factory=dict_row) as cur:
@@ -89,7 +105,7 @@ def run_trial(conn, trial_id: int, *, deps: Dependencies | None = None, job: dic
         )
 
     try:
-        return _execute_trial(conn, row, snap, price_id, price, deps, job)
+        return _execute_trial(conn, row, snap, price_id, price, deps, job, stdio, cancel_signals)
     except BaseException as exc:
         # 모델·도구·최종 저장 어디서 실패해도 현재 시도만 반환합니다.
         # 자동 재호출은 하지 않습니다. 호출자가 원인을 고친 뒤 다시 실행합니다.
@@ -97,7 +113,7 @@ def run_trial(conn, trial_id: int, *, deps: Dependencies | None = None, job: dic
             if job is None:
                 _release_attempt(conn, trial_id, row["attempt"], row["experiment_id"])
             else:
-                with conn.transaction():
+                with queue.transaction(conn):
                     queue.guard(conn, job)
                     _release_attempt(conn, trial_id, row["attempt"], row["experiment_id"])
         except queue.LeaseLost:
@@ -108,9 +124,9 @@ def run_trial(conn, trial_id: int, *, deps: Dependencies | None = None, job: dic
 
 
 def _release_attempt(conn, trial_id, attempt, experiment_id):
-    with conn.transaction():
+    with queue.transaction(conn):
         status = conn.execute(
-            "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR UPDATE", (experiment_id,)
+            "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR NO KEY UPDATE", (experiment_id,)
         ).fetchone()[0]
         released = conn.execute(
             """UPDATE sa_trials SET status='pending', attempt=attempt+1, started_at=NULL
@@ -121,13 +137,13 @@ def _release_attempt(conn, trial_id, attempt, experiment_id):
             conn.execute("UPDATE sa_trials SET status='cancelled' WHERE trial_id=%s", (trial_id,))
 
 
-def _execute_trial(conn, row, snap, price_id, price, deps, job):
+def _execute_trial(conn, row, snap, price_id, price, deps, job, stdio=None, cancel_signals=()):
     trial_id = row["trial_id"]
 
     def cancelled() -> bool:
         if deps.cancelled():
             return True
-        with conn.transaction():
+        with queue.transaction(conn):
             if job is not None:
                 try:
                     queue.guard(conn, job)
@@ -152,21 +168,56 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job):
         )
         deps.on_model_span(span)
 
-    result = run_agent(
-        snap,
-        row["prompt"],
-        trial_seed(row["seed"], row["rep"]),
-        replace(deps, price=price, cancelled=cancelled, on_model_span=model_received),
-        prereg=row["prereg"],
-    )
+    with ExitStack() as stack:
+        active = replace(deps, price=price, cancelled=cancelled, on_model_span=model_received)
+        if stdio is not None:
+            execution = {
+                "trial_id": trial_id,
+                "attempt": row[col("trials", "attempt")],
+                "job_id": job[col("jobs", "id")] if job else None,
+                "lease_attempt": job[col("jobs", "attempts")] if job else None,
+            }
+            call_tool = stack.enter_context(
+                stdio.open(snap, cancel_signals=(deps.cancelled, *cancel_signals), execution=execution)
+            )
+            active = replace(active, call_tool=call_tool)
+        result = run_agent(
+            snap,
+            row["prompt"],
+            trial_seed(row["seed"], row["rep"]),
+            active,
+            prereg=row["prereg"],
+        )
     trace = copy.deepcopy(result.trace)
     trace.update(trial_id=trial_id, attempt=row["attempt"])
     contracts.validate("trace", trace)
-    with conn.transaction():
+    _save_with_retry(conn, row, trace, result.outcome, price_id, job)
+    return RunResult(trace)
+
+
+def _save_with_retry(conn, row, trace, outcome, price_id, job):
+    """일시 잠금이면 저장 트랜잭션만 다시 시도합니다. 모델·도구는 다시 부르지 않습니다.
+
+    실패한 시도는 모두 롤백되고, 시도마다 임대·실험 상태·attempt를 다시 검사합니다.
+    상한을 넘으면 원래 오류를 올려 기존 작업 재시도 규칙을 따릅니다.
+    """
+    for delay in (*FINAL_SAVE_DELAYS, None):
+        try:
+            return _save_result(conn, row, trace, outcome, price_id, job)
+        except queue.TRANSIENT_ERRORS:
+            if delay is None:
+                raise
+        time.sleep(delay)
+
+
+def _save_result(conn, row, trace, outcome, price_id, job):
+    """결과·trace·비용 확인·다음 단계·작업 완료를 한 트랜잭션으로 저장합니다."""
+    trial_id = row["trial_id"]
+    with queue.transaction(conn):
         if job is not None:
             queue.guard(conn, job)
         exp_status = conn.execute(
-            "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR UPDATE", (row["experiment_id"],)
+            "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR NO KEY UPDATE", (row["experiment_id"],)
         ).fetchone()[0]
         if exp_status not in {"locked", "running"}:
             raise RunCancelled("실험이 중단되어 결과를 저장하지 않습니다.")
@@ -201,7 +252,7 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job):
                 ),
             )
             if span["kind"] == "llm" and "in_tokens" in span:
-                total_cost += Decimal(attrs["cost_krw"])
+                total_cost = add_cost(total_cost, Decimal(attrs["cost_krw"]))
                 record_trial_cost(
                     conn,
                     trial_id=trial_id,
@@ -216,8 +267,8 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job):
                in_tokens=%s,out_tokens=%s,tool_desc_tokens=%s,cost_krw=%s,llm_sec=%s,tool_sec=%s,wait_sec=%s,api_retries=%s
                WHERE trial_id=%s AND attempt=%s""",
             (
-                "finished" if result.outcome == "completed" else "error",
-                result.outcome,
+                "finished" if outcome == "completed" else "error",
+                outcome,
                 trace.get("outcome_reason"),
                 trace["final_answer"],
                 usage["in_tokens"],
@@ -235,4 +286,3 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job):
         advance.on_trial_finished(conn, trial_id)
         if job is not None:
             queue.finish(conn, job)
-    return RunResult(trace)
