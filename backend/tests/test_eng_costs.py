@@ -244,7 +244,7 @@ class BrokenInsert:
         return self.conn.execute(query, values)
 
 
-def test_cost_db_failure_uses_job_limit_without_own_retry(case, engine_db, monkeypatch):
+def test_cost_db_failure_stops_model_retry(case, engine_db, monkeypatch):
     conn, ids, trial, job_id = case
     writes, models, tools = [], [], []
 
@@ -253,15 +253,15 @@ def test_cost_db_failure_uses_job_limit_without_own_retry(case, engine_db, monke
         return record_trial_cost(BrokenInsert(conn), **values)
 
     monkeypatch.setattr(worker, "record_trial_cost", broken)
-    for _ in range(3):
+    for _ in range(1):
         deps = dependencies(lambda *args: tools.append(args) or "[]")
         models.append(deps.model)
         with pytest.raises(CostPersistenceError) as caught:
             run_once(lambda: psycopg.connect(engine_db), "w", deps=deps)
         assert "division" not in str(caught.value)
-    assert states(conn, trial, job_id) == (("pending", 4), ("failed", 3))
+    assert states(conn, trial, job_id) == (("pending", 2), ("failed", 1))
     assert ledger(conn, trial) == (0, 0)
-    assert len(writes) == sum(len(model.requests) for model in models) == 3
+    assert len(writes) == sum(len(model.requests) for model in models) == 1
     assert not tools
     assert not run_once(lambda: psycopg.connect(engine_db), "w", deps=dependencies())
 
@@ -292,7 +292,7 @@ def test_committed_cost_with_lost_ack_replay_is_idempotent(case, engine_db, monk
     deps = dependencies()
     with pytest.raises(CostPersistenceError):
         run_once(lambda: psycopg.connect(engine_db), "w", deps=deps)
-    assert states(conn, trial, job_id) == (("pending", 2), ("queued", 1))
+    assert states(conn, trial, job_id) == (("pending", 2), ("failed", 1))
     assert ledger(conn, trial) == (1, Decimal("0.12"))
     # 별도 자동 재시도 장치가 아니라, 같은 영수증이 재전달돼도 중복되지 않는지 검사합니다.
     record_trial_cost(conn, **captured[0])

@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-24T06:59:30.391973+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 1124,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "first",
+            "type": "function",
+            "function": {
+              "name": "list_issues",
+              "arguments": "{\"owner\":\"acme\",\"repo\":\"ops-service\",\"state\":\"open\"}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "list_issues",
+      "started_at": "2026-11-24T06:59:30.391973+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "owner": "acme",
+        "repo": "ops-service",
+        "state": "open"
+      },
+      "tool_result": "일시 실패: 다시 조회하세요",
+      "error": "tool_error"
+    },
+    {
+      "seq": 3,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-24T06:59:30.391973+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 1124,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "second",
+            "type": "function",
+            "function": {
+              "name": "list_issues",
+              "arguments": "{\"owner\":\"acme\",\"repo\":\"ops-service\",\"state\":\"open\"}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 4,
+      "kind": "tool",
+      "name": "list_issues",
+      "started_at": "2026-11-24T06:59:30.391973+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "owner": "acme",
+        "repo": "ops-service",
+        "state": "open"
+      },
+      "tool_result": "145"
+    },
+    {
+      "seq": 5,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-24T06:59:30.391973+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "{\"value\": \"recovered\"}",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 1124,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": []
+      }
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"value\": \"recovered\"}",
+  "run_outcome": "completed",
+  "usage": {
+    "in_tokens": 0,
+    "out_tokens": 0,
+    "cost_krw": 0.0,
+    "llm_sec": 0,
+    "tool_sec": 0,
+    "wait_sec": 0,
+    "api_retries": 0
+  }
+}

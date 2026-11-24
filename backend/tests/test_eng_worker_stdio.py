@@ -172,5 +172,5 @@ def test_worker_iserror_is_not_environment_failure(experiment, engine_db):
     assert run_once(connect_to(engine_db), "stdio", deps=deps, stdio=config("tool_error_once"))
     assert rows(conn, "trials", ["status", "run_outcome"], "id", trial) == [("finished", "completed")]
     errors = rows(conn, "spans", ["error"], "trial_id", trial)
-    assert [e for (e,) in errors if e is not None] == ["failed"]
+    assert [e for (e,) in errors if e is not None] == ["tool_error"]
     assert len(rows(conn, "cost_ledger", ["id"], "ref_id", trial)) == 3

@@ -206,6 +206,7 @@ class StdioTools:
         tools,
         *,
         timeout_sec=5.0,
+        startup_timeout_sec=None,
         cancelled: Callable[[], bool] = lambda: False,
         cancel_signals=(),
     ):
@@ -232,6 +233,7 @@ class StdioTools:
             raise ValueError("한 세션에는 같은 MCP 서버의 도구만 지정하세요.")
         self.command = list(command)
         self.timeout_sec = _duration(timeout_sec)
+        self.startup_timeout_sec = _duration(timeout_sec if startup_timeout_sec is None else startup_timeout_sec)
         self.cancelled = cancelled
         self.cancel_signals = tuple(cancel_signals)
         if not callable(cancelled) or any(not callable(callback) for callback in self.cancel_signals):
@@ -288,7 +290,7 @@ class StdioTools:
                 raise ValueError("새 세션만 시작할 수 있습니다.")
             self._transition("starting")
             try:
-                deadline = time.monotonic() + self.timeout_sec
+                deadline = time.monotonic() + self.startup_timeout_sec
                 if self._cancelled():
                     raise RunCancelled("MCP 시작이 취소됐습니다.")
                 if os.name == "nt":
@@ -523,7 +525,7 @@ class LocalStdioConfig:
     Docker·팩 metadata 검증은 이 로컬 연결 설정에 포함하지 않습니다.
     """
 
-    def __init__(self, commands, *, timeout_sec=5.0):
+    def __init__(self, commands, *, timeout_sec=5.0, startup_timeout_sec=None):
         if not isinstance(commands, dict) or not commands:
             raise ValueError("서버 이름별 신뢰한 argv 설정이 필요합니다.")
         self.commands = {}
@@ -534,6 +536,7 @@ class LocalStdioConfig:
                 raise ValueError("실행 파일과 인자는 비어 있지 않은 문자열이어야 합니다.")
             self.commands[name] = tuple(command)
         self.timeout_sec = _duration(timeout_sec)
+        self.startup_timeout_sec = _duration(timeout_sec if startup_timeout_sec is None else startup_timeout_sec)
 
     @contextmanager
     def open(self, snapshot, *, cancel_signals=(), execution=None):
@@ -558,6 +561,7 @@ class LocalStdioConfig:
                         self.commands[name],
                         tools,
                         timeout_sec=self.timeout_sec,
+                        startup_timeout_sec=self.startup_timeout_sec,
                         cancel_signals=cancel_signals,
                     )
                 )

@@ -33,7 +33,7 @@ from dataclasses import dataclass
 from psycopg import sql
 from psycopg.pq import TransactionStatus
 
-from slotagent.common import checks, contracts
+from slotagent.common import checks, contracts, queue
 from slotagent.common.db_names import col, table
 
 GRADER_VERSION = "0.1.0"
@@ -83,9 +83,7 @@ def resume_failed_trial(conn, trial_id: int) -> ResumeResult:
         "id", "experiment_id", "status", "run_outcome", "outcome_reason", "finished_at",
     )}
     e = {name: sql.Identifier(col("experiments", name)) for name in ("id", "status", "prereg")}
-    with conn.transaction():
-        conn.execute("SET LOCAL lock_timeout='5s'")
-        conn.execute("SET LOCAL statement_timeout='5s'")
+    with queue.transaction(conn):
         # queue.guard/fail과 동일하게 job → experiment → trial 순서로 잠급니다.
         job = conn.execute(sql.SQL(
             "SELECT {id},{status},{attempts},{last_error} FROM {jobs} "
@@ -160,6 +158,12 @@ STOP_REASONS = {"budget", "interim", "user", "job_failed"}
 
 
 def stop_experiment(conn, experiment_id: int, reason: str) -> int:
+    """중단 상태·풀이·작업을 상한 있는 같은 트랜잭션에서 처리합니다."""
+    with queue.transaction(conn):
+        return _stop_experiment(conn, experiment_id, reason)
+
+
+def _stop_experiment(conn, experiment_id: int, reason: str) -> int:
     """멈추고 대기 풀이·작업을 취소. reason = job_failed 면 failed, 나머지는 stopped. 돌려주는 값: 취소한 풀이 수."""
     if reason not in STOP_REASONS:
         raise ValueError(f"stop_reason 은 {sorted(STOP_REASONS)} 중 하나")
@@ -219,26 +223,44 @@ def on_trial_finished(conn, trial_id: int) -> int | None:
 
 
 def on_grading_finished(conn, grading_run_id: int) -> int:
-    """채점이 끝나면 분석 작업. 마지막 묶음 전이면 중간 분석."""
-    exp_id, upto = conn.execute("SELECT experiment_id, upto_batch_no FROM sa_grading_runs WHERE grading_run_id=%s", (grading_run_id,)).fetchone()
-    last = _one(conn, "SELECT max(batch_no) FROM sa_trials WHERE experiment_id=%s", exp_id)
-    interim = upto is not None and upto < last
-    p = {"schema_version": 1, "kind": "analyze", "grading_run_id": grading_run_id, "is_interim": interim}
-    if interim:
-        p["batch_no"] = upto
-    return enqueue(conn, p)
+    """채점 실행 행으로 재전달을 직렬화합니다. 기존 작업은 상태와 무관하게 재사용합니다."""
+    with queue.transaction(conn):
+        exp_id, upto = conn.execute(
+            "SELECT experiment_id, upto_batch_no FROM sa_grading_runs WHERE grading_run_id=%s FOR UPDATE",
+            (grading_run_id,),
+        ).fetchone()
+        existing = _event_job(conn, "analyze", "grading_run_id", grading_run_id)
+        if existing is not None:
+            return existing
+        last = _one(conn, "SELECT max(batch_no) FROM sa_trials WHERE experiment_id=%s", exp_id)
+        interim = upto is not None and upto < last
+        p = {"schema_version": 1, "kind": "analyze", "grading_run_id": grading_run_id, "is_interim": interim}
+        if interim:
+            p["batch_no"] = upto
+        return enqueue(conn, p)
+
+
+def _event_job(conn, kind: str, field: str, event_id: int) -> int | None:
+    """호출자는 대응하는 부모 행을 같은 트랜잭션에서 잠근 뒤 조회합니다."""
+    return _one(conn, """SELECT job_id FROM sa_jobs WHERE kind=%s AND payload->>%s=%s
+                         ORDER BY job_id LIMIT 1""", kind, field, str(event_id))
 
 
 def on_analysis_done(conn, analysis_id: int) -> None:
     """③의 판정을 실행: 중간 분석이 stop 이면 멈추고 리포트, 계속이면 아무것도 안 함(다음 묶음 풀이가 이어서 돎). 최종이면 리포트."""
-    exp_id, interim, method = conn.execute("SELECT experiment_id, is_interim, method FROM sa_analyses WHERE analysis_id=%s",
-                                           (analysis_id,)).fetchone()
-    stop = bool(method.get("sequential", {}).get("stop"))
-    if interim and not stop:
-        return
-    if interim and stop:
-        stop_experiment(conn, exp_id, "interim")
-    enqueue(conn, {"schema_version": 1, "kind": "report", "analysis_id": analysis_id, "report_kinds": ["one_pager", "detail"]})
+    with queue.transaction(conn):
+        exp_id, interim, method = conn.execute(
+            "SELECT experiment_id, is_interim, method FROM sa_analyses WHERE analysis_id=%s FOR UPDATE",
+            (analysis_id,),
+        ).fetchone()
+        stop = bool(method.get("sequential", {}).get("stop"))
+        if interim and not stop:
+            return
+        if _event_job(conn, "report", "analysis_id", analysis_id) is not None:
+            return
+        if interim and stop:
+            stop_experiment(conn, exp_id, "interim")
+        enqueue(conn, {"schema_version": 1, "kind": "report", "analysis_id": analysis_id, "report_kinds": ["one_pager", "detail"]})
 
 
 def on_reports_done(conn, experiment_id: int) -> None:

@@ -11,6 +11,45 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-24 · Claude · taemin (최종 저장만 재시도)
+- 한 일: 잠금에 막힌 최종 저장을 모델 재호출 없이 최대 5회 재시도, heartbeat의 일시 잠금 오류를 임대 상실에서 제외, 회수의 experiment 잠금 완화. Windows 780/1 skip 2회, Linux 759/22 skip, 강제 종료·3시드 43 passed. 자세히 docs/eng_remaining_1124.md 끝
+- 안 한 일 / 남은 일: 실험 종료 게이트(NUL 등 영구 실패 풀이 pending), Linux 호스트 실제 Docker 검증, 채점 파이프라인. 커밋 없음.
+- 의문점: 없음. 계약·DB·packs 변경 없음.
+
+## 2026-11-24 · Codex→Claude · taemin (엔진 점검 보완 나머지 — 마지막 검증)
+- 한 일: Codex가 A4 SQL 상한·비용 영수증 재시도, A3 토큰/비용 범위, NUL·surrogate 영구 오류, attempt 검사 테스트, A5 시작/호출 제한 분리를 구현하고 마지막 전체 검증 중 중단. Claude가 코드 검토와 최종 코드의 Windows(763 passed/1 skipped)·Linux(742 passed/22 skipped) 전체를 실행. 자세히 docs/eng_remaining_1124.md
+- 안 한 일 / 남은 일: 최종 저장만 재시도하기(제안), 종료 게이트, Codex 임시 파일·Linux 시험 자원 정리, Linux 호스트 실제 Docker 검증. 커밋 없음.
+- 의문점: 같은 문서의 남은 위험 4개.
+
+## 2026-11-24 · Codex · taemin (엔진 점검 보완 1~3단계)
+- 한 일: 이름/인자 조건과 권한 필터 없는 link의 불필요한 권한 요구를 제거했습니다. `tool_access_complete=False`가 기본이며 호출자가 명시한 완전 문맥 밖의 `agent_invalid_tool_call`만 access 조건에서 제외합니다. 이름 조건·등록 도구의 오류 판정 불가는 유지했습니다. 골든 168개는 일치 45 / 불일치 1 / 판정 불가 122이고 조건 변화 20건을 건별 기록했습니다. RUN_ISSUE_RELATION-001 near_miss 조건3의 기존 불일치가 재노출됐으며 expected는 고치지 않았습니다.
+- tool_error: 도구 실패 span.error는 `tool_error`, 원문은 tool_result·모델 피드백에 그대로 둡니다. 실제 워커의 실패 후 성공·권한 실패 후 답변, DB 저장·attempt=1·채점기 경계를 확인했습니다. trace 예시는 docs/eng_trace_recovery_1124.json·eng_trace_permission_1124.json입니다. 기존 기대값은 오류 원문을 검사하던 stdio 2곳만 바꿨습니다(이전 failed → tool_error, 원문 검사 유지).
+- A1: on_grading_finished/on_analysis_done에 부모 행 FOR UPDATE·기존 job 조회·생성을 같은 트랜잭션으로 묶었습니다. 중간 stop도 report 생성과 함께 롤백됩니다. 신규 13건으로 동시 20회·외부 롤백·다른 grading_run·기존 queued/leased/done/failed/cancelled 작업을 검증했습니다. 기존 중복 행 삭제·DB 구조 변경은 하지 않았습니다.
+- 단계 검증: 실패 상황 표 → 실패 재현 테스트 → 구현 순서로 진행했습니다. 1단계 139건, 2단계 관련 207건, A1과 기존 인계·큐·워커 48건 통과. Windows 전체 3회 모두 639 passed/1 skipped/실패 0(157.85·156.91·128.47초), Linux 전체 618 passed/22 skipped/실패 0/기존 경고 1(76.24초)입니다. Linux는 의존성 설치 후 네트워크 차단·일반 사용자로 실행했습니다. Linux 호스트 실제 Docker는 미검증입니다. 전체 Ruff의 기존 타 역할 테스트 11건은 남고 변경 파일 새 오류는 0건입니다.
+- 범위 종료/남은 일: 사용자 허용에 따라 1~3단계 완료 지점에서 멈춥니다. A4 비용 FK 경합·SQL 상한·수신 비용 보존, A3 영구 오류, NUL/surrogate 워커, attempt 변이, A5 CPU 부하 검증 및 점검 보고서 강제 종료 40회·동시 실행 시드 3개는 미착수입니다. 재과금 위험 해결로 읽으면 안 됩니다. A2·호출 시작 비용 기록은 선택지만 보고했습니다.
+- 계약·역할: trace error 설명·CHANGELOG만 사용자 승인 범위로 변경했고 **4명 확인 대기**입니다. packs·DB 구조·②/③/④ 코드·실제 모델 API·개발 DB는 건드리지 않았습니다. 기존 미커밋 변경 보존, 커밋·push·브랜치 전환 없음.
+- 상세: `docs/eng_review_fix_1124.md` (단계별 실패 표·골든 20건·기대값 변경 2건·검증·선택지·한계).
+
+## 2026-11-24 · Codex · taemin (① 규칙 채점기 1단계 보완)
+- 한 일: `check(kind,spec,trace, *, tool_access=None)` 신뢰 권한 문맥을 추가했습니다. 기존 3인자 호출은 유지하고, trace.access/write_intents 충돌은 오류·문맥 없는 관련 도구는 판정 불가로 처리합니다. forbidden/link/end_state의 확정 정상 근거가 오류·권한 불명에 가려지지 않게 했습니다. 실제 워커·eng_pipeline 연결은 하지 않았습니다.
+- 모델 답: NaN/Infinity·NUL·깨진 Unicode·극단 숫자·깊은 중첩은 전용 `RulePolicyRequired(code,key)`로 처리합니다. 잘못된 조건·구조 trace는 여전히 오류입니다. 14종 실제 evidence/판정 불가 메타데이터를 임시 PostgreSQL jsonb INSERT/SELECT로 확인했습니다. 깨진 원문 자체의 보존은 범위 밖입니다.
+- 요구 변경으로 기존 테스트 1사례 교체: `test_error_call_needs_policy`의 link는 오류+정상 근거가 모두 있어도 판정 불가 기대 → 오류 근거만 있을 때 판정 불가; 이유는 사용자 승인한 정상 근거 우선 정책입니다. 정상 근거가 있으면 True인 양쪽 호출 순서·배열 재배열 검사를 추가했습니다. forbidden 기존 사례와 order/end_state 등 나머지 기대값은 유지했습니다.
+- 골든: 동일 팩 servers.json의 5개 정의/68개 호출만 권한 문맥으로 사용했습니다. 권한 없는 16개 이름/226개 호출은 추측하지 않았습니다. 168개 중 일치 45 / 확인된 불일치 0 / 판정 불가 123입니다. 이전 97/3/68에서 바뀐 조건 197행을 보고서에 개별 설명했습니다. 기존 불일치 3개는 해결한 것이 아니라 권한 부족으로 보류됐고, 승인 18건도 그대로 판정 불가입니다. 변조 정답 192개는 통과 0/실패 192입니다.
+- 검증: 규칙 단위 124 passed. Windows 전체 556 → 609 passed, 1 skipped, 실패 0(118.67초). Linux 전체 535 → 588 passed, 22 skipped, 실패 0(50.72초), 기존 경고 1건. Linux skip은 Docker CLI 없음 14·Windows 전용 7·로컬 DB opt-in 1, Windows skip은 로컬 DB opt-in 1입니다. 새 파일 Ruff 오류 0·형식 통과; 전체 Ruff의 기존 타 테스트 11건(I001 9/F401 2)은 수정하지 않았습니다.
+- 안 한 일 / 제안: 계약·DB·packs·엔진·eng_pipeline·expected 변경 및 커밋은 하지 않았습니다. 판정 불가를 False/조용한 제외로 바꾸지 않습니다. 재채점 가능한 버전별 3상태 기록(추천), 기존 채점 전체 미완료 보류, 합의한 의미 항목만 ② 판정기로 보내는 3안을 제안했습니다. DB/계약 영향은 보고서에 적었고 구현하지 않았습니다.
+- 남은 위험: 권한 출처 부족·승인 18건·기존 불일치 3개·1단계 JSON 필드 규칙의 다른 필드 모순/자유문장 한계가 남습니다. 깨진 원문 재채점에는 손실 없는 별도 인코딩 원본 보존 설계가 필요합니다. Linux 호스트 실제 Docker 검증: 못 했음. 배포 전 일회용 VM 또는 CI 러너에서 확인 필요.
+- 상세: `docs/eng_rules_followup_1124.md` (실패 상황 표, 업무 그룹별 집계, 변경 197행, 출처, 제안). 이전 `docs/eng_rules_1124.md` 수치는 문맥 없는 기준으로 보존합니다.
+
+## 2026-11-24 · Codex · taemin (① 규칙 채점기 1단계)
+- 담당 결정: 규칙 채점기 `grading/eng_rules.py`는 ① 담당입니다(11/24 사용자 결정). AGENTS.md 1·9번 및 checklist ①에 반영했고 ② 칸은 수정하지 않았습니다.
+- 한 일: `check(kind,spec,trace) -> (passed,evidence)` 순수 함수로 info·link·order·forbidden·end_state, 비교 7종을 구현했습니다. contracts로 입력·evidence를 검사하고 seq 순서·쓰기 payload를 사용합니다. 모델·네트워크·DB·전체 성공 판정·eng_pipeline 연결은 하지 않습니다. gate 집계는 대조 도구에서 `checks.condition_gate()`를 사용합니다.
+- **1단계 임시 규칙(사용자 확인)**: 답 전체가 JSON 객체이고 key가 최상위에 있으면 그 필드만 비교합니다. 키 누락·중복, 자유문장·최상위 배열/스칼라·앞뒤 설명은 `RulePolicyRequired(code,key)`로 올립니다. null·빈 답은 실패입니다. must_not도 같은 필드만 보므로 다른 필드의 모순은 못 봅니다. 계약·packs·문항을 바꾸지 않았습니다.
+- 골든: task_code로 정확히 연결해 168개를 독립 대조했습니다. **일치 97 / 불일치 3 / 판정 불가 68**. 판정 불가 조건은 71건(access 없음 53 / 승인 정책 컨텍스트 없음 18)이며 불일치 3개에도 판정 불가 조건이 있어 궤적 집계와 다릅니다. 의도적으로 틀린 정답 필드 192개는 통과 0·실패 192입니다. info key 문자열이 문항에 없는 조건은 전체 info 291개 중 102개입니다.
+- 불일치: RUN_ISSUE_RELATION-001 near_miss 조건3은 도구 근거는 그대로인데 link 기대가 false입니다. ISSUE_DUPLICATE_PREVENTION-002와 CONDITIONAL_FOLLOWUP_ACTION-002 forbidden 조건5는 요구한 쓰기가 존재하고 추가 쓰기도 있는데 end_state 기대가 false입니다. 참조 판정기를 복사하거나 기대·골든·조건을 바꾸지 않았습니다. 업무 그룹별 결과·모든 판정 불가 조건·실패 상황 표는 [eng_rules_1124.md](eng_rules_1124.md)에 기록했습니다.
+- 확인: 새 단위 **71 passed**. Windows 전체 **전 485 passed/1 skipped → 후 556 passed/1 skipped, 실패 0**(최종 122.11초). Linux 최종 전체 **535 passed/22 skipped/실패 0/기존 경고 1건**(51.57초). skip은 Docker CLI 없음 14·Windows 전용 7·local DB opt-in 미사용 1입니다. 읽기 전용 저장소 복사본·일반 사용자·uv sync --frozen으로 실행했고 Docker 소켓은 마운트하지 않았습니다. 새 Python 파일 2개 Ruff 오류 0·형식 검사 통과. 전체 Ruff의 기존 11건(I001 9/F401 2)은 다른 테스트 파일이라 고치지 않았습니다.
+- 안 한 일/남은 위험: eng_pipeline·DB·계약·packs·pack_* 수정과 커밋·push를 하지 않았습니다. 오류 호출 포함 정책·오류로 차단된 쓰기·반복 호출의 순서 정책·승인 정책 주입은 미정이며 False로 저장하지 않습니다. 현재 골든의 span.error는 0개여서 실제 오류 호출 정책 검증을 대신하지 못합니다. 시간대 변환은 하지 않습니다. contains/link 문자열만으로 실제 관계·ID 경계를 보장하지 않습니다. LLM/분류기 경로와 ② 실제 판정 연계는 후속 작업입니다.
+- 정리: 이번 테스트 캐시 11곳·종료한 pytest 임시 폴더 3곳을 경계를 확인한 뒤 삭제했습니다. 시험용 컨테이너·이미지·볼륨과 Linux 실행기 잔여는 0개입니다. 개발 DB·다른 Docker 자원·기존 11/22 임시 폴더는 건드리지 않았습니다. Linux 호스트 실제 Docker 검증: 못 했음. 배포 전 일회용 VM 또는 CI 러너에서 확인 필요.
+
 ## 2026-11-24 · Codex · taemin (Docker bind 원본 허용 루트 검사)
 - 한 일: 이번 변경은 `engine/eng_docker.py`, `tests/test_eng_docker.py`, 이 기록에만 한정했습니다. `DockerServer.allowed_data_roots`를 추가하고 bind 원본을 명시한 루트 안으로 제한했습니다. 허용 루트가 없으면 실제 실행 전에 env_mcp_server_down으로 거절합니다. `/`, 드라이브 루트, `/var/run`, `/run`과 런타임 경로 하위는 데이터 루트·원본으로 거절합니다. 데이터 전용 루트 자체의 마운트는 허용합니다.
 - 경로 검사: `..`를 정규화 전에 거절하고, 실제 파일/디렉터리 존재와 모든 조상의 lstat를 확인합니다. 심볼릭 링크·Windows junction/reparse point, 접근 불가·없는 경로, UNC/device/drive-relative 경로를 거절합니다. Windows 대소문자·슬래시 표기를 처리하며 `/data`와 `/data2`는 구성 요소 단위로 구분합니다. 허용 루트 목록을 복사·동결하고 원본을 정규 경로로 바꿉니다. 생성 시와 실제 start 직전에 다시 검사합니다. 원격 daemon과 Linux 컨테이너 워커는 호스트 경로 공간을 확인할 수 없어 bind를 거절합니다. 로컬 Windows named pipe와 Linux unix socket의 daemon만 지원합니다.

@@ -13,12 +13,54 @@ import os
 import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
-from decimal import Decimal
+from decimal import Decimal, localcontext
 from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
 from dotenv import dotenv_values
+
+MAX_TOKENS = 2**31 - 1
+# trace usage는 float로 내보내므로 DB numeric보다 먼저 만나는 표현 상한입니다.
+MAX_COST_KRW = Decimal.from_float(float.fromhex("0x1.fffffffffffffp+1023"))
+
+
+def storage_cost(value):
+    """조용한 DB 반올림·float 무한대 변환을 허용하지 않습니다."""
+    if (
+        not isinstance(value, Decimal)
+        or not value.is_finite()
+        or value < 0
+        or value > MAX_COST_KRW
+        or value.as_tuple().exponent < -16383
+    ):
+        raise ValueError("비용이 지원하는 유한 numeric/trace 저장 범위를 벗어났습니다.")
+    return value
+
+
+def add_cost(left, right):
+    with localcontext() as context:
+        context.prec = 16694
+        return left + right
+
+
+def storage_text(value):
+    """원문은 바꾸지 않습니다. 오류에는 민감한 원문을 넣지 않습니다."""
+    stack = [value]
+    while stack:
+        item = stack.pop()
+        if isinstance(item, str):
+            if "\x00" in item:
+                raise ValueError("NUL이 포함된 응답은 현재 DB에 손실 없이 저장할 수 없습니다.")
+            try:
+                item.encode("utf-8")
+            except UnicodeEncodeError:
+                raise ValueError("lone surrogate 응답은 현재 DB에 손실 없이 저장할 수 없습니다.") from None
+        elif isinstance(item, dict):
+            stack.extend(item.keys())
+            stack.extend(item.values())
+        elif isinstance(item, (list, tuple)):
+            stack.extend(item)
 
 
 @dataclass(frozen=True)
@@ -43,7 +85,15 @@ class Price:
             raise ValueError("가격은 음수일 수 없습니다.")
 
     def calculate(self, in_tokens: int, out_tokens: int) -> Decimal:
-        return (in_tokens * self.in_per_1k_krw + out_tokens * self.out_per_1k_krw) / 1000
+        _tokens(in_tokens)
+        _tokens(out_tokens)
+        with localcontext() as context:
+            context.prec = 16694
+            try:
+                value = (in_tokens * self.in_per_1k_krw + out_tokens * self.out_per_1k_krw) / 1000
+            except ArithmeticError:
+                raise ValueError("비용 산술 범위를 벗어났습니다.") from None
+        return storage_cost(value)
 
 
 @dataclass(frozen=True)
@@ -157,7 +207,7 @@ def _api_key(provider):
 
 
 def _tokens(value):
-    if type(value) is not int or value < 0:
+    if type(value) is not int or not 0 <= value <= MAX_TOKENS:
         raise ValueError("모델 API 사용량이 없거나 올바르지 않아 비용을 확정할 수 없습니다.")
     return value
 
@@ -270,7 +320,8 @@ def _anthropic_reply(response, price):
         usage = response.usage
         in_tokens = _tokens(usage.input_tokens)
         for name in ("cache_creation_input_tokens", "cache_read_input_tokens"):
-            in_tokens += _tokens(getattr(usage, name, None) or 0)
+            cached = getattr(usage, name, None)
+            in_tokens += _tokens(0 if cached is None else cached)
         out_tokens = _tokens(usage.output_tokens)
         calls, text = [], []
         for block in response.content:

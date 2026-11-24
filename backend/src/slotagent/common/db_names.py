@@ -155,6 +155,7 @@ COLUMNS: dict[str, dict[str, str]] = {
         "code": "code",
         "prompt": "prompt",
         "slot_values": "slot_values",
+        "confirmation": "confirmation",
         "seed": "seed",
     },
     "answer_conditions": {

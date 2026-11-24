@@ -5,6 +5,8 @@
 
 | 날짜 | 스키마 | 버전 | 바뀐 것 | 누가 |
 |------|--------|------|---------|------|
+| 2026-11-24 | DB만 (JSON 계약 변경 없음) | 1 | `0004_task_confirmation.sql`: `sa_tasks.confirmation`(jsonb, NULL 허용, 객체만) 추가. ② loader가 기다리던 칸. P-05 계약은 확정 아님(4명 확인 대기) | 태민 |
+| 2026-11-24 | trace (설명만) | 1 | 사용자 승인: spans[].error의 도구 실패는 tool_error, 원문은 tool_result에만 보존·모델에는 그대로 전달. 기존 원문 error 행은 재작성하지 않음. 모양·예시 계약·DB 변경 없음. **4명 확인 대기** | ① |
 | 2026-11-24 | 평가팩 구성만 (JSON 계약 변경 없음) | 1 | IT 운영 개발 팩7개를 `packs/it_ops/v0.1/pack.json` 하나로 통합(42유형·128문항·골든168개). 기존 코드는 보존하고 업무 분류는 groups.json으로 분리. 그룹별 원래 전제는 pack_version.premises에도 보존해 팩 해시에 포함. 전체 가짜 실행·골든 검사·목록을 단일 팩에 연결. DB/마이그레이션·제품 잠금은 변경하지 않음. | ② |
 | 2026-11-23 | DB만 (JSON 계약 변경 없음) | 1 | 사용자 승인: `0003_review_1122.sql` 끝에 `sa_cost_ledger.attempt`·`span_seq`(nullable), source='trial' 부분 UNIQUE(ref_id,attempt,span_seq) 추가. 중간 비용 보존·최종 저장 중복 방지. **②④ 코드 영향 없음**, judge·chat·validation과 기존 행은 그대로 허용. | ① |
 | 2026-11-22 | 전체 | 1 | 첫 판 (ERD v1.2 11/22판 기준) | 태민 |

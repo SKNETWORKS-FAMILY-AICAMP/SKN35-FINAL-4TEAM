@@ -1,12 +1,12 @@
 """① 실험 잠금·풀이 생성·작업 등록을 한 트랜잭션으로 처리합니다."""
 
-from slotagent.common import contracts
+from slotagent.common import contracts, queue
 from slotagent.engine import advance
 
 
 def lock_and_enqueue(conn, experiment_id: int) -> dict:
     """같은 요청을 반복해도 풀이와 작업은 한 번만 만듭니다."""
-    with conn.transaction():
+    with queue.transaction(conn):
         row = conn.execute(
             "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR UPDATE", (experiment_id,)
         ).fetchone()

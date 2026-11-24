@@ -249,7 +249,7 @@ def test_call_failure_is_saved(experiment, engine_db, definitions, mode, reason)
     conn, ids = experiment
     trial = ids["trials"][0]
     job = enqueue(conn, trial)
-    with session(definitions, mode, timeout_sec=0.5) as client:
+    with session(definitions, mode, timeout_sec=0.5, startup_timeout_sec=5) as client:
         deps = dependencies(client)
         assert run_once(connect_to(engine_db), "stdio", deps=deps)
         assert len(deps.model.requests) == 1
@@ -561,7 +561,8 @@ def test_iserror_then_success_and_trace(definitions):
         assert result.outcome == "completed"
         assert len(model.requests) == 3
         spans = [s for s in result.trace["spans"] if s["kind"] == "tool"]
-        assert spans[0]["error"] == spans[0]["tool_result"] == "failed"
+        assert spans[0]["error"] == "tool_error"
+        assert spans[0]["tool_result"] == "failed"
         assert "error" not in spans[1]
         assert model.requests[1]["messages"][-1]["content"] == "failed"
         assert not any(s.get("error", "").startswith("env_") for s in result.trace["spans"])

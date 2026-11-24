@@ -51,10 +51,18 @@ def run_once(connect, worker_id, *, deps, heartbeat_sec=20, max_attempts=MAX_ATT
         def heartbeat():
             try:
                 with connect() as heartbeat_conn:
-                    while not stopped.wait(heartbeat_sec):
-                        if not queue.renew(heartbeat_conn, job):
+                    wait = heartbeat_sec
+                    while not stopped.wait(wait):
+                        try:
+                            renewed = queue.renew(heartbeat_conn, job)
+                        except queue.TRANSIENT_ERRORS:
+                            # 잠금 경합은 임대 상실이 아닙니다. 실제 만료는 renew·guard가 판정합니다.
+                            wait = min(heartbeat_sec, 1)
+                            continue
+                        if not renewed:
                             lost.set()
                             return
+                        wait = heartbeat_sec
             except Exception:
                 lost.set()  # DB 연결이 끊기면 다음 단계부터 호출을 막습니다.
 

@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 from slotagent.common import contracts
-from slotagent.common.llm import ModelError, Reply
+from slotagent.common.llm import ModelError, Reply, _tokens, add_cost, storage_cost
 
 
 @dataclass
@@ -29,7 +29,10 @@ class Recorder:
         return span
 
     def model(self, name: str, started_at: datetime, reply: Reply) -> None:
-        self.cost += reply.cost_krw
+        _tokens(reply.in_tokens)
+        _tokens(reply.out_tokens)
+        storage_cost(reply.cost_krw)
+        self.cost = add_cost(self.cost, reply.cost_krw)
         self.add(
             "llm",
             name,
@@ -62,6 +65,9 @@ class Recorder:
         )
 
     def finish(self, outcome: str, reason: str | None, final_answer: str | None) -> dict:
+        _tokens(sum(s.get("in_tokens", 0) for s in self.spans))
+        _tokens(sum(s.get("out_tokens", 0) for s in self.spans))
+        storage_cost(self.cost)
         usage = {
             "in_tokens": sum(s.get("in_tokens", 0) for s in self.spans),
             "out_tokens": sum(s.get("out_tokens", 0) for s in self.spans),

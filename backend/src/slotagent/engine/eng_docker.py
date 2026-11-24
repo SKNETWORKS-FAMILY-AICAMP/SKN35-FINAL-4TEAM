@@ -317,7 +317,9 @@ def docker_run_argv(executable, server, image_id, scope, execution, name):
 class DockerStdioTools(StdioTools):
     """stdio 프레이밍은 기존 연결을 재사용하고 daemon 컨테이너 수명은 별도로 닫습니다."""
 
-    def __init__(self, control, server, tools, *, scope, execution, timeout_sec, cancel_signals):
+    def __init__(
+        self, control, server, tools, *, scope, execution, timeout_sec, cancel_signals, startup_timeout_sec=None
+    ):
         self.control, self.scope = control, scope
         self.container_name = f"sa-mcp-t{execution['trial_id']}-a{execution['attempt']}-{uuid4().hex}"
         self._docker_cleaned = False
@@ -325,7 +327,9 @@ class DockerStdioTools(StdioTools):
         checked = self._checked_server()
         self._image = control.image_id(server.image)
         argv = docker_run_argv(control.executable, checked, self._image, scope, execution, self.container_name)
-        super().__init__(argv, tools, timeout_sec=timeout_sec, cancel_signals=cancel_signals)
+        super().__init__(
+            argv, tools, timeout_sec=timeout_sec, startup_timeout_sec=startup_timeout_sec, cancel_signals=cancel_signals
+        )
         self.environment.update(control.environment)
 
     def _checked_server(self):
@@ -380,7 +384,7 @@ class DockerStdioTools(StdioTools):
 
 
 class DockerStdioConfig:
-    def __init__(self, servers, *, scope, docker=None, timeout_sec=5, control_timeout_sec=10):
+    def __init__(self, servers, *, scope, docker=None, timeout_sec=5, control_timeout_sec=10, startup_timeout_sec=None):
         if (
             not isinstance(servers, dict)
             or not servers
@@ -391,6 +395,7 @@ class DockerStdioConfig:
             raise ValueError("같은 실행 환경의 워커가 공유할 고유 scope가 필요합니다.")
         self.servers, self.scope = MappingProxyType(dict(servers)), scope
         self.timeout_sec = _duration(timeout_sec)
+        self.startup_timeout_sec = _duration(timeout_sec if startup_timeout_sec is None else startup_timeout_sec)
         self.control = DockerControl(docker, timeout_sec=control_timeout_sec)
 
     @contextmanager
@@ -424,6 +429,7 @@ class DockerStdioConfig:
                         scope=self.scope,
                         execution=execution,
                         timeout_sec=self.timeout_sec,
+                        startup_timeout_sec=self.startup_timeout_sec,
                         cancel_signals=cancel_signals,
                     )
                 )

@@ -25,6 +25,7 @@ if config.get("pid_file"):
     Path(config["pid_file"]).write_text(str(os.getpid()), encoding="utf-8")
 mode = config.get("mode", "ok")
 tools = config["tools"]
+time.sleep(config.get("eng_start_delay", 0))
 initialized = False
 calls = 0
 for _ in range(100):
