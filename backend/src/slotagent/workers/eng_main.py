@@ -37,7 +37,12 @@ def run_once(connect, worker_id, *, deps, heartbeat_sec=20, max_attempts=MAX_ATT
     if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or not 1 <= max_attempts <= MAX_ATTEMPTS:
         raise ValueError("최대 시도 횟수는 1 이상 3 이하여야 합니다.")
     with connect() as conn:
-        queue.reclaim(conn, max_attempts=max_attempts)
+        cleanup = getattr(stdio, "reclaim_expired", None)
+        queue.reclaim(
+            conn,
+            max_attempts=max_attempts,
+            cleanup_expired=(lambda jobs: cleanup(jobs, conn=conn)) if cleanup is not None else None,
+        )
         job = queue.lease(conn, worker_id)
         if job is None:
             return False

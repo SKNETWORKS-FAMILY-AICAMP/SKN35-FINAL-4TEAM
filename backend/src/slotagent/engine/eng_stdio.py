@@ -536,7 +536,7 @@ class LocalStdioConfig:
         self.timeout_sec = _duration(timeout_sec)
 
     @contextmanager
-    def open(self, snapshot, *, cancel_signals=()):
+    def open(self, snapshot, *, cancel_signals=(), execution=None):
         grouped = {}
         declared = {server["name"]: server for server in snapshot["mcp_servers"]}
         for tool in snapshot["tools"]:

@@ -1,7 +1,9 @@
 """① 외부 접근 없는 stdio 검증 서버. 제품 평가팩 서버가 아닙니다."""
 
+import errno
 import json
 import os
+import socket
 import subprocess
 import sys
 import time
@@ -62,6 +64,27 @@ for _ in range(100):
             sys.stderr.write("x" * 100000)
             sys.stderr.flush()
         result = {"content": [{"type": "text", "text": '[{"number":145},{"number":148}]'}]}
+        if mode == "isolation_probe":
+            network_errno, write_errno = 0, 0
+            try:
+                with socket.create_connection(("198.51.100.1", 80), timeout=0.2):
+                    network_errno = 0
+            except OSError as error:
+                network_errno = error.errno
+            try:
+                with Path("/data/check.txt").open("a") as target:
+                    target.write("unexpected")
+            except OSError as error:
+                write_errno = error.errno
+            probe = {
+                "network_errno": network_errno,
+                "network_error": errno.errorcode.get(network_errno),
+                "write_errno": write_errno,
+                "write_error": errno.errorcode.get(write_errno),
+                "data": Path("/data/check.txt").read_text(),
+                "has_parent_secrets": any(key in os.environ for key in ("OPENAI_API_KEY", "DATABASE_URL")),
+            }
+            result = {"content": [{"type": "text", "text": json.dumps(probe)}]}
         if mode == "bad_content":
             result = {"content": []}
         if mode == "tool_error" or (mode == "tool_error_once" and calls == 1):

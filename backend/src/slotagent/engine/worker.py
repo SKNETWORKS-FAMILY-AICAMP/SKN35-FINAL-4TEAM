@@ -18,6 +18,7 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 from slotagent.common import contracts, queue
+from slotagent.common.db_names import col
 from slotagent.common.hashing import canonical_hash
 from slotagent.common.llm import Price
 from slotagent.common.snapshot import HARNESS_VERSION, trial_seed
@@ -166,7 +167,15 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job, stdio=None, canc
     with ExitStack() as stack:
         active = replace(deps, price=price, cancelled=cancelled, on_model_span=model_received)
         if stdio is not None:
-            call_tool = stack.enter_context(stdio.open(snap, cancel_signals=(deps.cancelled, *cancel_signals)))
+            execution = {
+                "trial_id": trial_id,
+                "attempt": row[col("trials", "attempt")],
+                "job_id": job[col("jobs", "id")] if job else None,
+                "lease_attempt": job[col("jobs", "attempts")] if job else None,
+            }
+            call_tool = stack.enter_context(
+                stdio.open(snap, cancel_signals=(deps.cancelled, *cancel_signals), execution=execution)
+            )
             active = replace(active, call_tool=call_tool)
         result = run_agent(
             snap,

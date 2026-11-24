@@ -135,7 +135,7 @@ def fail(conn, job: dict, *, retry: bool, error: str = "worker_error") -> None:
         _return_job(conn, job, status, error)
 
 
-def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None) -> int:
+def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None, cleanup_expired=None) -> int:
     """죽거나 DB가 끊긴 워커의 만료 임대와 실행 중 풀이를 원자적으로 회수합니다.
 
     max_attempts 를 주면 그 횟수만큼 빌려 간 작업은 다시 넣지 않고 failed 로 둡니다
@@ -153,6 +153,9 @@ def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None) -> int:
                    ORDER BY job_id FOR UPDATE SKIP LOCKED LIMIT %s""",
                 (limit,),
             ).fetchall()
+        if cleanup_expired is not None:
+            # 만료 임대 잠금을 유지한 채 해당 컨테이너부터 정리합니다. 실패하면 DB도 반환하지 않습니다.
+            cleanup_expired(jobs)
         for job in jobs:
             status = _recover_trial(conn, job)
             if status == "queued" and max_attempts is not None and job["attempts"] >= max_attempts:

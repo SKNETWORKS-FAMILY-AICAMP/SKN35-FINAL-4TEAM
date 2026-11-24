@@ -11,6 +11,91 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-24 · Codex · taemin (Docker bind 원본 허용 루트 검사)
+- 한 일: 이번 변경은 `engine/eng_docker.py`, `tests/test_eng_docker.py`, 이 기록에만 한정했습니다. `DockerServer.allowed_data_roots`를 추가하고 bind 원본을 명시한 루트 안으로 제한했습니다. 허용 루트가 없으면 실제 실행 전에 env_mcp_server_down으로 거절합니다. `/`, 드라이브 루트, `/var/run`, `/run`과 런타임 경로 하위는 데이터 루트·원본으로 거절합니다. 데이터 전용 루트 자체의 마운트는 허용합니다.
+- 경로 검사: `..`를 정규화 전에 거절하고, 실제 파일/디렉터리 존재와 모든 조상의 lstat를 확인합니다. 심볼릭 링크·Windows junction/reparse point, 접근 불가·없는 경로, UNC/device/drive-relative 경로를 거절합니다. Windows 대소문자·슬래시 표기를 처리하며 `/data`와 `/data2`는 구성 요소 단위로 구분합니다. 허용 루트 목록을 복사·동결하고 원본을 정규 경로로 바꿉니다. 생성 시와 실제 start 직전에 다시 검사합니다. 원격 daemon과 Linux 컨테이너 워커는 호스트 경로 공간을 확인할 수 없어 bind를 거절합니다. 로컬 Windows named pipe와 Linux unix socket의 daemon만 지원합니다.
+- 호환: named volume은 기존 동작을 유지합니다. 순수 `docker_run_argv`는 파일 시스템·Docker에 접근하지 않는 포맷 함수로 유지하고 실제 실행 경계인 DockerStdioTools에서 승인합니다. 기존 테스트 설정과 기대값은 한 글자도 바꾸지 않았고 새 테스트만 추가했습니다. ② 연계 대기·계약·DB·다른 역할 파일·새 의존성은 건드리지 않았으며 커밋·push 하지 않았습니다.
+
+### 실패 상황 표 — 최종본
+
+| # | 상황 | 들어오는 값/상태 | 기대 결과 (상태값·에러·DB 행) | 테스트 이름 | 결과 |
+|---|---|---|---|---|---|
+| 1 | 허용 루트 없음 | 빈 allowed_data_roots와 bind | ValueError / 실행 경계에서는 환경 오류, 프로세스 시작 안 함 | test_bind_requires_allowed_roots, test_bind_invalid_config_never_launches | 통과 |
+| 2 | 호스트 제어 경로 | /, C:/, 역슬래시 드라이브 루트, /var/run, /run 및 Windows 혼합 대소문자 | 원본·루트 설정 ValueError | test_bind_control_roots_rejected (7종) | 통과 |
+| 3 | 정상 데이터 경로 | 허용 루트 아래 파일·디렉터리·루트 자체 | 정규 경로 반환, 실제 Docker 읽기 성공·쓰기 EROFS·close 뒤 0개 | test_bind_allowed_descendant (3종), test_docker_bind_allowed_root | Windows 실제 Docker 통과, Linux 파일 검사 통과·Docker만 skip |
+| 4 | 비슷한 접두사 | data 루트 밖 data2 | ValueError | test_bind_sibling_prefix_rejected | 통과 |
+| 5 | 상위 이동 | /와 역슬래시의 .. | 정규화로 숨기지 않고 거절 | test_bind_parent_traversal_rejected (2종) | 통과 |
+| 6 | 링크·junction | 원본·조상·허용 루트가 링크, reparse 속성 | ValueError | test_bind_links_rejected (3종), test_bind_reparse_flag_rejected | 통과 |
+| 7 | Windows 경로 표기 | 대소문자·역슬래시/슬래시, 비슷한 형제 경로 | 정상 원본 허용·형제 거절 | test_bind_windows_path_forms (2종) | Windows 통과, Linux 전용 사유로 skip |
+| 8 | 확인 불가 경로 | 없음·타 OS 경로·UNC·device·drive-relative·권한 거절 | ValueError | test_bind_uncheckable_paths_rejected (6종) | 통과 |
+| 9 | 검사 뒤 원본 변경 | 생성 후 start 전에 링크로 교체 | 환경 오류, closed·process 없음, 반복 close 안전 | test_bind_rechecked_before_start | 통과 |
+| 10 | 다른 호스트 경로 공간 | 원격 DOCKER_HOST/컨텍스트·Linux 컨테이너 워커 | bind 거절, 프로세스 시작 안 함 | test_bind_remote_daemon_rejected, test_bind_daemon_context_checked, test_bind_container_worker_path_space, test_bind_invalid_config_never_launches | 통과 |
+| 11 | 기존 volume·수명·회수 | 기존 정상/timeout/취소/워커 kill·재시도 | 기존 환경 오류·회수·잔여 0·attempt 상한 유지 | 기존 Docker 통합 13건 (test_docker_isolation, test_docker_worker_kill_reclaim 등) | Windows 전부 통과, Linux Docker CLI 없음 skip |
+
+- 확인: Windows `./scripts/test.ps1` **직전 332 → 367 passed, 실패 0·skip 0**, 실제 Docker 통합 **14건** 실행. Linux `python:3.12-slim` 읽기 전용 저장소를 /work에 복사하고 일반 사용자로 `uv sync --frozen` → `uv run pytest -rs`: **직전 314 passed/18 skipped → 346 passed/21 skipped, 실패 0**. skip은 Docker CLI 없음 14건 + Windows 전용 7건입니다. 기존 XDG_RUNTIME_DIR RuntimeDirWarning 1건이 있습니다. Docker 소켓은 마운트하지 않았고 복사본 코드를 따로 고치지 않았습니다. backend 전체 Ruff·범위 파일 형식·diff 검사 통과.
+- 정리: 이번 테스트 전용 컨테이너·이미지·volume 잔여 0개를 확인했습니다. 경계를 확인한 저장소 테스트 캐시 8곳과 종료한 pytest 임시 폴더 3곳을 정리했습니다. 다른 Docker 자원·기존 OS 임시 폴더는 건드리지 않았습니다.
+- 남은 위험: **Linux 호스트 실제 Docker 검증: 못 했음. 배포 전 일회용 VM 또는 CI 러너에서 확인 필요**. 호스트와 워커가 다른 경로를 보는 구성은 bind 미지원이며 named volume을 쓰거나 같은 경로 공간의 신뢰한 워커가 필요합니다. 로컬 endpoint가 실제 로컬 daemon을 가리킨다는 운영 전제가 있으며 원격으로 전달한 소켓은 지원하지 않습니다. 검사 직후 Docker daemon이 bind를 여는 사이의 호스트 경로 교체를 원자적으로 막는 API는 없으므로, 데이터 전용 루트와 그 조상은 신뢰한 관리자만 변경할 수 있어야 합니다. 넓은 일반 디렉터리를 데이터 루트로 지정하지 마세요. 컨테이너의 readonly는 호스트 관리자 변경을 막지 않습니다.
+
+## 2026-11-24 · Codex · taemin (풀이별 Docker MCP 격리 — ① 테스트 서버)
+- 한 일: AGENTS.md 9번을 먼저 읽었습니다. 대기 중인 span.error 코드·② 로더/실제 서버 이미지·sa_env_checks·P-05·채점 규약은 수정하지 않았습니다. ①의 eng_stdio_server.py만 넣은 임시 테스트 이미지로 Docker stdio 경로를 구현했습니다. 계약·DB·마이그레이션·새 Python 의존성·다른 역할 파일·기존 테스트 기대값을 바꾸지 않았습니다. Docker CLI가 있는 신뢰한 워커에서만 실행하며 Docker 실패 시 로컬 실행으로 되돌아가지 않습니다.
+- 설정: 새 `engine/eng_docker.py`의 DockerServer(image, arguments, mounts, environment, entrypoint, memory_mb, cpus, pids_limit), ReadOnlyMount(source,target,kind='bind'/'volume'), DockerStdioConfig(servers, scope, docker, timeout_sec, control_timeout_sec)로 받습니다. 이미지 이름은 실행 전에 로컬 image ID로 해석하고 `--pull=never`로 그 ID를 실행합니다. 시험 이미지를 ② 이미지로 바꾸는 것은 설정 교체 자리만 준비했고 실제로 교체하지 않았습니다. scope는 같은 DB/실행 환경의 워커가 공유하는 고유한 비밀이 아닌 식별자여야 합니다.
+- 격리: StdioTools를 재사용한 DockerStdioTools가 `docker run -i --rm`을 실행합니다. `--network none --init --read-only --user 65534:65534 --cap-drop ALL --security-opt no-new-privileges`, 기본 메모리 128MiB(동일 memory-swap), CPU 1개, pids 64개, 제한된 /tmp tmpfs를 적용합니다. 모든 설정 데이터 마운트는 readonly이며 Docker 제어 소켓·컨테이너 제어/실행 경로에는 마운트할 수 없습니다. 부모 API 키/DATABASE_URL은 CLI와 MCP 컨테이너에 상속하지 않습니다. 컨테이너 env는 LANG/LC_ALL/TZ/PYTHONUTF8만 명시할 수 있고 설정 dict를 나중에 바꿔 키를 넣지 못하게 복사·동결합니다. Docker 컨텍스트 경로/접속 설정은 호스트 CLI에만 제공하고 컨테이너에는 넘기지 않습니다. CLI 설정의 proxy 자동 주입도 빈 값으로 차단합니다.
+- 수명·회수: worker가 trial/attempt/job/lease 식별자를 세션에 넘깁니다. 이름에는 trial/attempt/UUID를 쓰고 scope/kind/trial/attempt/job/lease 라벨을 붙입니다. close는 CLI 종료 전후에 해당 이름·scope의 컨테이너를 제거하고 남은 대상을 확인합니다. `queue.reclaim`에 선택적인 cleanup_expired hook을 추가해 만료 임대 행을 잠근 상태에서 컨테이너 정리를 먼저 수행합니다. 실패하면 DB 회수도 롤백하므로 새 워커에 넘기지 않습니다. run_once는 Docker 설정의 hook에 같은 DB 연결을 넘깁니다. 해당 scope의 라벨을 현재 DB 임대와 비교해 만료·지난 임대·종료/없는 job의 고아만 정리하고 유효한 현재 임대는 보존합니다. 만료 작업이 0개여도 검사해 Docker 생성 요청이 늦게 반영된 고아도 다음 reclaim에서 제거합니다. 실행/제어 명령은 각각 시간 상한을 가지며 자동 무한 정리 재시도는 없습니다.
+
+### 실패 상황 표 — 최종본
+
+| # | 상황·입력 | 기대 결과 / 확인한 결과 | 테스트 이름 | 결과 |
+|---|---|---|---|---|
+| 1 | 이미지 없음·실행 파일 없음·bind 원본 없음 | env_mcp_server_down, 세션 시작 거절·잔여 0 | test_docker_start_failure (3종) | Windows 실제 Docker 통과 |
+| 2 | 초기화 무응답 | 환경 오류, 세션 폐기·컨테이너 0 | test_docker_initialize_timeout | 통과 |
+| 3 | 정상 워커 풀이 | finished/done, 모델 비용 2행, close 후 0 | test_docker_worker_round_trip | 통과 |
+| 4 | 별도 워커 kill 후 임대 만료 | run_once reclaim에서 옛 컨테이너 먼저 제거·pending/queued 복구 확인, 새 attempt=2 완료·비용 3행·잔여 0 | test_docker_worker_kill_reclaim | 통과 |
+| 5 | 과거 임대·현재 임대가 함께 존재 | 선택한 과거 임대만 제거, 현재 세션 호출 성공 | test_docker_reclaim_preserves_other_lease | 통과 |
+| 6 | DB 현재 임대가 유효 | 고아 검사 후에도 현재 컨테이너 유지 | test_docker_reclaim_preserves_current_db_lease | 통과 |
+| 7 | 종료한 job의 컨테이너가 늦게 생성됨 | 만료 job 목록이 비어 있어도 다음 reclaim에서 제거, DB 결과/비용 유지 | test_docker_reclaim_sweeps_late_orphan | 통과 |
+| 8 | 컨테이너 내부 TCP·마운트 파일 append | ENETUNREACH/EROFS, 원본 frozen 유지 | test_docker_isolation | 통과 |
+| 9 | 부모 키 설정·자원 검사 | 키 미전달, NetworkMode none/ReadonlyRootfs/Init/128MiB/1CPU/pids64 확인 | test_docker_isolation | 통과 |
+| 10 | 같은 trial의 재시도·동시 세션 | 이름 2개와 lease 라벨 1/2 구분, 각 close 후 0 | test_docker_retry_names_unique | 통과 |
+| 11 | 도구 호출 timeout/취소 | 환경 오류/RunCancelled, 세션 정리·잔여 0 | test_docker_call_abort (2종) | 통과 |
+| 12 | Docker 정리 오류 모의 | 회수 롤백으로 leased/running 유지, daemon 복구 후 재회수 가능 | test_docker_reclaim_failure_blocks_requeue | 통과 |
+| 13 | 컨테이너 env에 키 요청·설정 사후 변경 | 등록 거절·검증한 설정 불변 | test_docker_secret_environment_rejected / test_docker_environment_snapshot | 통과 |
+| 14 | Docker CLI/daemon 없음 | Docker 통합 검사만 이유와 함께 skip | docker_cli fixture + Linux 전체 -rs 출력 | Docker CLI 없음 13건 skip 확인 |
+| 15 | Docker 없는 Linux argv 생성 | Linux 절대 경로(공백 포함) RO 마운트·network none·read-only·init·메모리/CPU/pids 상한이 모두 있어야 함 | test_linux_docker_argv_without_docker (기본/사용자 자원값 2종) | Windows·Linux 통과, Docker/외부 프로세스 미사용 |
+
+- 검증: 이전 Windows **314 passed → 최종 332 passed, 실패 0건·skip 0건**, `332 passed in 107.63s`. 기존 314개 + 신규 18개이며 Windows에서는 Docker 통합 검사 13개를 모두 실제 실행했습니다. Linux python:3.12-slim 일반 사용자/읽기 전용 저장소 복사본 전체는 **314 passed, 18 skipped, 1 warning in 36.37s**, 실패 0건입니다. skip은 Docker CLI 없음 13건 + 기존 Windows Job 전용 5건이며 이유를 출력했습니다. XDG_RUNTIME_DIR 경고는 이전과 같습니다. argv 순수 함수 단위 2건은 양쪽 모두 실행했고 subprocess.run/Popen 호출 자체를 금지했습니다. Linux 데이터 경로(공백 포함)와 network none·readonly 마운트·read-only root·init·메모리/CPU/pids 및 사용자 지정 상한 값이 빠지거나 달라지면 실패합니다. backend 전체 Ruff 0건, 변경 Python 7개 format 검사·diff 검사 통과. 새 테스트를 먼저 추가해 모듈/순수 함수 미구현 오류를 확인한 뒤 구현했습니다.
+- 중간 검사: 첫 Docker 검사에서 격리 probe 모드가 아직 없어 신규 테스트가 실패했고 보완했습니다. 그 뒤 Linux 컨테이너의 errno=101을 Windows 호스트의 errno=10051과 비교하던 새 테스트의 플랫폼 가정을 오류 이름 ENETUNREACH/EROFS로 고쳤습니다. 기존 테스트는 수정하지 않았습니다. 늦은 Docker 생성 요청 경합과 현재 유효 임대 보존도 추가로 검증한 뒤 전체 실행을 완료했습니다.
+- 테스트 자원: fixture가 메모리 tar로 임시 Dockerfile/서버 컨텍스트를 만들고 UUID 태그·라벨의 전용 이미지/데이터 볼륨을 생성합니다. 종료 시 해당 라벨의 컨테이너만 제거한 뒤 전용 이미지·볼륨을 제거합니다. 최종 docker ps/image ls/volume ls 확인에서 테스트 전용 잔여는 모두 0개였습니다. 최종 저장소 캐시 8개와 확인한 OS pytest 임시 폴더도 삭제했습니다. 전역 prune이나 다른 컨테이너·볼륨·사용자 이미지는 건드리지 않았습니다. 실제 공급자 API/② MCP 서버 호출은 0건입니다.
+
+### 사용 경로
+
+```python
+# 신뢰한 실행 설정. 이미지/서버 인자/데이터 경로는 운영자가 지정합니다.
+stdio = DockerStdioConfig(
+    {"github": DockerServer(
+        image="고정한-연습-서버-이미지",
+        arguments=("서버가-받는-인자",),
+        mounts=(ReadOnlyMount("Docker호스트의데이터절대경로", "/data"),),
+    )},
+    scope="해당-db-실행환경의-고유-scope",
+)
+run_once(connect, worker_id, deps=dependencies, stdio=stdio)
+```
+
+위 문자열은 설명용 자리표시자이며 그대로 실행하는 명령이 아닙니다. 운영 이미지는 아직 배포하지 않았고 실제 시험 이미지는 테스트 fixture에서만 만들고 삭제합니다. queue.reclaim을 직접 쓰는 운영 경로도 같은 scope/DB의 Docker 정리 hook을 연결해야 합니다. 기본 로컬 stdio 검증 경로는 보존했으며 실제 격리는 DockerStdioConfig를 명시한 경로에만 적용됩니다.
+
+### 검증 제한·자동 승인 거절
+
+- Linux에서도 실제 Docker 통합 검사를 돌리기 위해 테스트 실행기 컨테이너에 `/var/run/docker.sock`을 마운트하는 실행을 준비했지만 자동 승인 검토가 거절했습니다. 사유는 테스트 컨테이너가 호스트 Docker daemon을 광범위하게 제어할 수 있는 권한 경계를 노출한다는 것입니다. 이후 사용자가 **소켓을 마운트하지 말고 마무리**하도록 결정했습니다. 거절된 작업을 TCP proxy나 다른 경로로 우회하지 않았고 다시 소켓 마운트 승인을 요청하지 않습니다. **Linux 안에서 Docker 통합 13개를 실제 실행했다고 주장하지 않습니다.** 대신 docker_run_argv를 순수 함수로 분리하고 subprocess.run/Popen을 실행하면 실패하게 한 단위 테스트에서 Linux 경로·모든 필수 격리/자원 옵션의 존재와 값을 검사합니다.
+
+### 남은 위험·다음 단계
+
+- **Linux 호스트 실제 Docker 검증: 못 했음. 배포 전 일회용 VM 또는 CI 러너에서 확인 필요**
+- 모든 워커가 죽거나 daemon이 멈춘 동안 즉시 컨테이너가 없어지는 보장은 없습니다. 다음 run_once/reclaim에서 정리하며 daemon 정리 실패는 오류로 드러내고 DB 재임대를 보류합니다. 매우 늦은 생성 요청도 다음 reclaim에서 재검사하므로 운영 워커의 반복 실행/정리 호출이 필요합니다. 같은 DB/daemon의 워커는 동일한 고유 scope를 사용해야 하고 다른 DB/실행 환경과 scope를 공유하면 안 됩니다.
+- 원본 데이터 경로는 신뢰한 운영자가 정한 연습 데이터만 지정해야 합니다. 이 단계는 데이터 내용·해시/버전 검수나 이미지의 신뢰성 검토를 대신하지 않습니다. 실제 ② 이미지 digest/데이터 고정·sa_env_checks·P-05는 AGENTS 9번대로 대기합니다. Docker는 별도 VM급 격리를 의미하지 않으며 daemon/커널의 신뢰가 필요합니다.
+- 기존 span.error 원문 기록, 원인 미분류 소진 trial, 실험 종료 게이트 제안 등 ②/사용자 합의 대기 사항은 그대로입니다. Windows Job의 CLI 등록 전 틈은 남지만 daemon 컨테이너는 독립 라벨 회수로 관리합니다.
+- 이번 변경 파일: engine/eng_docker.py(신규 Docker 설정·수명·고아 정리), eng_stdio.py(내부 execution 인자 호환), worker.py(실행 식별자 전달), common/queue.py(선택적 회수 전 정리 hook), workers/eng_main.py(hook·DB 연결 전달), tests/test_eng_docker.py(신규), tests/eng_stdio_server.py(격리 probe), docs/handoff.md·checklist.md(기록). 계약·DB 변경·새 의존성·커밋·push·브랜치 전환은 없습니다.
+- 공식 근거: [Docker 실행·제한 옵션](https://docs.docker.com/engine/containers/run/), [docker run의 init/rm/network 옵션](https://docs.docker.com/reference/cli/docker/container/run/), [읽기 전용 마운트](https://docs.docker.com/engine/storage/bind-mounts/).
+
 ## 2026-11-24 · Codex · taemin (MCP timeout 환경 오류 분류·span 오류 코드 검토)
 - **1번 변경**: eng_stdio._rpc의 초기화/호출 무응답 기한 소진을 기존 `ToolEnvironmentError(reason='env_mcp_server_down')`으로 올리도록 수정했습니다. start에서 TimeoutError를 그대로 재전파하던 별도 catch를 제거해 native OSError 계열 시간 초과도 기존 환경 오류 처리로 들어갑니다. MCP 전용 timeout을 후보의 풀이 시간 초과로 세지 않습니다. advance.JOB_FAILURE_REASONS의 클래스명 `TimeoutError` 대응은 발생 위치를 확정할 수 없어 삭제했고, 명시적으로 기록된 기존 코드 `timeout_wall_clock`만 유지했습니다.
 - **2번 보류·제안**: span.error는 계약상 자유 문자열일 뿐 도구 실행 실패용 기존 코드/의미가 정의돼 있지 않습니다. common.first_fail_type의 `tool_error`는 ②의 채점 단계 값이라 span 코드로 그대로 재사용한다는 합의도 없습니다. 사용자 조건대로 loop/계약을 이번에 수정하지 않았습니다. **②와 `span.error='mcp_tool_error'`를 유효한 MCP isError 실행 실패 코드로 합의하고, 오류 원문은 tool_result에만 두는 방식**을 제안합니다. 기술적으로 현재 스키마가 문자열을 받더라도 새 코드의 역할 간 의미를 혼자 확정하지 않았습니다. 코드 전용 error 테스트는 해당 동작을 아직 구현하지 않아 추가하지 않았고 기존 isError 회복 테스트는 그대로 유지했습니다.
