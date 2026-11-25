@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from slotagent.common import checks, contracts
 
 PACK_DIR = Path(__file__).resolve().parents[2] / "packs" / "it_ops" / "v0.1"
@@ -29,9 +30,9 @@ def test_reference_matches_pack_and_contracts():
         for condition in task["conditions"]:
             contracts.validate("answer_condition", condition["spec"], part=condition["kind"])
         checks.check_task_conditions(task["conditions"])
-    assert len(pack["templates"]) == 42
-    assert len(pack["tasks"]) == 128
-    assert len({task["code"] for task in pack["tasks"]}) == 128
+    assert len(pack["templates"]) == 47
+    assert len(pack["tasks"]) == 143
+    assert len({task["code"] for task in pack["tasks"]}) == 143
     template_codes = {t["code"] for t in pack["templates"]}
     assert all(task["template"] in template_codes for task in pack["tasks"])
     assert reference.verify_pack() == {

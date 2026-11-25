@@ -6,7 +6,8 @@ import json
 from pathlib import Path
 
 import pytest
-from slotagent.packs.groups import read_group, load_group
+
+from slotagent.packs.groups import load_group, read_group
 
 PACK = Path(__file__).resolve().parents[2] / "packs/it_ops/v0.1"
 spec = importlib.util.spec_from_file_location("conflict_eval", PACK / "reference/evaluators/conflicts.py")

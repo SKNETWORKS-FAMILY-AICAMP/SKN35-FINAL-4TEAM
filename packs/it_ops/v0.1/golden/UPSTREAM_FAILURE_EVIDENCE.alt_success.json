@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "trial_id": null,
+  "attempt": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "tool",
+      "name": "get_followup_context",
+      "tool_args": {
+        "scenario_id": "upstream_failure_evidence-1"
+      },
+      "tool_result": "{\"service\": \"api\", \"at\": \"2026-11-16T10:00:00Z\"}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T02:00:01Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "get_service_state",
+      "tool_args": {
+        "service": "api",
+        "at": "2026-11-16T10:00:00Z"
+      },
+      "tool_result": "{\"status\": \"down\", \"own_errors\": 0, \"upstream_errors\": [{\"service\": \"db\", \"count\": 12}]}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T02:00:02Z",
+      "duration_sec": 0
+    },
+    {
+      "seq": 3,
+      "kind": "tool",
+      "name": "get_service_state",
+      "tool_args": {
+        "service": "db",
+        "at": "2026-11-16T10:00:00Z"
+      },
+      "tool_result": "{\"status\": \"down\", \"own_errors\": 12, \"upstream_errors\": []}",
+      "attributes": {
+        "simulation": true,
+        "access": "read"
+      },
+      "started_at": "2026-11-24T02:00:03Z",
+      "duration_sec": 0
+    }
+  ],
+  "write_intents": [],
+  "final_answer": "{\"cause\": \"upstream\", \"certainty\": \"confirmed\", \"root_service\": \"db\"}",
+  "run_outcome": "completed"
+}

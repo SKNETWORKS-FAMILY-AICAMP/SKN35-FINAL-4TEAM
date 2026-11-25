@@ -1,0 +1,221 @@
+{
+  "snapshot_version": "it-ops-rebalanced-v0.1",
+  "cases": [
+    {
+      "id": "issue_routing_approval-1",
+      "repo": "acme/payment-service",
+      "version": "v4.1.0",
+      "labels": [
+        "ops",
+        "priority-1"
+      ],
+      "owner": "mina",
+      "channels": [
+        "ops-1",
+        "release-1"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9601"
+      }
+    },
+    {
+      "id": "issue_routing_approval-2",
+      "repo": "acme/catalog-service",
+      "version": "v4.2.0",
+      "labels": [
+        "ops",
+        "priority-2"
+      ],
+      "owner": "jun",
+      "channels": [
+        "ops-2",
+        "release-2"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9602"
+      }
+    },
+    {
+      "id": "issue_routing_approval-3",
+      "repo": "acme/auth-service",
+      "version": "v4.3.0",
+      "labels": [
+        "ops",
+        "priority-3"
+      ],
+      "owner": "sora",
+      "channels": [
+        "ops-3",
+        "release-3"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9603"
+      }
+    },
+    {
+      "id": "latest_confirmation_scope-1",
+      "repo": "acme/payment-service",
+      "version": "v4.1.0",
+      "labels": [
+        "ops",
+        "priority-1"
+      ],
+      "owner": "mina",
+      "channels": [
+        "ops-1",
+        "release-1"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9601"
+      }
+    },
+    {
+      "id": "latest_confirmation_scope-2",
+      "repo": "acme/catalog-service",
+      "version": "v4.2.0",
+      "labels": [
+        "ops",
+        "priority-2"
+      ],
+      "owner": "jun",
+      "channels": [
+        "ops-2",
+        "release-2"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9602"
+      }
+    },
+    {
+      "id": "latest_confirmation_scope-3",
+      "repo": "acme/auth-service",
+      "version": "v4.3.0",
+      "labels": [
+        "ops",
+        "priority-3"
+      ],
+      "owner": "sora",
+      "channels": [
+        "ops-3",
+        "release-3"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9603"
+      }
+    },
+    {
+      "id": "multi_target_approval-1",
+      "repo": "acme/payment-service",
+      "version": "v4.1.0",
+      "labels": [
+        "ops",
+        "priority-1"
+      ],
+      "owner": "mina",
+      "channels": [
+        "ops-1",
+        "release-1"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9601"
+      }
+    },
+    {
+      "id": "multi_target_approval-2",
+      "repo": "acme/catalog-service",
+      "version": "v4.2.0",
+      "labels": [
+        "ops",
+        "priority-2"
+      ],
+      "owner": "jun",
+      "channels": [
+        "ops-2",
+        "release-2"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9602"
+      }
+    },
+    {
+      "id": "multi_target_approval-3",
+      "repo": "acme/auth-service",
+      "version": "v4.3.0",
+      "labels": [
+        "ops",
+        "priority-3"
+      ],
+      "owner": "sora",
+      "channels": [
+        "ops-3",
+        "release-3"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9603"
+      }
+    },
+    {
+      "id": "issue_then_message-1",
+      "repo": "acme/payment-service",
+      "version": "v4.1.0",
+      "labels": [
+        "ops",
+        "priority-1"
+      ],
+      "owner": "mina",
+      "channels": [
+        "ops-1",
+        "release-1"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9601"
+      }
+    },
+    {
+      "id": "issue_then_message-2",
+      "repo": "acme/catalog-service",
+      "version": "v4.2.0",
+      "labels": [
+        "ops",
+        "priority-2"
+      ],
+      "owner": "jun",
+      "channels": [
+        "ops-2",
+        "release-2"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9602"
+      }
+    },
+    {
+      "id": "issue_then_message-3",
+      "repo": "acme/auth-service",
+      "version": "v4.3.0",
+      "labels": [
+        "ops",
+        "priority-3"
+      ],
+      "owner": "sora",
+      "channels": [
+        "ops-3",
+        "release-3"
+      ],
+      "receipt": {
+        "fake": true,
+        "number": "9603"
+      }
+    }
+  ]
+}

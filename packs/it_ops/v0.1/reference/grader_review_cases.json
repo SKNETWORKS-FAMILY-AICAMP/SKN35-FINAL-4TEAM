@@ -1,0 +1,253 @@
+[
+  {
+    "case": "repeated_read_before_write",
+    "current_product": "repeated_order_policy_missing",
+    "requested": "필수 정보가 행동 전에 확보됐으면 반복 자체로 미정 처리하지 않는 정책 합의",
+    "spec": {
+      "schema_version": 1,
+      "before": {
+        "tool": "read_context"
+      },
+      "after": {
+        "tool": "post_message"
+      }
+    },
+    "trace": {
+      "schema_version": 1,
+      "trial_id": null,
+      "attempt": 1,
+      "spans": [
+        {
+          "seq": 1,
+          "kind": "tool",
+          "name": "read_context",
+          "tool_args": {},
+          "tool_result": "[]",
+          "attributes": {
+            "access": "read"
+          },
+          "started_at": "2026-11-24T04:00:00Z",
+          "duration_sec": 0
+        },
+        {
+          "seq": 2,
+          "kind": "tool",
+          "name": "read_context",
+          "tool_args": {},
+          "tool_result": "[]",
+          "attributes": {
+            "access": "read"
+          },
+          "started_at": "2026-11-24T04:00:00Z",
+          "duration_sec": 0
+        },
+        {
+          "seq": 3,
+          "kind": "tool",
+          "name": "post_message",
+          "tool_args": {
+            "channel": "ops-alerts",
+            "text": "facts"
+          },
+          "tool_result": "[]",
+          "attributes": {
+            "access": "write"
+          },
+          "started_at": "2026-11-24T04:00:00Z",
+          "duration_sec": 0
+        }
+      ],
+      "write_intents": [
+        {
+          "span_seq": 3,
+          "tool_name": "post_message",
+          "payload": {
+            "channel": "ops-alerts",
+            "text": "facts"
+          },
+          "in_rule_list": true,
+          "user_confirmed": false
+        }
+      ],
+      "final_answer": "{}",
+      "run_outcome": "completed"
+    },
+    "kind": "order",
+    "tool_access": {
+      "read_context": "read",
+      "post_message": "write"
+    },
+    "tool_access_complete": true,
+    "authority_note": "명시적 로컬 재현 fixture이며 실제 후보 도구의 권한 출처가 아님"
+  },
+  {
+    "case": "end_state_includes_not_exact_count",
+    "current_product": true,
+    "requested": "포함 계약은 유지하고 정확 횟수/추가 쓰기 배제는 새 계약 합의 필요",
+    "spec": {
+      "schema_version": 1,
+      "write_intents": [
+        {
+          "tool": "post_message",
+          "args_include": {
+            "channel": "ops-alerts"
+          }
+        }
+      ]
+    },
+    "trace": {
+      "schema_version": 1,
+      "trial_id": null,
+      "attempt": 1,
+      "spans": [
+        {
+          "seq": 1,
+          "kind": "tool",
+          "name": "read_context",
+          "tool_args": {},
+          "tool_result": "[]",
+          "attributes": {
+            "access": "read"
+          },
+          "started_at": "2026-11-24T04:00:00Z",
+          "duration_sec": 0
+        },
+        {
+          "seq": 2,
+          "kind": "tool",
+          "name": "read_context",
+          "tool_args": {},
+          "tool_result": "[]",
+          "attributes": {
+            "access": "read"
+          },
+          "started_at": "2026-11-24T04:00:00Z",
+          "duration_sec": 0
+        },
+        {
+          "seq": 3,
+          "kind": "tool",
+          "name": "post_message",
+          "tool_args": {
+            "channel": "ops-alerts",
+            "text": "facts"
+          },
+          "tool_result": "[]",
+          "attributes": {
+            "access": "write"
+          },
+          "started_at": "2026-11-24T04:00:00Z",
+          "duration_sec": 0
+        },
+        {
+          "seq": 4,
+          "kind": "tool",
+          "name": "post_message",
+          "tool_args": {
+            "channel": "ops-alerts",
+            "text": "facts"
+          },
+          "tool_result": "[]",
+          "attributes": {
+            "access": "write"
+          },
+          "started_at": "2026-11-24T04:00:00Z",
+          "duration_sec": 0
+        }
+      ],
+      "write_intents": [
+        {
+          "span_seq": 3,
+          "tool_name": "post_message",
+          "payload": {
+            "channel": "ops-alerts",
+            "text": "facts"
+          },
+          "in_rule_list": true,
+          "user_confirmed": false
+        },
+        {
+          "span_seq": 4,
+          "tool_name": "post_message",
+          "payload": {
+            "channel": "ops-alerts",
+            "text": "facts"
+          },
+          "in_rule_list": true,
+          "user_confirmed": false
+        }
+      ],
+      "final_answer": "{}",
+      "run_outcome": "completed"
+    },
+    "kind": "end_state",
+    "tool_access": {
+      "read_context": "read",
+      "post_message": "write"
+    },
+    "tool_access_complete": true,
+    "authority_note": "명시적 로컬 재현 fixture이며 실제 후보 도구의 권한 출처가 아님"
+  },
+  {
+    "case": "existing_link_semantics",
+    "current_product": true,
+    "golden_expected": false,
+    "requested": "최종 답/필드 관계까지 지원하는지 근거 존재만 보는지 ①② 합의",
+    "spec": {
+      "schema_version": 1,
+      "key": "same_repo_sha_issue",
+      "gate": true,
+      "seen": {
+        "result_contains": [
+          "acme/payment-service",
+          "payment-sha-1",
+          "701"
+        ]
+      },
+      "supports": [
+        "issue_ids"
+      ]
+    },
+    "trace": {
+      "schema_version": 1,
+      "trial_id": null,
+      "attempt": 1,
+      "spans": [
+        {
+          "seq": 1,
+          "kind": "tool",
+          "name": "list_incident_runs",
+          "tool_args": {
+            "repo": "acme/payment-service"
+          },
+          "tool_result": "[{\"repo\": \"acme/payment-service\", \"run_id\": \"501\", \"environment\": \"production\", \"head_sha\": \"payment-sha-1\", \"status\": \"failure\"}, {\"repo\": \"acme/payment-service\", \"run_id\": \"601\", \"environment\": \"staging\", \"head_sha\": \"decoy-1\", \"status\": \"failure\"}]",
+          "attributes": {},
+          "started_at": "2026-11-24T00:00:01Z",
+          "duration_sec": 0
+        },
+        {
+          "seq": 2,
+          "kind": "tool",
+          "name": "list_incident_issues",
+          "tool_args": {
+            "repo": "acme/payment-service"
+          },
+          "tool_result": "[{\"repo\": \"acme/payment-service\", \"number\": \"701\", \"fixed_in_sha\": \"payment-sha-1\", \"state\": \"closed\", \"title\": \"DB_CONNECTION_TIMEOUT 후속 점검\"}, {\"repo\": \"acme/payment-service\", \"number\": \"801\", \"fixed_in_sha\": \"old-1\", \"state\": \"closed\", \"title\": \"같은 코드 DB_CONNECTION_TIMEOUT지만 다른 커밋\"}, {\"repo\": \"acme/payment-service\", \"number\": \"901\", \"fixed_in_sha\": \"payment-sha-1\", \"state\": \"open\", \"title\": \"미완료 후속 이슈\"}]",
+          "attributes": {},
+          "started_at": "2026-11-24T00:00:02Z",
+          "duration_sec": 0
+        }
+      ],
+      "write_intents": [],
+      "final_answer": "{\"head_sha\": \"UNSUPPORTED_CLAIM\", \"issue_ids\": [\"701\"]}",
+      "run_outcome": "completed"
+    },
+    "kind": "link",
+    "tool_access": {
+      "list_incident_runs": "read",
+      "list_incident_issues": "read"
+    },
+    "tool_access_complete": true,
+    "authority_note": "명시적 로컬 재현 fixture이며 실제 후보 도구의 권한 출처가 아님"
+  }
+]

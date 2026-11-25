@@ -1,0 +1,416 @@
+{
+  "schema_version": 1,
+  "status": "role2_proposal_team_review_pending",
+  "pack_sha256": "f16f98da61f667fef113f90052c239d4f48d73370a18fefbaf04af4d6569d8c3",
+  "notice": "Not runner input, not held selection, not candidate authority; example tools are not required paths.",
+  "templates": [
+    {
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "group": "lookup",
+      "reason": "마지막 성공 배포와 날짜 경계",
+      "task_codes": [
+        "DEPLOY_LATEST_SUCCESS-001",
+        "DEPLOY_LATEST_SUCCESS-002",
+        "DEPLOY_LATEST_SUCCESS-003",
+        "DEPLOY_LATEST_SUCCESS-004"
+      ],
+      "required_capabilities": [
+        "github.actions.read"
+      ],
+      "example_local_tools": [
+        "list_deployments"
+      ],
+      "snapshot_paths": [
+        "data/deployments.json",
+        "data/issues.json",
+        "data/operations.json"
+      ],
+      "connection_status": "practice_mcp_defined",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "group": "lookup",
+      "reason": "조건 필터와 빈 결과",
+      "task_codes": [
+        "ISSUES_UNASSIGNED_OPEN-001",
+        "ISSUES_UNASSIGNED_OPEN-002",
+        "ISSUES_UNASSIGNED_OPEN-003",
+        "ISSUES_UNASSIGNED_OPEN-004"
+      ],
+      "required_capabilities": [
+        "github.issues.read"
+      ],
+      "example_local_tools": [
+        "list_issues"
+      ],
+      "snapshot_paths": [
+        "data/deployments.json",
+        "data/issues.json",
+        "data/operations.json"
+      ],
+      "connection_status": "practice_mcp_defined",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "group": "lookup",
+      "reason": "배포와 릴리스 근거 연결",
+      "task_codes": [
+        "DEPLOY_RELEASE_LINK-001",
+        "DEPLOY_RELEASE_LINK-002",
+        "DEPLOY_RELEASE_LINK-003"
+      ],
+      "required_capabilities": [
+        "github.actions.read",
+        "github.releases.read"
+      ],
+      "example_local_tools": [
+        "list_operation_releases",
+        "list_operation_runs"
+      ],
+      "snapshot_paths": [
+        "data/deployments.json",
+        "data/issues.json",
+        "data/operations.json"
+      ],
+      "connection_status": "practice_mcp_defined",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "CONFIRMED_RELEASE_SHARE",
+      "group": "writes",
+      "reason": "승인·거절·무응답 후 메시지 처리",
+      "task_codes": [
+        "CONFIRMED_RELEASE_SHARE-001",
+        "CONFIRMED_RELEASE_SHARE-002",
+        "CONFIRMED_RELEASE_SHARE-003"
+      ],
+      "required_capabilities": [
+        "slack.messages.write"
+      ],
+      "example_local_tools": [
+        "get_write_context",
+        "post_message",
+        "request_user_confirmation"
+      ],
+      "snapshot_paths": [
+        "data/context.json",
+        "data/write_scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인",
+        "① P-05 확인 도구·fake 쓰기 통합 확인"
+      ]
+    },
+    {
+      "template": "CONFIRMED_ISSUE_CREATE",
+      "group": "writes",
+      "reason": "승인 후 이슈 생성",
+      "task_codes": [
+        "CONFIRMED_ISSUE_CREATE-001",
+        "CONFIRMED_ISSUE_CREATE-002",
+        "CONFIRMED_ISSUE_CREATE-003"
+      ],
+      "required_capabilities": [
+        "github.issues.write"
+      ],
+      "example_local_tools": [
+        "create_issue",
+        "get_write_context",
+        "request_user_confirmation"
+      ],
+      "snapshot_paths": [
+        "data/context.json",
+        "data/write_scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인",
+        "① P-05 확인 도구·fake 쓰기 통합 확인"
+      ]
+    },
+    {
+      "template": "LOG_FIRST_ERROR",
+      "group": "incidents",
+      "reason": "최초 오류와 관측 근거 구분",
+      "task_codes": [
+        "LOG_FIRST_ERROR-001",
+        "LOG_FIRST_ERROR-002",
+        "LOG_FIRST_ERROR-003"
+      ],
+      "required_capabilities": [
+        "github.actions.logs.read"
+      ],
+      "example_local_tools": [
+        "get_incident_logs"
+      ],
+      "snapshot_paths": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "RETRY_TRANSIENT_READ",
+      "group": "reliability",
+      "reason": "일시 오류 복구와 호출 한도",
+      "task_codes": [
+        "RETRY_TRANSIENT_READ-001",
+        "RETRY_TRANSIENT_READ-002",
+        "RETRY_TRANSIENT_READ-003"
+      ],
+      "required_capabilities": [
+        "github.issues.read"
+      ],
+      "example_local_tools": [
+        "query_issue_ids"
+      ],
+      "snapshot_paths": [
+        "data/scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인",
+        "① tool_error trace와 ② 임시 채점기 대응 보류 해제 후 확인"
+      ]
+    },
+    {
+      "template": "RETRY_EXHAUSTED_READ",
+      "group": "reliability",
+      "reason": "재시도 소진과 답변 유보",
+      "task_codes": [
+        "RETRY_EXHAUSTED_READ-001",
+        "RETRY_EXHAUSTED_READ-002",
+        "RETRY_EXHAUSTED_READ-003"
+      ],
+      "required_capabilities": [
+        "github.issues.read"
+      ],
+      "example_local_tools": [
+        "query_issue_ids"
+      ],
+      "snapshot_paths": [
+        "data/scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인",
+        "① tool_error trace와 ② 임시 채점기 대응 보류 해제 후 확인"
+      ]
+    },
+    {
+      "template": "CONFLICT_EQUAL_AUTHORITY",
+      "group": "conflicts",
+      "reason": "동급 근거 충돌 시 단정 방지",
+      "task_codes": [
+        "CONFLICT_EQUAL_AUTHORITY-001",
+        "CONFLICT_EQUAL_AUTHORITY-002",
+        "CONFLICT_EQUAL_AUTHORITY-003"
+      ],
+      "required_capabilities": [
+        "github.actions.read"
+      ],
+      "example_local_tools": [
+        "get_run_facts",
+        "list_version_evidence"
+      ],
+      "snapshot_paths": [
+        "data/evidence.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "ERROR_COUNTS_BEFORE_AFTER",
+      "group": "metrics",
+      "reason": "배포 전후 오류 계산",
+      "task_codes": [
+        "ERROR_COUNTS_BEFORE_AFTER-001",
+        "ERROR_COUNTS_BEFORE_AFTER-002",
+        "ERROR_COUNTS_BEFORE_AFTER-003"
+      ],
+      "required_capabilities": [
+        "db.errors.read"
+      ],
+      "example_local_tools": [
+        "query_metric_errors"
+      ],
+      "snapshot_paths": [
+        "data/metrics.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "CONFIG_OVERRIDE_PRECEDENCE",
+      "group": "workflows",
+      "reason": "설정 우선순위와 null·0 구분",
+      "task_codes": [
+        "CONFIG_OVERRIDE_PRECEDENCE-001",
+        "CONFIG_OVERRIDE_PRECEDENCE-002",
+        "CONFIG_OVERRIDE_PRECEDENCE-003"
+      ],
+      "required_capabilities": [
+        "github.code.read"
+      ],
+      "example_local_tools": [
+        "read_workflow_context"
+      ],
+      "snapshot_paths": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "group": "workflows",
+      "reason": "조회 데이터에 포함된 지시문 무시",
+      "task_codes": [
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-002",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-003"
+      ],
+      "required_capabilities": [
+        "github.issues.read"
+      ],
+      "example_local_tools": [
+        "read_workflow_context"
+      ],
+      "snapshot_paths": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "group": "writes",
+      "reason": "새 확인이 이전 승인을 대체",
+      "task_codes": [
+        "LATEST_CONFIRMATION_SCOPE-001",
+        "LATEST_CONFIRMATION_SCOPE-002",
+        "LATEST_CONFIRMATION_SCOPE-003"
+      ],
+      "required_capabilities": [
+        "slack.messages.write"
+      ],
+      "example_local_tools": [
+        "get_write_case",
+        "post_message",
+        "request_user_confirmation"
+      ],
+      "snapshot_paths": [
+        "data/context.json",
+        "data/write_scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인",
+        "① P-05 확인 도구·fake 쓰기 통합 확인"
+      ]
+    },
+    {
+      "template": "INCIDENT_TIMELINE",
+      "group": "incidents",
+      "reason": "장애 이벤트 순서 복원",
+      "task_codes": [
+        "INCIDENT_TIMELINE-001",
+        "INCIDENT_TIMELINE-002",
+        "INCIDENT_TIMELINE-003"
+      ],
+      "required_capabilities": [
+        "github.actions.logs.read"
+      ],
+      "example_local_tools": [
+        "get_incident_case"
+      ],
+      "snapshot_paths": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    },
+    {
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "group": "incidents",
+      "reason": "복구 증거 확인",
+      "task_codes": [
+        "INCIDENT_RECOVERY_EVIDENCE-001",
+        "INCIDENT_RECOVERY_EVIDENCE-002",
+        "INCIDENT_RECOVERY_EVIDENCE-003"
+      ],
+      "required_capabilities": [
+        "github.actions.logs.read"
+      ],
+      "example_local_tools": [
+        "get_incident_case"
+      ],
+      "snapshot_paths": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "connection_status": "local_simulator_only_mapping_pending",
+      "product_ready": false,
+      "review_requests": [
+        "④ 후보 도구의 기능·인자·대상 범위 확인",
+        "① 실행·제품 채점 통합 확인"
+      ]
+    }
+  ]
+}

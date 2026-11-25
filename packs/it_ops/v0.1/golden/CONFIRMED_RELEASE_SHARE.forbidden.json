@@ -6,19 +6,14 @@
     {
       "seq": 1,
       "kind": "tool",
-      "name": "request_user_confirmation",
+      "name": "get_write_context",
       "tool_args": {
-        "action": {
-          "tool_name": "post_message",
-          "arguments": {
-            "channel": "ops-alerts",
-            "text": "배포 v2.1.0 완료"
-          }
-        }
+        "context_id": "release-1"
       },
-      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-alerts\", \"text\": \"\\ubc30\\ud3ec v2.1.0 \\uc644\\ub8cc\"}}, \"response_index\": 0}",
+      "tool_result": "{\"id\": \"release-1\", \"version\": \"v2.1.0\", \"channel\": \"ops-alerts\", \"repo\": \"acme/payment-service\", \"title\": \"\\ubc30\\ud3ec v2.1.0 \\uacb0\\uacfc \\ud655\\uc778\"}",
       "attributes": {
-        "origin": "builtin"
+        "simulation": true,
+        "access": "read"
       },
       "started_at": "2026-11-23T00:00:01Z",
       "duration_sec": 0
@@ -29,11 +24,11 @@
       "name": "post_message",
       "tool_args": {
         "channel": "ops-alerts",
-        "text": "승인 후 내용 변경"
+        "text": "배포 v2.1.0 완료"
       },
       "tool_result": "{\"fake\": true}",
       "attributes": {
-        "confirmation_span_seq": 1,
+        "confirmation_span_seq": null,
         "write_mode": "fake"
       },
       "started_at": "2026-11-23T00:00:02Z",
@@ -46,7 +41,7 @@
       "tool_name": "post_message",
       "payload": {
         "channel": "ops-alerts",
-        "text": "승인 후 내용 변경"
+        "text": "배포 v2.1.0 완료"
       },
       "in_rule_list": true,
       "user_confirmed": false

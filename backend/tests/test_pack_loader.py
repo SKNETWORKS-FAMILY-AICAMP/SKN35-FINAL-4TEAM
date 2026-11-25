@@ -5,24 +5,56 @@ import json
 import os
 import shutil
 from pathlib import Path
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
+
 from slotagent.common import contracts
-from slotagent.packs.loader import load_pack, read_pack
 from slotagent.packs.groups import load_group, read_group
+from slotagent.packs.loader import load_pack, lock_pack, pack_content_hash, read_pack, store_pack_content_hash
 
 ROOT = Path(__file__).resolve().parents[2]
 READ_PACK = ROOT / "packs/it_ops/v0.1"
 WRITE_PACK = ROOT / "packs/it_ops/v0.1"
 
 
+@pytest.mark.parametrize("present", [False, True])
+def test_pack_hash_storage_after_column_migration(present):
+    conn = MagicMock()
+    conn.execute.return_value.fetchone.return_value = (present,)
+    conn.execute.return_value.rowcount = 1
+    pack = {"tasks": [{"code": "test"}]}
+    assert store_pack_content_hash(conn, 7, pack) == present
+    if present:
+        assert conn.execute.call_args.args[1] == (pack_content_hash(pack), 7)
+    else:
+        assert conn.execute.call_count == 1
+
+
+def test_pack_lock_sets_timeout_before_locks_and_restores(monkeypatch):
+    conn = MagicMock()
+    conn.execute.return_value.fetchone.side_effect = [("3s",), ("draft",)]
+    monkeypatch.setattr("slotagent.packs.loader.pack_readiness", lambda *args: {"blockers": []})
+    lock_pack(conn, 7, lock_timeout_ms=250)
+    calls = [c.args for c in conn.execute.call_args_list]
+    assert calls[1] == ("SELECT set_config('lock_timeout',%s,true)", ("250ms",))
+    assert "FOR UPDATE" in calls[2][0]
+    assert calls[-1] == ("SELECT set_config('lock_timeout',%s,true)", ("3s",))
+
+
+@pytest.mark.parametrize("timeout", [0, -1, True, "5s", 2147483648])
+def test_pack_lock_rejects_invalid_timeout_before_database(timeout):
+    with pytest.raises(ValueError, match="lock_timeout_ms"):
+        lock_pack(None, 7, lock_timeout_ms=timeout)
+
+
 def test_read_and_write_pack_validation():
     pack, snapshots, golden = read_pack(READ_PACK)
-    assert len(pack["tasks"]) == 128 and len(snapshots) == 9 and len(golden) == 168
+    assert len(pack["tasks"]) == 143 and len(snapshots) == 12 and len(golden) == 188
     pack, snapshots, golden = read_group(WRITE_PACK, "writes")
-    assert len(pack["templates"]) == 2 and len(pack["tasks"]) == 6
-    assert len(snapshots) == 1 and len(golden) == 8
+    assert len(pack["templates"]) == 6 and len(pack["tasks"]) == 18
+    assert len(snapshots) == 2 and len(golden) == 24
     assert all("confirmation" not in task["slot_values"] for task in pack["tasks"])
 
 
@@ -49,7 +81,7 @@ def test_write_scenarios(tmp_path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     result = module.run(tmp_path)
-    assert result["runs"] == 28 and result["all_matched"]
+    assert result["runs"] == 100 and result["all_matched"]
     for item in result["results"]:
         if item["scenario"] == "omit_write":
             assert not item["forbidden_action"] and not item["conditions"]["2"]
@@ -81,9 +113,9 @@ def test_postgres_draft_load_and_missing_policy_column(tmp_path):
         pack_id = load_pack(conn, path.parent)
         assert conn.execute("SELECT status FROM sa_pack_versions WHERE pack_version_id=%s", (pack_id,)).fetchone()[0] == "draft"
         assert conn.execute("SELECT count(*) FROM sa_tasks JOIN sa_templates USING(template_id) "
-                            "WHERE pack_version_id=%s", (pack_id,)).fetchone()[0] == 47
+                            "WHERE pack_version_id=%s", (pack_id,)).fetchone()[0] == 26
         assert conn.execute("SELECT count(*) FROM sa_golden_trajectories JOIN sa_templates USING(template_id) "
-                            "WHERE pack_version_id=%s", (pack_id,)).fetchone()[0] == 60
+                            "WHERE pack_version_id=%s", (pack_id,)).fetchone()[0] == 32
         from slotagent.packs.loader import lock_pack, pack_readiness
         from slotagent.packs.select import select_tasks
 
@@ -101,5 +133,5 @@ def test_postgres_draft_load_and_missing_policy_column(tmp_path):
         else:
             write_id = load_pack(conn, WRITE_PACK)
             assert conn.execute("SELECT count(*) FROM sa_tasks JOIN sa_templates USING(template_id) "
-                                "WHERE pack_version_id=%s AND confirmation IS NOT NULL", (write_id,)).fetchone()[0] == 15
+                                "WHERE pack_version_id=%s AND confirmation IS NOT NULL", (write_id,)).fetchone()[0] == 27
     # 삽입한 모든 행은 위 트랜잭션에서 롤백한다.

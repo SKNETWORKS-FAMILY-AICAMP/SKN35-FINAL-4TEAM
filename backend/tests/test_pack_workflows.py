@@ -2,11 +2,11 @@
 
 import copy
 import importlib.util
-import json
 from pathlib import Path
 
 import pytest
-from slotagent.packs.groups import read_group, load_group
+
+from slotagent.packs.groups import load_group, read_group
 
 PACK = Path(__file__).resolve().parents[2] / "packs/it_ops/v0.1"
 spec = importlib.util.spec_from_file_location("workflow_eval", PACK / "reference/evaluators/workflows.py")
@@ -21,10 +21,10 @@ def task(code, index=1):
 
 def test_thirty_tasks_forty_goldens_and_simulations(tmp_path):
     pack, snapshots, golden = read_group(PACK, "workflows")
-    assert len(pack["templates"]) == 10 and len(pack["tasks"]) == 30 and len(golden) == 40
-    assert len(snapshots) == 1
+    assert len(pack["templates"]) == 12 and len(pack["tasks"]) == 36 and len(golden) == 48
+    assert len(snapshots) == 2
     result = module.run(tmp_path)
-    assert result["runs"] == 189 and result["all_matched"]
+    assert result["runs"] == 225 and result["all_matched"]
     by_code = {t["code"]: t for t in pack["tasks"]}
     for entry, trace in golden:
         assert module.grade(by_code[entry["task_code"]], trace) == entry["expected"]

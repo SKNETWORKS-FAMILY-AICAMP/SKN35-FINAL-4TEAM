@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from slotagent.common import contracts
 from slotagent.common.confirmation import approved_write, fixed_response, same_action
 

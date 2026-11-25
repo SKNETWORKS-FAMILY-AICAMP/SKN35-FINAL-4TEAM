@@ -1,0 +1,1034 @@
+{
+  "schema_version": 1,
+  "purpose": "review_inventory_only_not_candidate_permissions",
+  "manifest_sha256": "6547da169ce96882c5014911d7fd5a5cf271bc80c04b9eaf366375e5e941d626",
+  "notes": [
+    "Observed arguments are not an input schema.",
+    "Local access describes simulator behavior, not candidate authority.",
+    "Empty capabilities and null access require engine/runner review; never infer from task requirements.",
+    "Manifest definitions describe practice tools only; real candidate mapping is separate."
+  ],
+  "tools": [
+    {
+      "name": "create_issue",
+      "access": "write",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONFIRMED_ISSUE_CREATE",
+          "ISSUE_DUPLICATE_PREVENTION",
+          "ISSUE_ROUTING_APPROVAL",
+          "ISSUE_THEN_MESSAGE"
+        ],
+        "argument_keys": [
+          "assignees",
+          "labels",
+          "repo",
+          "title"
+        ],
+        "calls": 14
+      }
+    },
+    {
+      "name": "fetch_url",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "EXPLICIT_URL_ALLOWLIST"
+        ],
+        "argument_keys": [
+          "url"
+        ],
+        "calls": 4
+      }
+    },
+    {
+      "name": "get_followup_context",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "EXPLICIT_URL_ALLOWLIST",
+          "LOG_CODE_LOCATION",
+          "REPORT_FIELD_REDACTION",
+          "SERVICE_DEPENDENCY_IMPACT",
+          "UPSTREAM_FAILURE_EVIDENCE"
+        ],
+        "argument_keys": [
+          "scenario_id"
+        ],
+        "calls": 20
+      }
+    },
+    {
+      "name": "get_incident_case",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "INCIDENT_RECOVERY_EVIDENCE",
+          "INCIDENT_SIGNATURE_GROUPING",
+          "INCIDENT_TIMELINE"
+        ],
+        "argument_keys": [
+          "scenario_id"
+        ],
+        "calls": 12
+      }
+    },
+    {
+      "name": "get_incident_detail",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "REPORT_FIELD_REDACTION"
+        ],
+        "argument_keys": [
+          "incident_id"
+        ],
+        "calls": 4
+      }
+    },
+    {
+      "name": "get_incident_logs",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONFIRMED_INCIDENT_SHARE",
+          "LOG_CODE_LOCATION",
+          "LOG_FIRST_ERROR"
+        ],
+        "argument_keys": [
+          "repo",
+          "run_id"
+        ],
+        "calls": 12
+      }
+    },
+    {
+      "name": "get_run_facts",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONFLICT_EQUAL_AUTHORITY",
+          "CONFLICT_FRESH_PRIMARY",
+          "CONFLICT_INSUFFICIENT_VERSION"
+        ],
+        "argument_keys": [
+          "environment",
+          "repo",
+          "run_id"
+        ],
+        "calls": 12
+      }
+    },
+    {
+      "name": "get_service_state",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "UPSTREAM_FAILURE_EVIDENCE"
+        ],
+        "argument_keys": [
+          "at",
+          "service"
+        ],
+        "calls": 8
+      }
+    },
+    {
+      "name": "get_write_case",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "ISSUE_ROUTING_APPROVAL",
+          "ISSUE_THEN_MESSAGE",
+          "LATEST_CONFIRMATION_SCOPE",
+          "MULTI_TARGET_APPROVAL"
+        ],
+        "argument_keys": [
+          "scenario_id"
+        ],
+        "calls": 16
+      }
+    },
+    {
+      "name": "get_write_context",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONFIRMED_ISSUE_CREATE",
+          "CONFIRMED_RELEASE_SHARE"
+        ],
+        "argument_keys": [
+          "context_id"
+        ],
+        "calls": 8
+      }
+    },
+    {
+      "name": "list_deployments",
+      "access": "read",
+      "access_basis": "servers.json",
+      "capabilities": [
+        "github.actions.read"
+      ],
+      "mapping_status": "practice_manifest_defined",
+      "implementation": "practice_mcp",
+      "candidate_authority_source": false,
+      "definition": {
+        "name": "list_deployments",
+        "capabilities": [
+          "github.actions.read"
+        ],
+        "access": "read",
+        "source_snapshot": "deployments",
+        "source_key": "deployments",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "environment",
+              "finished_at",
+              "repo",
+              "run_id",
+              "status",
+              "version"
+            ],
+            "properties": {
+              "run_id": {
+                "type": [
+                  "integer"
+                ]
+              },
+              "repo": {
+                "type": [
+                  "string"
+                ]
+              },
+              "environment": {
+                "type": [
+                  "string"
+                ]
+              },
+              "status": {
+                "type": [
+                  "string"
+                ]
+              },
+              "finished_at": {
+                "type": [
+                  "string"
+                ]
+              },
+              "version": {
+                "type": [
+                  "string"
+                ]
+              }
+            }
+          }
+        },
+        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+      },
+      "observed": {
+        "templates": [
+          "DEPLOY_LATEST_SUCCESS"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 4
+      }
+    },
+    {
+      "name": "list_incident_issues",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONFIRMED_INCIDENT_SHARE",
+          "RUN_ISSUE_RELATION"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 8
+      }
+    },
+    {
+      "name": "list_incident_runs",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONFIRMED_INCIDENT_SHARE",
+          "RUN_ISSUE_RELATION"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 8
+      }
+    },
+    {
+      "name": "list_issues",
+      "access": "read",
+      "access_basis": "servers.json",
+      "capabilities": [
+        "github.issues.read"
+      ],
+      "mapping_status": "practice_manifest_defined",
+      "implementation": "practice_mcp",
+      "candidate_authority_source": false,
+      "definition": {
+        "name": "list_issues",
+        "capabilities": [
+          "github.issues.read"
+        ],
+        "access": "read",
+        "source_snapshot": "issues",
+        "source_key": "issues",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "assignees",
+              "labels",
+              "number",
+              "repo",
+              "state"
+            ],
+            "properties": {
+              "number": {
+                "type": [
+                  "string"
+                ]
+              },
+              "repo": {
+                "type": [
+                  "string"
+                ]
+              },
+              "state": {
+                "type": [
+                  "string"
+                ]
+              },
+              "labels": {
+                "type": [
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "assignees": {
+                "type": [
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+      },
+      "observed": {
+        "templates": [
+          "ISSUES_UNASSIGNED_OPEN"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 4
+      }
+    },
+    {
+      "name": "list_operation_issues",
+      "access": "read",
+      "access_basis": "servers.json",
+      "capabilities": [
+        "github.issues.read"
+      ],
+      "mapping_status": "practice_manifest_defined",
+      "implementation": "practice_mcp",
+      "candidate_authority_source": false,
+      "definition": {
+        "name": "list_operation_issues",
+        "capabilities": [
+          "github.issues.read"
+        ],
+        "access": "read",
+        "source_snapshot": "operations",
+        "source_key": "issues",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "assignees",
+              "closed_at",
+              "id",
+              "labels",
+              "repo",
+              "state",
+              "updated_at"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "string"
+                ]
+              },
+              "repo": {
+                "type": [
+                  "string"
+                ]
+              },
+              "state": {
+                "type": [
+                  "string"
+                ]
+              },
+              "assignees": {
+                "type": [
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "labels": {
+                "type": [
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "updated_at": {
+                "type": [
+                  "string"
+                ]
+              },
+              "closed_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          }
+        },
+        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+      },
+      "observed": {
+        "templates": [
+          "ISSUES_STALE_UNASSIGNED"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 4
+      }
+    },
+    {
+      "name": "list_operation_releases",
+      "access": "read",
+      "access_basis": "servers.json",
+      "capabilities": [
+        "github.releases.read"
+      ],
+      "mapping_status": "practice_manifest_defined",
+      "implementation": "practice_mcp",
+      "candidate_authority_source": false,
+      "definition": {
+        "name": "list_operation_releases",
+        "capabilities": [
+          "github.releases.read"
+        ],
+        "access": "read",
+        "source_snapshot": "operations",
+        "source_key": "releases",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "repo",
+              "sha",
+              "tag"
+            ],
+            "properties": {
+              "repo": {
+                "type": [
+                  "string"
+                ]
+              },
+              "sha": {
+                "type": [
+                  "string"
+                ]
+              },
+              "tag": {
+                "type": [
+                  "string"
+                ]
+              }
+            }
+          }
+        },
+        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+      },
+      "observed": {
+        "templates": [
+          "DEPLOY_RELEASE_LINK",
+          "DEPLOY_UNDEPLOYED_RELEASES"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 8
+      }
+    },
+    {
+      "name": "list_operation_runs",
+      "access": "read",
+      "access_basis": "servers.json",
+      "capabilities": [
+        "github.actions.read"
+      ],
+      "mapping_status": "practice_manifest_defined",
+      "implementation": "practice_mcp",
+      "candidate_authority_source": false,
+      "definition": {
+        "name": "list_operation_runs",
+        "capabilities": [
+          "github.actions.read"
+        ],
+        "access": "read",
+        "source_snapshot": "operations",
+        "source_key": "runs",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "environment",
+              "finished_at",
+              "id",
+              "repo",
+              "sha",
+              "started_at",
+              "status",
+              "version"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "string"
+                ]
+              },
+              "repo": {
+                "type": [
+                  "string"
+                ]
+              },
+              "environment": {
+                "type": [
+                  "string"
+                ]
+              },
+              "status": {
+                "type": [
+                  "string"
+                ]
+              },
+              "started_at": {
+                "type": [
+                  "string"
+                ]
+              },
+              "finished_at": {
+                "type": [
+                  "string"
+                ]
+              },
+              "version": {
+                "type": [
+                  "string"
+                ]
+              },
+              "sha": {
+                "type": [
+                  "string"
+                ]
+              }
+            }
+          }
+        },
+        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+      },
+      "observed": {
+        "templates": [
+          "DEPLOY_FAILURES_PERIOD",
+          "DEPLOY_FAILURE_STREAK",
+          "DEPLOY_RECOVERY",
+          "DEPLOY_RELEASE_LINK",
+          "DEPLOY_UNDEPLOYED_RELEASES"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 20
+      }
+    },
+    {
+      "name": "list_paged_issues",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "PAGINATED_ISSUES_COMPLETE"
+        ],
+        "argument_keys": [
+          "cursor",
+          "repo"
+        ],
+        "calls": 10
+      }
+    },
+    {
+      "name": "list_service_dependencies",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "SERVICE_DEPENDENCY_IMPACT"
+        ],
+        "argument_keys": [
+          "service"
+        ],
+        "calls": 12
+      }
+    },
+    {
+      "name": "list_version_evidence",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONFLICT_EQUAL_AUTHORITY",
+          "CONFLICT_FRESH_PRIMARY",
+          "CONFLICT_INSUFFICIENT_VERSION"
+        ],
+        "argument_keys": [
+          "environment",
+          "repo",
+          "run_id"
+        ],
+        "calls": 12
+      }
+    },
+    {
+      "name": "lookup_workflow_items",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "PERMISSION_DENIED_VS_EMPTY",
+          "REPOSITORY_ALLOWLIST_BOUNDARY"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 8
+      }
+    },
+    {
+      "name": "post_message",
+      "access": "write",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONDITIONAL_FOLLOWUP_ACTION",
+          "CONFIG_OVERRIDE_PRECEDENCE",
+          "CONFIRMED_INCIDENT_SHARE",
+          "CONFIRMED_RELEASE_SHARE",
+          "CONFLICT_EQUAL_AUTHORITY",
+          "CONFLICT_FRESH_PRIMARY",
+          "CONFLICT_INSUFFICIENT_VERSION",
+          "DEPLOY_CHECKLIST_GAPS",
+          "DEPLOY_FAILURES_PERIOD",
+          "DEPLOY_FAILURE_STREAK",
+          "DEPLOY_LATEST_SUCCESS",
+          "DEPLOY_RECOVERY",
+          "DEPLOY_RELEASE_LINK",
+          "DEPLOY_UNDEPLOYED_RELEASES",
+          "ERROR_COUNTS_BEFORE_AFTER",
+          "ERROR_EVENTS_DEDUPLICATED",
+          "ERROR_RATE_TRAFFIC_NORMALIZED",
+          "EXPLICIT_URL_ALLOWLIST",
+          "INCIDENT_INTERVAL_UNION",
+          "INCIDENT_RECOVERY_EVIDENCE",
+          "INCIDENT_SIGNATURE_GROUPING",
+          "INCIDENT_TIMELINE",
+          "ISSUES_STALE_UNASSIGNED",
+          "ISSUES_UNASSIGNED_OPEN",
+          "ISSUE_DUPLICATE_PREVENTION",
+          "ISSUE_THEN_MESSAGE",
+          "LATENCY_P90_NEAREST_RANK",
+          "LATEST_CONFIRMATION_SCOPE",
+          "LOG_CODE_LOCATION",
+          "LOG_FIRST_ERROR",
+          "METRIC_MINIMUM_SAMPLE",
+          "MULTI_REQUEST_COMPLETION_REPORT",
+          "MULTI_TARGET_APPROVAL",
+          "NESTED_JSON_LOG_TYPES",
+          "PAGINATED_ISSUES_COMPLETE",
+          "PERMISSION_DENIED_VS_EMPTY",
+          "REPORT_FIELD_REDACTION",
+          "REPOSITORY_ALLOWLIST_BOUNDARY",
+          "RETRY_EXHAUSTED_READ",
+          "RETRY_TRANSIENT_READ",
+          "RUN_ISSUE_RELATION",
+          "SERVICE_DEPENDENCY_IMPACT",
+          "TRACE_REQUEST_RECONSTRUCTION",
+          "UNTRUSTED_ISSUE_INSTRUCTIONS",
+          "UPSTREAM_FAILURE_EVIDENCE"
+        ],
+        "argument_keys": [
+          "channel",
+          "text"
+        ],
+        "calls": 64
+      }
+    },
+    {
+      "name": "query_issue_ids",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "RETRY_EXHAUSTED_READ",
+          "RETRY_TRANSIENT_READ"
+        ],
+        "argument_keys": [
+          "repo"
+        ],
+        "calls": 19
+      }
+    },
+    {
+      "name": "query_metric_errors",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "ERROR_COUNTS_BEFORE_AFTER",
+          "ERROR_EVENTS_DEDUPLICATED"
+        ],
+        "argument_keys": [
+          "service"
+        ],
+        "calls": 8
+      }
+    },
+    {
+      "name": "query_metric_incidents",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "INCIDENT_INTERVAL_UNION"
+        ],
+        "argument_keys": [
+          "service"
+        ],
+        "calls": 4
+      }
+    },
+    {
+      "name": "query_metric_latency",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "LATENCY_P90_NEAREST_RANK"
+        ],
+        "argument_keys": [
+          "service"
+        ],
+        "calls": 4
+      }
+    },
+    {
+      "name": "query_metric_traffic",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "ERROR_RATE_TRAFFIC_NORMALIZED",
+          "METRIC_MINIMUM_SAMPLE"
+        ],
+        "argument_keys": [
+          "service"
+        ],
+        "calls": 8
+      }
+    },
+    {
+      "name": "read_code_at_commit",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "LOG_CODE_LOCATION"
+        ],
+        "argument_keys": [
+          "commit",
+          "path",
+          "repo"
+        ],
+        "calls": 4
+      }
+    },
+    {
+      "name": "read_workflow_context",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONDITIONAL_FOLLOWUP_ACTION",
+          "CONFIG_OVERRIDE_PRECEDENCE",
+          "DEPLOY_CHECKLIST_GAPS",
+          "ISSUE_DUPLICATE_PREVENTION",
+          "MULTI_REQUEST_COMPLETION_REPORT",
+          "NESTED_JSON_LOG_TYPES",
+          "PERMISSION_DENIED_VS_EMPTY",
+          "REPOSITORY_ALLOWLIST_BOUNDARY",
+          "TRACE_REQUEST_RECONSTRUCTION",
+          "UNTRUSTED_ISSUE_INSTRUCTIONS"
+        ],
+        "argument_keys": [
+          "scenario_id"
+        ],
+        "calls": 40
+      }
+    },
+    {
+      "name": "request_user_confirmation",
+      "access": null,
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "confirmation_protocol",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "CONDITIONAL_FOLLOWUP_ACTION",
+          "CONFIRMED_INCIDENT_SHARE",
+          "CONFIRMED_ISSUE_CREATE",
+          "CONFIRMED_RELEASE_SHARE",
+          "ISSUE_DUPLICATE_PREVENTION",
+          "ISSUE_ROUTING_APPROVAL",
+          "ISSUE_THEN_MESSAGE",
+          "LATEST_CONFIRMATION_SCOPE",
+          "MULTI_TARGET_APPROVAL"
+        ],
+        "argument_keys": [
+          "action"
+        ],
+        "calls": 46
+      }
+    }
+  ]
+}
