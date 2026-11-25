@@ -91,8 +91,8 @@ def test_1_intake(conn, ids):
     agent = one(cur, "INSERT INTO sa_agents(owner_id, name, expected_monthly_calls, domain_code) VALUES (%s, %s, %s, %s) RETURNING agent_id",
                 user, av["_agent"]["name"], av["_agent"]["expected_monthly_calls"], av["_agent"]["domain_code"])
     spec = contracts.validate("agent_spec", av["spec"])
-    av_id = one(cur, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, model_provider, control_level, model,
-                         temperature, instructions, spec, spec_hash) VALUES (%s,1,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+    av_id = one(cur, """INSERT INTO sa_agent_versions(agent_id, version_no, connection_type, questions_used, model_provider, control_level, model,
+                         temperature, instructions, spec, spec_hash) VALUES (%s,1,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING agent_version_id""",
                 agent, av["connection_type"], av["questions_used"], av["model_provider"], av["control_level"], av["model"], av["temperature"], av["instructions"],
                 Jsonb(spec), agent_spec_hash(av["model"], av["temperature"], av["instructions"], spec))
     sc = load("slot_and_candidates.json")
