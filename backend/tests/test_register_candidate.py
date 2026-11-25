@@ -1,21 +1,20 @@
 import psycopg
 import pytest
-from slotagent.common import checks
 from conftest import load
 from psycopg.types.json import Jsonb
 
+from slotagent.common import checks
 from slotagent.common.hashing import (
     agent_spec_hash,
     canonical_hash,
 )
-from slotagent.intake.service import register_candidate
+from slotagent.intake.service import _check_registration_tools, register_candidate
 
 
 @pytest.fixture
 def candidate_context(pg):
     with psycopg.connect(pg) as conn:
         with conn.transaction(force_rollback=True):
-
             # 1. 테스트 사용자 생성
             user_id = conn.execute(
                 """
@@ -154,6 +153,7 @@ def test_register_candidate_success(candidate_context):
         False,
     )
 
+
 def test_register_candidate_slot_not_found(candidate_context):
     conn, slot_id = candidate_context
 
@@ -209,3 +209,118 @@ def test_register_candidate_access_mismatch(candidate_context):
         register_candidate(conn, slot_id, req)
 
     assert exc.value.code == "invalid_spec"
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "request_user_confirmation",
+        "get_write_result",
+        "get_work_state",
+    ],
+)
+def test_reserved_tool_name(name):
+    tools = [{"name": name, "access": "read"}]
+
+    with pytest.raises(checks.CheckError) as exc:
+        _check_registration_tools(tools)
+
+    assert exc.value.code == "invalid_spec"
+
+
+def test_tool_search_reserved_name():
+    tools = [{"name": "search_tools", "access": "read"}]
+
+    with pytest.raises(checks.CheckError) as exc:
+        _check_registration_tools(
+            tools,
+            is_tool_search=True,
+        )
+
+    assert exc.value.code == "invalid_spec"
+
+
+def test_write_tool_without_capabilities():
+    tools = [
+        {
+            "name": "create_issue",
+            "access": "write",
+            "capabilities": [],
+        }
+    ]
+
+    with pytest.raises(checks.CheckError) as exc:
+        _check_registration_tools(tools)
+
+    assert exc.value.code == "invalid_spec"
+
+
+def test_write_tool_with_capabilities():
+    tools = [
+        {
+            "name": "create_issue",
+            "access": "write",
+            "capabilities": ["github.issues.write"],
+        }
+    ]
+
+    _check_registration_tools(tools)
+
+
+def test_valid_read_tool():
+    tools = [
+        {
+            "name": "list_issues",
+            "access": "read",
+            "capabilities": ["github.issues.read"],
+        }
+    ]
+
+    _check_registration_tools(tools)
+
+
+def test_search_tools_in_normal_candidate():
+    tools = [{"name": "search_tools", "access": "read"}]
+
+    _check_registration_tools(
+        tools,
+        is_tool_search=False,
+    )
+
+
+def test_register_candidate_reserved_tool(candidate_context):
+    conn, slot_id = candidate_context
+
+    data = load("slot_and_candidates.json")
+    candidate = data["candidates"][1]
+
+    req = {
+        "label": candidate["label"],
+        "name": candidate["name"],
+        "component_spec": candidate["component_spec"],
+    }
+
+    # 예약 도구 이름으로 변경
+    req["component_spec"]["tools"][0]["name"] = "get_work_state"
+
+    # 등록 전 후보 개수 확인
+    before = conn.execute(
+        "SELECT COUNT(*) FROM sa_candidates WHERE slot_id = %s",
+        (slot_id,),
+    ).fetchone()[0]
+
+    # 실제 후보 등록 시도
+    with pytest.raises(checks.CheckError) as exc:
+        register_candidate(conn, slot_id, req)
+
+    assert exc.value.code == "invalid_spec"
+    assert "get_work_state" in str(exc.value)
+
+    # 등록 후 후보 개수 확인
+    after = conn.execute(
+        "SELECT COUNT(*) FROM sa_candidates WHERE slot_id = %s",
+        (slot_id,),
+    ).fetchone()[0]
+
+    # 잘못된 후보가 DB에 저장되지 않았는지 확인
+    assert before == after
