@@ -57,7 +57,7 @@ trace.json (실행 기록) ── grading_analysis_report.json (채점 → 분�
 3. **`{}` = 해당 없음.** DB 기본값이 `'{}'` 인 칸(judge_settings, metrics, data_snapshots.design)은 스키마도 빈 객체를 받음 (반쯤 찬 객체는 막음).
 4. **번호(id)는 DB가 만듦.** 요청에 id 를 넣지 않음. 예시의 id 는 연결을 보여 주는 값일 뿐.
 5. **해시**: `canonical_hash()` — 키 정렬·공백 없음·UTF-8·정수로 떨어지는 실수는 정수. `sha256:` + 64자리.
-   - agent_versions.spec_hash = hash({model, temperature, instructions, spec}) — 받는 방법(파일·러너·API, 질문 사용 여부)은 spec 에 없음(connection_type·questions_used 칸)
+   - agent_versions.spec_hash = hash({model, temperature, instructions, spec}) — 받는 방법(파일·러너·API)은 spec 에 없음(connection_type 칸)
    - candidates.spec_hash = hash(component_spec)
    - experiment_candidates.config_hash = hash(config_snapshot)
    - analyses.input_hash = hash(넣은 trial_grades 행 목록)

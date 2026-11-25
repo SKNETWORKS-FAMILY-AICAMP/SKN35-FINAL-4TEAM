@@ -8,7 +8,6 @@
     "version": {
       "connection_type": "spec_upload",
       "model_provider": "openai",
-      "questions_used": true,
       "control_level": "C2",
       "model": "gpt-4.1-mini",
       "temperature": 0,
