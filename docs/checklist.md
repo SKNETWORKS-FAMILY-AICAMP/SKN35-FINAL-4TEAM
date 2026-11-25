@@ -60,7 +60,7 @@
 
 **W5 (12/4~12/10) — 게이트**
 - [ ] 기록·재생 (키 없이 다시 채점, 재생 10건이 원래와 같음)
-- [ ] 도구 검색 후보 실행 `engine/tool_search.py` (BM25)
+- [x] 도구 검색 후보 실행 `engine/tool_search.py` (BM25)
 - [ ] SlotAgent MCP 서버 (조회 함수부터) 🔗 ← ④ chatbot 함수 5개 모양
 - [ ] API (FastAPI) + plan-proposal 🔗 → ④ 등록·실험 저장 함수가 여기 붙음
 - [ ] 화면 1차 (Next.js) — 등록 질문 4개, 실험 설계, 진행 상태, 결과 🔗 ← ④ 등록 API

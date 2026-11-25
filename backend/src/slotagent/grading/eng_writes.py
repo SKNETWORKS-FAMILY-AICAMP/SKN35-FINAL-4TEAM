@@ -34,7 +34,7 @@ def check_exact_writes(spec: dict, trace: dict, tool_capabilities: Mapping[str, 
         if status == "blocked":
             blocked.append(intent["span_seq"])
             continue
-        if intent["tool_name"] not in tool_capabilities:
+        if not tool_capabilities.get(intent["tool_name"]):
             raise RulePolicyRequired("tool_capabilities_missing")
         executed.append(intent["span_seq"])
         values = set(argument_values(intent["payload"]))

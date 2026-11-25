@@ -436,3 +436,21 @@ def test_recovery_failure_keeps_original_exception(experiment, monkeypatch):
     assert caught.value is original
     assert "상태 복구 실패" in original.__notes__[0]
     assert "비공개" not in original.__notes__[0]
+
+
+@pytest.mark.parametrize("value", ["NaN", "1e999", "[" * 65 + "]" * 65])
+def test_read_tool_unstorable_args_are_rejected_and_saved(experiment, value):
+    conn, data = experiment
+    raw = '{"owner":"acme","repo":"ops-service","x":' + value + "}"
+    model = FakeModel([Reply(tool_calls=(ToolCall("a", "list_issues", raw),)), Reply(text="끝")])
+    run_trial(conn, data["trials"][0], deps=Dependencies(model, lambda *a: pytest.fail("실행하면 안 됩니다.")))
+    rows = conn.execute(
+        "SELECT error, tool_args FROM sa_spans WHERE trial_id=%s AND kind='tool'", (data["trials"][0],)
+    ).fetchall()
+    assert rows == [("agent_invalid_tool_call", {})]
+    assert raw in json.dumps(
+        [c["function"]["arguments"] for c in conn.execute(
+            "SELECT attributes->'tool_calls' FROM sa_spans WHERE trial_id=%s AND kind='llm' ORDER BY seq LIMIT 1",
+            (data["trials"][0],),
+        ).fetchone()[0]]
+    ).replace('\\"', '"')

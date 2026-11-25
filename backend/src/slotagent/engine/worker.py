@@ -78,8 +78,6 @@ def run_trial(
         snap = contracts.validate("config_snapshot", row["config_snapshot"])
         if canonical_hash(snap) != row["config_hash"]:
             raise ValueError("실행 스냅샷의 해시가 일치하지 않습니다.")
-        if snap.get("tool_search"):
-            raise NotImplementedError("검색 후보 실행은 다음 단계입니다.")
         if row["record_source"] != "platform":
             raise ValueError("러너·고객 기록은 전용 수신 경로를 사용하세요.")
         price_row = conn.execute(

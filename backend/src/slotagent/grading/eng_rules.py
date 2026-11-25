@@ -388,6 +388,9 @@ def _approved(span, trace, context):
         raise RulePolicyRequired("confirmation_policy_context_missing")
     if span["name"] not in context.write_tools:
         raise RulePolicyRequired("confirmation_write_tool_missing")
+    if not context.tool_capabilities.get(span["name"]):
+        # P-13: 이름표 누락은 등록 확인 대상이며 후보 실패로 단정하지 않습니다.
+        raise RulePolicyRequired("tool_capabilities_missing")
     # boolean(user_confirmed)은 믿지 않고 현재 시도의 확인·쓰기 기록을 처음부터 다시 봅니다.
     return approved_write(
         context.policy, trace, span["seq"], set(context.write_tools), dict(context.tool_capabilities)

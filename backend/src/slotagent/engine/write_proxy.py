@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import copy
 import json
-import math
 
 from slotagent.common import contracts
 from slotagent.common.confirmation import approved_write, argument_values, fixed_response
 from slotagent.engine import write_scenario
+from slotagent.engine.tracing import storable_args
 
 CONFIRM = "request_user_confirmation"
 WRITE_RESULT = "get_write_result"
@@ -64,16 +64,6 @@ def _dump(value):
     return json.dumps(value, ensure_ascii=False)
 
 
-def _finite(value):
-    if isinstance(value, float):
-        return math.isfinite(value)
-    if isinstance(value, dict):
-        return all(_finite(v) for v in value.values())
-    if isinstance(value, list):
-        return all(_finite(v) for v in value)
-    return True
-
-
 def fill_defaults(schema, value):
     """도구 스키마의 properties.default 만 채웁니다. 확인 요청과 실제 쓰기에 같이 씁니다."""
     if not isinstance(schema, dict) or not isinstance(value, dict):
@@ -123,8 +113,8 @@ class WriteProxy:
 
     def normalize(self, name: str, args: dict) -> dict:
         """기록과 승인 비교에 쓰는 전체 인자. 모델이 낸 원문은 llm span 의 tool_calls 에 남습니다."""
-        if not _finite(args):
-            raise InvalidCall("유한하지 않은 숫자")
+        if not storable_args(args):
+            raise InvalidCall("유한하지 않은 숫자이거나 중첩이 너무 깊습니다.")
         if name in self.writes:
             return fill_defaults(self.definitions[name]["parameters"], args)
         if name == CONFIRM:

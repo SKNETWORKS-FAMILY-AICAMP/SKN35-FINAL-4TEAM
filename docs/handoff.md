@@ -11,6 +11,26 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-25 · Claude · taemin (감사 수정에 빠진 읽기 도구 경로)
+- 한 일: 읽기 도구 인자에 NaN·Infinity가 섞이면 도구가 실행된 뒤 저장이 실패하던 것을, 실행 전 agent_invalid_tool_call로 돌려줌(중첩 64 상한도 같이 적용). DB 저장 테스트 3개. 아래 감사 3건 수정은 다른 Claude 세션이 했고, 도구 검색과 합친 상태로 다시 확인함
+- 안 한 일 / 남은 일: Codex 검증. 커밋 없음.
+- 의문점: 없음. 계약·DB·packs 변경 없음.
+
+## 2026-11-25 · Claude · taemin (Codex 감사 3건 수정)
+- 한 일: ① 인자 검사를 재귀 없이(깊이 64, 넘으면 agent_invalid_tool_call), JSON 읽기 RecursionError도 같은 처리 ② 쓰기 이름표가 비면 승인 재검증·exact_writes를 판정 불가로 ③ 형식 오류 호출의 비유한 숫자·깊은 인자는 tool_args를 {}로 저장(원문은 llm span). 감사 테스트 76건 전부 통과, 골든 185/3/0. 기준 test.ps1 1049 passed/1 skipped 뒤 loop.py 한 줄과 테스트 2건을 더해 관련 테스트만 다시 확인
+- 안 한 일 / 남은 일: 시나리오 규칙 겹침·미일치 승인 쓰기의 정책(사용자 결정 대기). 커밋 없음.
+- 의문점: 없음. 계약·DB·packs 변경 없음.
+
+## 2026-11-25 · Claude · taemin (도구 검색 후보 실행)
+- 한 일: `engine/tool_search.py`(BM25) 구현, loop·worker의 "다음 단계" 차단 해제, `eng_context`에서 검색 후보일 때만 `search_tools`를 내장 도구로 인정. deferred 도구는 검색한 다음 응답부터 보이고, 안 보인 도구 호출은 실행하지 않음. 검색도 한 단계로 셈. 테스트 26개(`test_eng_tool_search.py`)
+- 안 한 일 / 남은 일: 실제 모델·실제 MCP 도구 설명으로 절감량 측정, Codex 검증. 바로 아래 Codex 감사의 실패 5건은 고치지 않음(9절: 고치기 전 보고). HARNESS_VERSION은 그대로(다른 후보 동작은 안 바뀜). 계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: 한국어 질의는 영어 도구 설명과 낱말이 안 겹쳐 못 찾음. 검색 도구 설명에 영어 낱말도 적으라고 안내만 함. `search_tools` 이름은 검색 후보에서만 예약(④에게 알릴 것).
+
+## 2026-11-25 · Codex · taemin (11/25 쓰기 계약·승인 재검증 감사)
+- 한 일: a498ceb→70dd43c 검증. 재현 테스트는 `backend/tests/test_eng_write_audit.py`에만 추가(71 passed / 5 failed: 새 문제 2건·기존 경로 문제 1건 재현). 기존 전체 943 passed / 1 skipped → 감사 포함 최종 전체 1014 passed / 5 failed / 1 skipped(실패는 감사 파일에만), Ruff 0건, 골든 185 일치 / 3 불일치 / 0 판정 불가. 쓰기 외부 호출·승인 위조 통과·비공개 값 유출은 검사 범위에서 발견하지 못함. 저장 롤백·재시도·임대 상실·풀이/attempt 초기화·해시·권한표와 임시 DB 신규/0004→0005 적용 확인.
+- 안 한 일 / 남은 일: `_finite` 깊은 입력의 RecursionError, eng_context의 쓰기 이름표 누락을 후보 실패로 판정, 형식 오류+NaN/Infinity의 JSONB 저장 실패(기존 오류 경로에도 존재)는 미수정. pgserver 16.2에서 검증했으며 PostgreSQL 17은 미검증. 제품·계약·DB 파일·packs·기존 테스트·checklist 수정, 외부 API·개발 DB 변경·커밋·push·브랜치 전환 없음.
+- 의문점: 시나리오 규칙 중복은 첫 항목 선택(순서를 바꾸면 결과 변경), 일치 규칙 없는 승인 쓰기는 ok 처리. 두 경우의 정책 명시 필요. AGENTS.md 9절 확정 규칙은 재결정하지 않음. 별도 보고서 파일 없음.
+
 ## 2026-11-25 · Claude · taemin (쓰기 계약·도구 권한을 ① 결정으로 적용)
 - 한 일: 사용자 결정으로 write_scenario·exact_writes·P-05 v1을 계약에 적용(CHANGELOG), DB 0005, 워커·로더·채점기 연결, 스냅숏 채점 문맥(eng_context), 연습 도구 권한표(tool_permissions.json), 이름표 9개 사전 등록. 골든 188개: 일치 185 / 불일치 3 / 판정 불가 0
 - 안 한 일 / 남은 일: ②④ 이견 확인, ②의 9문항 활성화·골든 3개, 개발 DB에 0005 적용, eng_pipeline. 커밋 없음.
