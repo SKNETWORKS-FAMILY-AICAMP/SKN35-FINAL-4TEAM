@@ -164,11 +164,14 @@ def fail(conn, job: dict, *, retry: bool, error: str = "worker_error") -> None:
         _return_job(conn, job, status, error)
 
 
-def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None, cleanup_expired=None) -> int:
+def reclaim(
+    conn, *, limit: int = 100, max_attempts: int | None = None, cleanup_expired=None, kinds=None
+) -> int:
     """죽거나 DB가 끊긴 워커의 만료 임대와 실행 중 풀이를 원자적으로 회수합니다.
 
     max_attempts 를 주면 그 횟수만큼 빌려 간 작업은 다시 넣지 않고 failed 로 둡니다
     (매번 프로세스를 죽이는 작업이 끝없이 돌지 않게). None 이면 상한 없이 다시 넣습니다.
+    kinds 를 주면 그 종류만 회수합니다 (채점 워커가 컨테이너 정리 없이 풀이를 회수하지 않게).
     """
     _idle(conn)
     if limit < 1:
@@ -179,8 +182,8 @@ def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None, cleanup_
         with conn.cursor(row_factory=dict_row) as cur:
             jobs = cur.execute(
                 """SELECT * FROM sa_jobs WHERE status='leased' AND lease_until<=clock_timestamp()
-                   ORDER BY job_id FOR UPDATE SKIP LOCKED LIMIT %s""",
-                (limit,),
+                   AND (%s::text[] IS NULL OR kind=ANY(%s)) ORDER BY job_id FOR UPDATE SKIP LOCKED LIMIT %s""",
+                (None if kinds is None else list(kinds), None if kinds is None else list(kinds), limit),
             ).fetchall()
         if cleanup_expired is not None:
             # 만료 임대 잠금을 유지한 채 해당 컨테이너부터 정리합니다. 실패하면 DB도 반환하지 않습니다.

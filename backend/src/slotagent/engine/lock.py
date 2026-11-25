@@ -1,6 +1,7 @@
 """① 실험 잠금·풀이 생성·작업 등록을 한 트랜잭션으로 처리합니다."""
 
 from slotagent.common import contracts, queue
+from slotagent.common.checks import CheckError
 from slotagent.engine import advance
 
 
@@ -11,7 +12,7 @@ def lock_and_enqueue(conn, experiment_id: int) -> dict:
             "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR UPDATE", (experiment_id,)
         ).fetchone()
         if row is None:
-            raise ValueError("실험이 없습니다.")
+            raise CheckError("not_found", ["실험이 없습니다."])
         if row[0] == "draft":
             conn.execute("SELECT lock_experiment(%s)", (experiment_id,))
             trials = conn.execute(
@@ -24,7 +25,7 @@ def lock_and_enqueue(conn, experiment_id: int) -> dict:
         elif row[0] in {"locked", "running"}:
             status = row[0]
         else:
-            raise ValueError("종료된 실험은 다시 시작할 수 없습니다.")
+            raise CheckError("experiment_locked", ["종료된 실험은 다시 시작할 수 없습니다."])
         count = conn.execute("SELECT count(*) FROM sa_trials WHERE experiment_id=%s", (experiment_id,)).fetchone()[0]
         return contracts.validate(
             "api", {"experiment_id": experiment_id, "status": status, "trials_total": count}, part="run_response"

@@ -11,6 +11,18 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-25 · Claude · taemin (실험 실행·중지·상태 API)
+- 한 일: `api/eng_experiments.py`(run·stop·status), `api/eng_app.py`(앱, 오류를 모두 api.error로), `engine/lock.py`의 오류를 CheckError(not_found·experiment_locked)로. 테스트 `test_eng_api.py`
+- 정한 것: 초안 상태는 풀이 행이 없어 계획 수를 pending으로 셈(계약: 합계=trials_total≥1) / 초안 멈춤은 not_lockable, 끝난 실험의 실행·멈춤은 experiment_locked / 이미 멈춘 실험을 다시 멈추면 지금 상태 / DB 원문은 화면에 안 보냄, 잠금 경합은 503
+- 안 한 일 / 남은 일: **로그인·소유자 확인 없음**(정해진 것이 없어 127.0.0.1에서만), plan-proposal 라우터(②③ 값 대기), 다른 역할 라우터 연결, 화면 연결. 계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: 초안 멈춤에 맞는 오류 코드가 계약에 없어 not_lockable을 씀.
+
+## 2026-11-25 · Claude · taemin (채점 파이프라인)
+- 한 일: `grading/eng_pipeline.py` — 풀이마다 규칙 채점 저장 → 주입한 ② 판정 함수(`classify(conn, item) -> Verdict`) → trial_grades → finished_at·analyze 작업. `workers/eng_main.grade_once`, `advance.resume_failed_grading`, `queue.reclaim(kinds=)` 추가. 하트비트는 run_once와 같이 쓰도록 뽑아냄(동작 같음). 테스트 `test_eng_pipeline.py`(가짜 판정)
+- 정한 것: 판정 함수가 없으면 규칙 결과만 저장하고 작업을 빌리지 않음 / 규칙으로 못 정한 조건은 행 없이 undecided로 ②에게 / 규칙 실패를 ②가 성공으로 못 바꿈 / 조건·범위 판정·해시가 틀리면 채점을 멈춤, 풀이 기록을 못 읽을 때만 grader_error
+- 안 한 일 / 남은 일: ② pack_judge·pack_classify를 Verdict 모양에 맞춰 끼우기, 실제 모델 풀이로 확인, ② 판정기 비용(source=judge) 예산 연결, grade 작업이 끝내 실패할 때 실험을 failed로 둘지(P-08), Codex 검증. 계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: undecided가 남은 풀이를 ②가 correct로 낼 수 있게 두었음(LLM이 정한 경우). 아니면 막아야 함 — ② 확인. 범위 밖인데 correct인 경우도 저장하고 실패로 세는 것은 ③의 outcome_rules에 맡김.
+
 ## 2026-11-25 · Claude · taemin (감사 수정에 빠진 읽기 도구 경로)
 - 한 일: 읽기 도구 인자에 NaN·Infinity가 섞이면 도구가 실행된 뒤 저장이 실패하던 것을, 실행 전 agent_invalid_tool_call로 돌려줌(중첩 64 상한도 같이 적용). DB 저장 테스트 3개. 아래 감사 3건 수정은 다른 Claude 세션이 했고, 도구 검색과 합친 상태로 다시 확인함
 - 안 한 일 / 남은 일: Codex 검증. 커밋 없음.
