@@ -11,6 +11,11 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-25 · Claude · taemin (dev·galaxy 합치기)
+- 한 일: origin/dev(② 팩 152문항·골든 200개)와 origin/galaxy(④ 등록)를 합침. ②가 협의하던 골든 3건을 고쳐 `test_audit_golden_counts` 를 일치 200·불일치 0 으로, `test_eng_pilot.py` 의 허용 목록 3건을 지움
+- 검증: 전체 1329 passed / 1 skipped / 실패 0, Ruff 0건.
+- 남은 일: ④ `register_agent` 는 슬롯 생성 전에 NotImplementedError 라 저장되지 않음. ④ 예약 도구 이름이 엔진 `BUILTIN_NAMES` 와 따로 적혀 있음.
+
 ## 2026-11-25 · Claude · taemin (종료 게이트 감사 결과 수정)
 - 한 일: Codex 감사에서 재현된 것만 고침. ① 게이트·포기가 실험 행을 `FOR NO KEY UPDATE` 로 잠금(리포트 저장과 같은 트랜잭션에서 병렬로 불러도 잠금 오류 없음) ② 포기는 아직 안 끝난 단계의 **가장 최근 작업**이 failed 일 때만 허용 ③ 다른 실험의 리포트는 세지 않음 ④ 작업 payload 를 글자로 견줌(포기할 때의 작업 취소도 같이) ⑤ `test_eng_pilot.py` 가 mcp 를 실제로 불러 본 뒤 인터프리터를 고름
 - 시험: `test_eng_completion.py` 38건(채점 누락 변이도 이제 검출). 포기 시험의 grade 는 이미 끝난 채점을 쓰고 있어 안 끝난 채점으로 바꿈

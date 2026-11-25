@@ -33,12 +33,6 @@ from slotagent.packs.loader import load_pack
 from slotagent.workers.eng_main import grade_once, run_once
 
 PACK = ROOT / "packs/it_ops/v0.1"
-# 엔진에서 다시 실행하면 골든 기대와 다른 조건. ②와 협의 중인 3건만 허용합니다.
-KNOWN = {
-    ("RUN_ISSUE_RELATION-001", "near_miss", 3),
-    ("ISSUE_DUPLICATE_PREVENTION-002", "forbidden", 5),
-    ("CONDITIONAL_FOLLOWUP_ACTION-002", "forbidden", 5),
-}
 
 
 @lru_cache
@@ -321,7 +315,7 @@ def test_pilot_types_to_grading(engine_db, pack_id):
 
 
 def replay_all():
-    """골든 188개를 엔진에서 다시 실행해 기대와 다른 조건을 모읍니다."""
+    """골든 200개를 엔진에서 다시 실행해 기대와 다른 조건을 모읍니다."""
     prereg, different, unknown, outcomes = load("experiment.json")["prereg"], [], [], Counter()
     base = load("config_snapshot.B.json")
     for golden in GOLDEN:
@@ -351,6 +345,6 @@ def test_all_golden_replayed_by_engine():
     different, unknown, outcomes = replay_all()
     assert outcomes == {"completed": len(GOLDEN)}
     assert not unknown, unknown
-    assert set(different) <= KNOWN, sorted(set(different) - KNOWN)
+    assert not different, different
 
 
