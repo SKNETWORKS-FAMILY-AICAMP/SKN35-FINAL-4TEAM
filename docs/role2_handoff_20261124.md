@@ -144,3 +144,28 @@ role2_reply_8types.md의 제안에 맞춰 direct/indirect 단계 조회, cause/c
 함수 단위 재현: 반복 order는 repeated_order_policy_missing, 추가 쓰기가 있는 end_state는 현재 True, 기존 link 불일치는 현재 True를 확인했습니다. 재현 spec/trace와 명시적 로컬 tool_access fixture는 packs/it_ops/v0.1/reference/grader_review_cases.json에 보관했습니다. 각 항목의 kind/spec/trace/tool_access/tool_access_complete로 check를 호출하면 됩니다. 이 fixture 권한은 실제 후보의 권한 정의로 사용하지 않습니다. 실제 엔진/DB는 실행하지 않았습니다.
 
 이번 작업에서 ① eng_rules·파이프라인·공용 스키마·DB는 변경하지 않았습니다. tool_error 대응과 쓰기3유형도 계속 보류입니다. 응답 규격26문항만 이번 질문 개선에 포함돼 완료 상태로 바뀌었습니다. 모든 정상 도구 후보가 연결됐다는 뜻은 아니며 실제 MCP 지원은8유형26문항 그대로입니다.
+# ② 추가 준비: 도구 목록·독립 검수
+
+## 파일럿 15유형 선정안과 확인 요청
+
+기계 판독 목록은 `packs/it_ops/v0.1/practice/pilot_selection.json`입니다. 유형별 전체 문항 코드, required_capabilities, 데이터 경로, 정상/대안 골든에서 관측한 예시 도구와 연결 상태를 담았습니다. 예시 도구는 강제 풀이 경로나 후보 권한이 아닙니다. 이 목록은 러너 입력이나 held 분할을 변경하지 않습니다.
+
+| 그룹 | 선정 유형 |
+|---|---|
+| 조회 3 | DEPLOY_LATEST_SUCCESS, ISSUES_UNASSIGNED_OPEN, DEPLOY_RELEASE_LINK |
+| 쓰기 3 | CONFIRMED_RELEASE_SHARE, CONFIRMED_ISSUE_CREATE, LATEST_CONFIRMATION_SCOPE |
+| 장애 3 | LOG_FIRST_ERROR, INCIDENT_TIMELINE, INCIDENT_RECOVERY_EVIDENCE |
+| 오류복구 2 | RETRY_TRANSIENT_READ, RETRY_EXHAUSTED_READ |
+| 정보충돌 1 | CONFLICT_EQUAL_AUTHORITY |
+| 운영계산 1 | ERROR_COUNTS_BEFORE_AFTER |
+| 운영절차 2 | CONFIG_OVERRIDE_PRECEDENCE, UNTRUSTED_ISSUE_INSTRUCTIONS |
+
+④ 확인: 각 유형의 필요 기능과 실제 후보 도구의 제공 범위·인자·권한 매핑을 확인해 주세요. ① 확인: 조회 3유형을 먼저 연결할 수 있는지, 나머지 로컬 도구의 연결 계획 및 fake 승인/쓰기·tool_error 처리 준비 상태를 확인해 주세요. 쓰기3유형과 오류복구2유형은 해당 연동/채점 확인 전 제품 실행 완료로 표시하지 않습니다.
+
+독립 검수는 위 파일럿에 포함된 그룹별 첫 유형 7개×4종=28건으로 시작합니다. 검수자용 CSV·JSON을 준비했고 실제 검수는 0/28, 검수자는 미배정입니다. 팀원이 먼저 라벨과 문항 피드백을 작성한 뒤 ②가 관리본과 비교합니다.
+
+`packs/it_ops/v0.1/practice/tool_inventory.json`은 활성188골든에서 관측된30도구를 정리한 검토 자료입니다. 실제 연습 MCP 명세5종은 원본 정의를 포함했고, 나머지25종은 로컬/확인 도구로 구분했습니다. 로컬 read/write는 시뮬레이터 동작 설명이며 후보 권한을 증명하지 않습니다. 미확정 capability는 비워 두었으므로 ①④의 공식 도구 매핑을 대체하지 않습니다. 특히 확인 도구의 access는 null로 남겼습니다.
+
+①④ 확인 요청: 목록의 미확정 도구를 후보/엔진 도구에 어떻게 연결할지, 실제 읽기/쓰기 권한과 capability·인자 스키마를 확인해 주세요. 관측된 argument_keys는 스키마가 아닙니다. `scripts/prepare_pack_review.py --check`로 목록 최신 여부를 확인할 수 있습니다.
+
+②는 독립 검수용 7유형28기록과 별도 관리본을 생성하는 도구 및 라벨 기준 초안을 준비했습니다. 검수 절차는 `packs/it_ops/v0.1/golden/README.md`에 있습니다. 사람 판정·LLM 판정기·held 분할·통계 검증 완료를 의미하지 않으며 기존 정답/골든 기대값도 변경하지 않았습니다. 보류된 DB·tool_error·추가 쓰기3유형은 이번 범위에 포함하지 않았습니다.
