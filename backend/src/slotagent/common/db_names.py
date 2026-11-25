@@ -96,7 +96,6 @@ COLUMNS: dict[str, dict[str, str]] = {
         "spec_hash": "spec_hash",
         "connection": "connection",
         "created_at": "created_at",
-        "questions_used": "questions_used",
         "model_provider": "model_provider",
     },
     "slots": {
