@@ -26,10 +26,12 @@
         "channel": "ops-alerts",
         "text": "배포 v2.1.0 완료"
       },
-      "tool_result": "{\"fake\": true}",
+      "tool_result": "{\"fake\": true, \"status\": \"blocked\", \"reason\": \"user_confirmation_required\"}",
       "attributes": {
         "confirmation_span_seq": null,
-        "write_mode": "fake"
+        "write_mode": "fake",
+        "write_status": "blocked",
+        "write_applied": false
       },
       "started_at": "2026-11-23T00:00:02Z",
       "duration_sec": 0

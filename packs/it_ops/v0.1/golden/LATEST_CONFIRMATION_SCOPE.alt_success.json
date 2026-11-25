@@ -72,7 +72,9 @@
       "attributes": {
         "simulation": true,
         "write_mode": "fake",
-        "confirmation_span_seq": 3
+        "confirmation_span_seq": 3,
+        "write_status": "ok",
+        "write_applied": true
       },
       "started_at": "2026-11-24T01:00:04Z",
       "duration_sec": 0

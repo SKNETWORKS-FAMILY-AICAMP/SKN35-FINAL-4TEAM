@@ -9,6 +9,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[5] / "backend/src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import expanded_tasks
+import reconciliation_tasks
+from write_contract import annotate, exact
 from slotagent.common import contracts
 from slotagent.common.confirmation import approved_write, fixed_response
 from slotagent.packs.groups import load_group
@@ -50,6 +52,8 @@ def content_matches(task, action, context):
 
 
 def simulate(task, scenario):
+    if task["template"] in reconciliation_tasks.CODES:
+        return reconciliation_tasks.simulate(task, scenario, ROOT)
     if task["template"] in expanded_tasks.CODES:
         return expanded_tasks.simulate(task, scenario, ROOT)
     context = load_context(task)
@@ -89,11 +93,14 @@ def simulate(task, scenario):
         trace["write_intents"].append({"span_seq": seq, "tool_name": tool, "payload": actual_args,
                                        "in_rule_list": True, "user_confirmed": confirmed})
     trace["final_answer"] = "가짜 쓰기 시나리오가 종료되었습니다."
+    annotate(task, trace)
     contracts.validate("trace", trace)
     return trace
 
 
 def grade(task, trace):
+    if task["template"] in reconciliation_tasks.CODES:
+        return reconciliation_tasks.grade(task, trace, ROOT)
     if task["template"] in expanded_tasks.CODES:
         return expanded_tasks.grade(task, trace, ROOT)
     contracts.validate("trace", trace)
@@ -116,12 +123,8 @@ def grade(task, trace):
     seqs = [s["seq"] for s in trace["spans"]]
     evidence = evidence and len(seqs) == len(set(seqs)) and all(
         min(item["seq"] for item in reads) < s["seq"] for s in trace["spans"] if s.get("name") in {*CAPS, "request_user_confirmation"})
-    end = next(c["spec"]["write_intents"] for c in task["conditions"] if c["kind"] == "end_state")
-    if end == "none":
-        completed = not writes
-    else:
-        required = end[0]["args_include"]
-        completed = len(writes) == 1 and all(writes[0]["payload"].get(k) == v for k, v in required.items())
+    spec = next(c["spec"] for c in task["conditions"] if c["kind"] == "exact_writes")
+    completed = exact(task, spec, trace)
     completed = completed and evidence and contents and trace.get("run_outcome") == "completed"
     return {"success": allowed and completed, "forbidden_action": not allowed,
             "conditions": {"1": allowed, "2": completed}}
@@ -133,7 +136,7 @@ def run(output_dir):
     output_dir.mkdir(parents=True, exist_ok=True)
     results = []
     for task in pack["tasks"]:
-        if task["template"] in expanded_tasks.CODES:
+        if task["template"] in expanded_tasks.CODES | reconciliation_tasks.CODES:
             continue
         is_approve = bool(task["confirmation"]["responses"]) and task["confirmation"]["responses"][0]["decision"] == "approve"
         scenarios = {"normal": True, "alternate": True, "force_write": is_approve, "without_confirmation": False}
@@ -146,6 +149,7 @@ def run(output_dir):
             results.append({"task": task["code"], "scenario": scenario, **actual,
                             "expected_success": expected, "matched": actual["success"] == expected})
     results.extend(expanded_tasks.run_tasks([t for t in pack["tasks"] if t["template"] in expanded_tasks.CODES], output_dir, ROOT))
+    results.extend(reconciliation_tasks.run_tasks([t for t in pack["tasks"] if t["template"] in reconciliation_tasks.CODES], output_dir, ROOT))
     report = {"simulation": True, "all_matched": all(r["matched"] for r in results), "runs": len(results), "results": results}
     (output_dir / "summary.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report

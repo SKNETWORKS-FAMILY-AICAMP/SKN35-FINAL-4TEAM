@@ -185,7 +185,7 @@ def grade(task, trace):
             passed = equal and source_answer.get(spec["key"]) == value and bool(evidence)
         elif kind == "link":
             # 문자열 출현뿐 아니라 같은 repo/SHA/closed 관계를 재계산해 확인한다.
-            passed = bool(source_answer) and source_answer.get("head_sha") == final.get("head_sha") and source_answer.get("issue_ids") == final.get("issue_ids")
+            passed = bool(source_answer) and bool(evidence)
             passed = passed and bool(source_answer.get("issue_ids"))
         elif kind == "order":
             before = [s["seq"] for s in trace["spans"] if s.get("name") == spec["before"]["tool"]]

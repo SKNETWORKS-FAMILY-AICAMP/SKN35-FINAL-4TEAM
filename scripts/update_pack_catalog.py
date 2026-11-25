@@ -41,6 +41,9 @@ def render_catalog(root=ROOT):
             if task.get("confirmation") is not None:
                 lines += ["고정 사용자 응답 정책(엔진 전용):", "", "```json",
                           json.dumps(task["confirmation"], ensure_ascii=False, indent=2), "```", ""]
+            if task.get("write_scenario") is not None:
+                lines += ["가짜 쓰기·상태 시나리오(엔진 전용):", "", "```json",
+                          json.dumps(task["write_scenario"], ensure_ascii=False, indent=2), "```", ""]
     return "\n".join(lines).rstrip() + "\n"
 
 

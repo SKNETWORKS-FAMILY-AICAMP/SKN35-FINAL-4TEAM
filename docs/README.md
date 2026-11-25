@@ -11,3 +11,4 @@
 - [전체 문항 목록](../packs/QUESTIONS.md): pack.json에서 자동 생성하는 유일한 상세 문항 목록
 - [① 전달 문서](role2_handoff_20261124.md): 서버·DB·잠금 연동 확인 사항
 - [P-05 계약](P05_confirmation_handoff.md): 승인 정책과 저장/실행 경계
+- [오답 위험 예측](../backend/ml_failure_risk/README.md): 전처리·교차검증·LightGBM 선정·최종 평가 1회 완료. 오답50·정답50 사람 검수는 미완료이며 현재 평가팩과 별개의 사전 실험 데이터 사용

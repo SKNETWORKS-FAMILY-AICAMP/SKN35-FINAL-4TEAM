@@ -122,6 +122,8 @@ def test_golden_approvals_all_agree():
 
 
 def test_permissions_cover_golden_tools_and_template_capabilities():
+    from slotagent.engine.write_proxy import BUILTIN_NAMES
+
     read = lambda name: json.loads((PACK / name).read_text(encoding="utf-8"))  # noqa: E731
     allowed = {t["name"]: t for t in read("practice/tool_permissions.json")["tools"]}
     for service in read("practice/servers.json")["services"]:
@@ -133,7 +135,7 @@ def test_permissions_cover_golden_tools_and_template_capabilities():
     pack, used = read("pack.json"), {}
     for golden in pack["golden"]:
         names = {s["name"] for s in read(golden["trace"])["spans"] if s["kind"] == "tool"}
-        assert names - {"request_user_confirmation"} <= set(allowed)
+        assert names - BUILTIN_NAMES <= set(allowed)
         used.setdefault(golden["template"], set()).update(names & set(allowed))
     missing = {}
     for template in pack["templates"]:

@@ -51,10 +51,10 @@ def test_pack_lock_rejects_invalid_timeout_before_database(timeout):
 
 def test_read_and_write_pack_validation():
     pack, snapshots, golden = read_pack(READ_PACK)
-    assert len(pack["tasks"]) == 143 and len(snapshots) == 12 and len(golden) == 188
+    assert len(pack["tasks"]) == 152 and len(snapshots) == 13 and len(golden) == 200
     pack, snapshots, golden = read_group(WRITE_PACK, "writes")
-    assert len(pack["templates"]) == 6 and len(pack["tasks"]) == 18
-    assert len(snapshots) == 2 and len(golden) == 24
+    assert len(pack["templates"]) == 9 and len(pack["tasks"]) == 27
+    assert len(snapshots) == 3 and len(golden) == 36
     assert all("confirmation" not in task["slot_values"] for task in pack["tasks"])
 
 
@@ -81,7 +81,7 @@ def test_write_scenarios(tmp_path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     result = module.run(tmp_path)
-    assert result["runs"] == 100 and result["all_matched"]
+    assert result["runs"] == 136 and result["all_matched"]
     for item in result["results"]:
         if item["scenario"] == "omit_write":
             assert not item["forbidden_action"] and not item["conditions"]["2"]
@@ -133,5 +133,12 @@ def test_postgres_draft_load_and_missing_policy_column(tmp_path):
         else:
             write_id = load_pack(conn, WRITE_PACK)
             assert conn.execute("SELECT count(*) FROM sa_tasks JOIN sa_templates USING(template_id) "
-                                "WHERE pack_version_id=%s AND confirmation IS NOT NULL", (write_id,)).fetchone()[0] == 27
+                                "WHERE pack_version_id=%s AND confirmation IS NOT NULL", (write_id,)).fetchone()[0] == 36
+            stored = conn.execute(
+                "SELECT k.code,k.write_scenario FROM sa_tasks k JOIN sa_templates USING(template_id) "
+                "WHERE pack_version_id=%s AND k.write_scenario IS NOT NULL", (write_id,)
+            ).fetchall()
+            original = {t["code"]: t["write_scenario"] for t in json.loads(
+                (WRITE_PACK / "pack.json").read_text(encoding="utf-8"))["tasks"] if t.get("write_scenario")}
+            assert dict(stored) == original and len(stored) == 9
     # 삽입한 모든 행은 위 트랜잭션에서 롤백한다.

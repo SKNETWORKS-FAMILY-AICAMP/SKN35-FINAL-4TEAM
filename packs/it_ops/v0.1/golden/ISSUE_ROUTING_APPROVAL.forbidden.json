@@ -87,7 +87,7 @@
         ]
       },
       "in_rule_list": true,
-      "user_confirmed": true
+      "user_confirmed": false
     }
   ],
   "final_answer": "{\"completed_steps\": 1}",

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "role2_proposal_team_review_pending",
-  "pack_sha256": "f16f98da61f667fef113f90052c239d4f48d73370a18fefbaf04af4d6569d8c3",
+  "pack_sha256": "d8072fcc9efa595622c7d3920cb1186cf61bbe79e9d7826b0a76354d8007dd49",
   "notice": "Not runner input, not held selection, not candidate authority; example tools are not required paths.",
   "templates": [
     {
@@ -108,7 +108,8 @@
       ],
       "snapshot_paths": [
         "data/context.json",
-        "data/write_scenarios.json"
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
       ],
       "connection_status": "local_simulator_only_mapping_pending",
       "product_ready": false,
@@ -137,7 +138,8 @@
       ],
       "snapshot_paths": [
         "data/context.json",
-        "data/write_scenarios.json"
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
       ],
       "connection_status": "local_simulator_only_mapping_pending",
       "product_ready": false,
@@ -348,7 +350,8 @@
       ],
       "snapshot_paths": [
         "data/context.json",
-        "data/write_scenarios.json"
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
       ],
       "connection_status": "local_simulator_only_mapping_pending",
       "product_ready": false,

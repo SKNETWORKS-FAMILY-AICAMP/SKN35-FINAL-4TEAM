@@ -23,15 +23,17 @@
           "CONFIRMED_ISSUE_CREATE",
           "ISSUE_DUPLICATE_PREVENTION",
           "ISSUE_ROUTING_APPROVAL",
-          "ISSUE_THEN_MESSAGE"
+          "ISSUE_THEN_MESSAGE",
+          "UNCERTAIN_WRITE_RECONCILIATION"
         ],
         "argument_keys": [
           "assignees",
           "labels",
+          "owner",
           "repo",
           "title"
         ],
-        "calls": 14
+        "calls": 18
       }
     },
     {
@@ -182,6 +184,25 @@
       }
     },
     {
+      "name": "get_work_state",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "APPROVAL_DATA_REVISION"
+        ],
+        "argument_keys": [
+          "subject"
+        ],
+        "calls": 8
+      }
+    },
+    {
       "name": "get_write_case",
       "access": "read",
       "access_basis": "local_simulator_semantics_pending_engine_review",
@@ -192,15 +213,18 @@
       "definition": null,
       "observed": {
         "templates": [
+          "APPROVAL_DATA_REVISION",
           "ISSUE_ROUTING_APPROVAL",
           "ISSUE_THEN_MESSAGE",
           "LATEST_CONFIRMATION_SCOPE",
-          "MULTI_TARGET_APPROVAL"
+          "MULTI_TARGET_APPROVAL",
+          "PARTIAL_WRITE_RECONCILIATION",
+          "UNCERTAIN_WRITE_RECONCILIATION"
         ],
         "argument_keys": [
           "scenario_id"
         ],
-        "calls": 16
+        "calls": 28
       }
     },
     {
@@ -221,6 +245,27 @@
           "context_id"
         ],
         "calls": 8
+      }
+    },
+    {
+      "name": "get_write_result",
+      "access": "read",
+      "access_basis": "local_simulator_semantics_pending_engine_review",
+      "capabilities": [],
+      "mapping_status": "engine_review_required",
+      "implementation": "local_simulator",
+      "candidate_authority_source": false,
+      "definition": null,
+      "observed": {
+        "templates": [
+          "APPROVAL_DATA_REVISION",
+          "PARTIAL_WRITE_RECONCILIATION",
+          "UNCERTAIN_WRITE_RECONCILIATION"
+        ],
+        "argument_keys": [
+          "write_ref"
+        ],
+        "calls": 7
       }
     },
     {
@@ -803,6 +848,7 @@
       "definition": null,
       "observed": {
         "templates": [
+          "APPROVAL_DATA_REVISION",
           "CONDITIONAL_FOLLOWUP_ACTION",
           "CONFIG_OVERRIDE_PRECEDENCE",
           "CONFIRMED_INCIDENT_SHARE",
@@ -838,6 +884,7 @@
           "MULTI_TARGET_APPROVAL",
           "NESTED_JSON_LOG_TYPES",
           "PAGINATED_ISSUES_COMPLETE",
+          "PARTIAL_WRITE_RECONCILIATION",
           "PERMISSION_DENIED_VS_EMPTY",
           "REPORT_FIELD_REDACTION",
           "REPOSITORY_ALLOWLIST_BOUNDARY",
@@ -846,6 +893,7 @@
           "RUN_ISSUE_RELATION",
           "SERVICE_DEPENDENCY_IMPACT",
           "TRACE_REQUEST_RECONSTRUCTION",
+          "UNCERTAIN_WRITE_RECONCILIATION",
           "UNTRUSTED_ISSUE_INSTRUCTIONS",
           "UPSTREAM_FAILURE_EVIDENCE"
         ],
@@ -853,7 +901,7 @@
           "channel",
           "text"
         ],
-        "calls": 64
+        "calls": 83
       }
     },
     {
@@ -1014,6 +1062,7 @@
       "definition": null,
       "observed": {
         "templates": [
+          "APPROVAL_DATA_REVISION",
           "CONDITIONAL_FOLLOWUP_ACTION",
           "CONFIRMED_INCIDENT_SHARE",
           "CONFIRMED_ISSUE_CREATE",
@@ -1022,12 +1071,14 @@
           "ISSUE_ROUTING_APPROVAL",
           "ISSUE_THEN_MESSAGE",
           "LATEST_CONFIRMATION_SCOPE",
-          "MULTI_TARGET_APPROVAL"
+          "MULTI_TARGET_APPROVAL",
+          "PARTIAL_WRITE_RECONCILIATION",
+          "UNCERTAIN_WRITE_RECONCILIATION"
         ],
         "argument_keys": [
           "action"
         ],
-        "calls": 46
+        "calls": 70
       }
     }
   ]

@@ -18,12 +18,12 @@ def test_one_pack_contains_all_groups():
     assert list((ROOT / "packs").glob("*/v*/pack.json")) == [PACK / "pack.json"]
     pack, snapshots, golden = read_pack(PACK)
     assert pack["pack_version"]["pack_code"] == "it_ops"
-    assert (len(pack["templates"]), len(pack["tasks"]), len(golden), len(snapshots)) == (47, 143, 188, 12)
+    assert (len(pack["templates"]), len(pack["tasks"]), len(golden), len(snapshots)) == (50, 152, 200, 13)
     groups = load_groups(PACK)
     assert {name: len(g["template_codes"]) for name, g in groups.items()} == {
-        "lookup": 8, "writes": 6, "incidents": 9, "reliability": 3,
+        "lookup": 8, "writes": 9, "incidents": 9, "reliability": 3,
         "conflicts": 3, "metrics": 6, "workflows": 12}
-    assert sum(t.get("confirmation") is not None for t in pack["tasks"]) == 27
+    assert sum(t.get("confirmation") is not None for t in pack["tasks"]) == 36
 
 
 @pytest.mark.parametrize("change", ["duplicate", "missing", "snapshot"])
@@ -48,6 +48,6 @@ def test_all_groups_run_through_single_entrypoint(tmp_path):
     spec.loader.exec_module(module)
     report = module.run(tmp_path)
     assert report["pack_code"] == "it_ops"
-    assert report["runs"] == 846 and report["all_matched"]
+    assert report["runs"] == 882 and report["all_matched"]
     assert len(report["groups"]) == 7
     assert not report["product_grader_verified"]

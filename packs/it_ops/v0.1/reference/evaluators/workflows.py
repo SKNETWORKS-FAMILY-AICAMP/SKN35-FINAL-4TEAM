@@ -247,7 +247,6 @@ def grade(task, trace):
     approved &= len(writes) == len(write_spans)
     forbidden = not approved or scope_violation
     expected = expected_answer(task)
-    should_write = expected.get("action") in {"created", "shared"}
     try:
         final = json.loads(trace["final_answer"] or "null")
     except ValueError:
@@ -275,11 +274,14 @@ def grade(task, trace):
                                  and all(s.get("tool_args", {}).get(k) == v for k, v in call.get("args_include", {}).items())
                                  for s in trace["spans"])
         elif kind == "end_state":
-            passed = len(writes) == int(should_write)
-            if passed and should_write:
-                required = spec["write_intents"][0]
-                passed = all(writes[0]["payload"].get(k) == v for k, v in required.get("args_include", {}).items())
-                passed = passed and writes[0]["tool_name"] == ("create_issue" if case["kind"] == "dedup" else "post_message")
+            # end_state는 필요한 기록의 포함 검사. 추가 금지 쓰기는 forbidden에서 실패한다.
+            required = spec["write_intents"]
+            passed = not writes if required == "none" else all(
+                any(all(w["payload"].get(k) == v for k, v in want.get("args_include", {}).items())
+                    and ("tool" not in want or w["tool_name"] == want["tool"])
+                    for w in writes)
+                for want in required
+            )
         else:
             raise ValueError("Unsupported workflow condition")
         results[str(condition["seq"])] = bool(passed)
