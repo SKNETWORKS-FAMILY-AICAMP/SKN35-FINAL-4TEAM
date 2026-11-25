@@ -29,7 +29,7 @@ from . import checks, contracts, db_names
 from .hashing import agent_spec_hash, canonical_hash
 
 PHASE1_KINDS = ("tool_bundle", "custom_tool", "tool_search")   # 기획서 1.3: Tool 자리 먼저. Skill·MCP 서버 교체·프롬프트는 그다음
-HARNESS_VERSION = "0.1.0"   # 워커가 trials.harness_version 에 기록. 스냅숏에는 넣지 않음
+HARNESS_VERSION = "0.2.0"   # 워커가 trials.harness_version 에 기록. 스냅숏에는 넣지 않음
 DEFAULT_RUNTIME = {"max_steps": 30, "timeout_sec": 300, "max_api_retries": 3}
 
 

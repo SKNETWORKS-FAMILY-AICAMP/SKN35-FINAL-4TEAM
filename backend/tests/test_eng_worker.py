@@ -1,6 +1,7 @@
 """① 실제 임시 DB에서 가짜 모델 풀이·원자적 저장·오래된 시도 차단을 확인합니다."""
 
 import copy
+import json
 from decimal import Decimal
 from uuid import uuid4
 
@@ -277,21 +278,41 @@ def test_model_exceptions_release_attempt_and_allow_retry(experiment, failure):
     assert run_trial(conn, trial, deps=dependencies()).outcome == "completed"
 
 
-def test_unsupported_write_releases_attempt_without_executing_tool(experiment):
+@pytest.mark.parametrize("approve", [True, False])
+def test_write_is_stored_with_task_confirmation_and_never_executed(experiment, approve):
     conn, ids = experiment
+    trial = ids["trials"][0]
+    args = {"owner": "acme", "repo": "ops-service", "title": "x"}
+    if approve:
+        policy = {
+            "schema_version": 1,
+            "responses": [{"capability": "github.issues.write", "target": ["ops-service"], "decision": "approve"}],
+        }
+        conn.execute("SET session_replication_role = replica")  # 잠긴 팩의 시험용 정책만 직접 넣음
+        conn.execute(
+            "UPDATE sa_tasks SET confirmation=%s WHERE task_id=(SELECT task_id FROM sa_trials WHERE trial_id=%s)",
+            (Jsonb(policy), trial),
+        )
+        conn.execute("SET session_replication_role = DEFAULT")
+    ask = json.dumps({"action": {"tool_name": "create_issue", "arguments": args}})
     called = []
     deps = Dependencies(
         FakeModel(
-            [Reply(tool_calls=(ToolCall("w", "create_issue", '{"owner":"acme","repo":"ops-service","title":"x"}'),))]
+            [
+                Reply(tool_calls=(ToolCall("c", "request_user_confirmation", ask),)),
+                Reply(tool_calls=(ToolCall("w", "create_issue", json.dumps(args)),)),
+                Reply(text="끝"),
+            ]
         ),
         lambda *a: called.append(a),
     )
-    trial = ids["trials"][0]
-    with pytest.raises(NotImplementedError, match="쓰기 프록시"):
-        run_trial(conn, trial, deps=deps)
+    assert run_trial(conn, trial, deps=deps).outcome == "completed"
     assert not called
-    assert conn.execute("SELECT status,attempt FROM sa_trials WHERE trial_id=%s", (trial,)).fetchone() == ("pending", 2)
-    assert run_trial(conn, trial, deps=dependencies()).outcome == "completed"
+    assert conn.execute(
+        """SELECT w.tool_name,w.payload,w.in_rule_list,w.user_confirmed,s.name,s.attempt
+           FROM sa_write_intents w JOIN sa_spans s USING (span_id) WHERE w.trial_id=%s""",
+        (trial,),
+    ).fetchall() == [("create_issue", args, True, approve, "create_issue", 1)]
 
 
 def test_tool_error_is_saved_in_error_column(experiment):

@@ -1,6 +1,6 @@
 """① DB를 모르는 실행 코어. 모델·읽기 도구·시계·중단 신호를 외부에서 주입합니다.
 
-첫 단계는 읽기 실행만 지원합니다. 쓰기·확인·검색을 처리한 척하지 않고 연결 전에는 명시적으로 막습니다.
+쓰기와 확인 도구는 write_proxy가 밖으로 보내지 않고 처리합니다. 검색은 연결 전이라 명시적으로 막습니다.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ from jsonschema import Draft202012Validator
 from slotagent.common import checks, contracts
 from slotagent.common.llm import ChatModel, ModelError, Price, openai_tools, storage_text
 from slotagent.engine.tracing import Recorder
+from slotagent.engine.write_proxy import InvalidCall, WriteProxy
 
 
 class RunCancelled(RuntimeError):
@@ -57,18 +58,31 @@ class RunResult:
         return self.trace["run_outcome"]
 
 
-def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, prereg: dict) -> RunResult:
-    """설정·정답 없는 문항만 받아 trace를 만듭니다. 입력 dict는 변경하지 않습니다."""
+def run_agent(
+    snap: dict,
+    task_prompt: str,
+    seed: int,
+    deps: Dependencies,
+    *,
+    prereg: dict,
+    confirmation: dict | None = None,
+    write_scenario: dict | None = None,
+) -> RunResult:
+    """설정·정답 없는 문항만 받아 trace를 만듭니다. 입력 dict는 변경하지 않습니다.
+
+    confirmation(P-05 고정 답)과 write_scenario(계약 초안)는 엔진 전용이며 모델 메시지에 넣지 않습니다.
+    """
     snap = copy.deepcopy(contracts.validate("config_snapshot", snap))
     if snap.get("tool_search"):
         raise NotImplementedError("도구 검색 실행은 다음 단계입니다.")
+    proxy = WriteProxy(snap, confirmation, write_scenario)
     runtime = snap["runtime"]
     started = deps.clock()
     deadline = started + runtime["timeout_sec"]
     record = Recorder(seed)
     messages = [{"role": "system", "content": snap["instructions"]}, {"role": "user", "content": task_prompt}]
-    definitions = {t["name"]: t for t in snap["tools"]}
-    tools = openai_tools(snap["tools"])
+    definitions = {t["name"]: t for t in [*snap["tools"], *proxy.tools]}
+    tools = openai_tools([*snap["tools"], *proxy.tools])
     final = None
     steps = 0
 
@@ -81,7 +95,7 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
         return seconds
 
     def finish(reason: str | None = None) -> RunResult:
-        return RunResult(record.finish(checks.run_outcome_for(reason, prereg), reason, final))
+        return RunResult(record.finish(checks.run_outcome_for(reason, prereg), reason, final, proxy.intents))
 
     try:
         for _ in range(runtime["max_steps"]):
@@ -125,7 +139,7 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
                 seconds = remaining()
                 steps += 1
                 at, before = deps.now(), deps.clock()
-                args, error, result, reason = {}, None, "", None
+                args, error, result, reason, attributes = {}, None, "", None, {}
                 definition = definitions.get(call.name)
                 try:
                     args = json.loads(call.arguments)
@@ -133,6 +147,11 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
                         raise ValueError
                     if list(Draft202012Validator(definition["parameters"]).iter_errors(args)):
                         raise ValueError
+                    if proxy.handles(call.name):
+                        args = proxy.normalize(call.name, args)
+                except InvalidCall:
+                    args, error = {}, "agent_invalid_tool_call"
+                    result = json.dumps({"error": error}, ensure_ascii=False)
                 except (ValueError, TypeError):
                     if not isinstance(args, dict):
                         args = {}
@@ -140,10 +159,8 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
                     result = json.dumps({"error": error}, ensure_ascii=False)
                 storage_text(args)
                 if error is None:
-                    if definition["access"] != "read" or call.name in snap["write_tools"]:
-                        raise NotImplementedError("쓰기 프록시는 아직 연결하지 않았습니다.")
-                    elif definition["origin"] == "builtin":
-                        raise NotImplementedError("확인 도구 연결은 다음 단계입니다.")
+                    if proxy.handles(call.name):
+                        result, attributes = proxy.run(call.name, args, record.plan(at), record.spans)
                     else:
                         try:
                             result = deps.call_tool(call.name, args, seconds)
@@ -166,6 +183,7 @@ def run_agent(snap: dict, task_prompt: str, seed: int, deps: Dependencies, *, pr
                     tool_args=args,
                     tool_result=result,
                     **({"error": error} if error else {}),
+                    **({"attributes": attributes} if attributes else {}),
                 )
                 if reason:
                     return finish(reason)

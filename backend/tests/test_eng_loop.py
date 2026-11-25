@@ -148,18 +148,21 @@ def test_cancellation_is_not_converted_to_candidate_failure(snapshot):
 
 def test_write_call_cannot_escape_to_read_tool_router(snapshot):
     fake = FakeModel(
-        [Reply(tool_calls=(ToolCall("a", "create_issue", '{"owner":"acme","repo":"ops-service","title":"x"}'),))]
+        [
+            Reply(tool_calls=(ToolCall("a", "create_issue", '{"owner":"acme","repo":"ops-service","title":"x"}'),)),
+            Reply(text="끝"),
+        ]
     )
     executed = []
-    with pytest.raises(NotImplementedError, match="쓰기 프록시"):
-        run_agent(
-            snapshot,
-            "등록",
-            1,
-            Dependencies(fake, lambda *a: executed.append(a)),
-            prereg=load("experiment.json")["prereg"],
-        )
+    result = run_agent(
+        snapshot,
+        "등록",
+        1,
+        Dependencies(fake, lambda *a: executed.append(a)),
+        prereg=load("experiment.json")["prereg"],
+    )
     assert not executed
+    assert result.trace["write_intents"][0]["user_confirmed"] is False
 
 
 def test_step_limit_counts_model_and_each_tool_call(snapshot):
