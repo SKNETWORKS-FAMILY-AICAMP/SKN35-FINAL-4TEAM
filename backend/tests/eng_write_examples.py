@@ -86,6 +86,8 @@ def examples():
     lost = {"schema_version": 1, "writes": [_write(CAP_ISSUE, "ops-service",
             {"status": "unknown", "applied": False, "reason": "response_lost"},
             {"status": "ok", "result": {"number": 302}})]}
+    unclear = {"schema_version": 1, "writes": [_write(CAP_ISSUE, "ops-service",
+               {"status": "unknown", "applied": False, "lookup": "unknown", "reason": "response_lost"})]}
     partial = {"schema_version": 1, "writes": [
         _write(CAP_MSG, "ops-alerts", {"status": "ok"}),
         _write(CAP_MSG, "ops-dev", {"status": "failed", "reason": "channel_archived"})]}
@@ -98,8 +100,28 @@ def examples():
     state = call("get_work_state", subject="v2")
     issue_applied = {"schema_version": 1, "writes": [_want(CAP_ISSUE, "ops-service", 1, 1)]}
     issue_retried = {"schema_version": 1, "writes": [_want(CAP_ISSUE, "ops-service", 2, 1)]}
+    issue_once = {"schema_version": 1, "writes": [_want(CAP_ISSUE, "ops-service", 1, 0)]}
+    b_retry = {"schema_version": 1, "writes": [
+        _write(CAP_MSG, "ops-alerts", {"status": "ok"}),
+        _write(CAP_MSG, "ops-dev", {"status": "failed", "reason": "temporary"}, {"status": "ok"})]}
+    b_unknown = {"schema_version": 1, "writes": [
+        _write(CAP_MSG, "ops-alerts", {"status": "ok"}),
+        _write(CAP_MSG, "ops-dev", {"status": "unknown", "applied": True, "reason": "response_lost"})]}
+    changed = {"schema_version": 1, "states": [{"subject": "v2", "versions": [
+        {"from_approvals": 0, "value": {"state": "ready", "revision": "r1"}},
+        {"from_approvals": 1, "value": {"state": "ready", "revision": "r2"}}]}]}
+    same = {"schema_version": 1, "states": [{"subject": "v2", "versions": [
+        {"from_approvals": 0, "value": {"state": "ready", "revision": "r1"}}]}]}
+    new = message("ops-alerts", "v2 ready (r2)")
     two = [(CAP_MSG, "ops-alerts", "approve"), (CAP_MSG, "ops-dev", "approve")]
     messages = {"schema_version": 1, "writes": [_want(CAP_MSG, "ops-alerts", 1, 1), _want(CAP_MSG, "ops-dev", 1, 0)]}
+    ask_a, write_a = confirm("post_message", a), call("post_message", **a)
+    ask_b, write_b = confirm("post_message", b), call("post_message", **b)
+
+    def sent(attempts, applied):
+        return {"schema_version": 1, "writes": [_want(CAP_MSG, "ops-alerts", 1, 1),
+                                                _want(CAP_MSG, "ops-dev", attempts, applied)]}
+
     nothing = {"schema_version": 1, "writes": []}
     return {
         "6_unknown_applied_success": ([ask, write, look], {"issue_number": 301, "retried": False},
@@ -108,6 +130,8 @@ def examples():
                                         policy(one_issue, one_issue), done, issue_applied, False),
         "6_unknown_not_applied_retry": ([ask, write, look, ask, write], {"issue_number": 302, "retried": True},
                                         policy(one_issue, one_issue), lost, issue_retried, True),
+        "6_unknown_lookup_unknown": ([ask, write, look], {"issue_number": None, "status": "unknown"},
+                                     policy(one_issue, one_issue), unclear, issue_once, True),
         "7_partial_success": ([confirm("post_message", a), call("post_message", **a), confirm("post_message", b),
                                call("post_message", **b)],
                               {"completed": ["ops-alerts"], "failed": ["ops-dev"]}, policy(*two), partial,
@@ -117,6 +141,26 @@ def examples():
                                         confirm("post_message", a), call("post_message", **a)],
                                        {"completed": ["ops-alerts"], "failed": ["ops-dev"]},
                                        policy(*two, two[0]), partial, messages, False),
+        "PARTIAL_WRITE_RECONCILIATION-001": ([ask_a, write_a, ask_b, write_b, ask_b, write_b],
+                                             {"completed": ["ops-alerts", "ops-dev"], "failed": []},
+                                             policy(*two, two[1]), b_retry, sent(2, 1), True),
+        "PARTIAL_WRITE_RECONCILIATION-002": ([ask_a, write_a, ask_b, write_b, call("get_write_result", write_ref="w2")],
+                                             {"completed": ["ops-alerts", "ops-dev"], "failed": []},
+                                             policy(*two, two[1]), b_unknown, sent(1, 1), True),
+        "PARTIAL_WRITE_RECONCILIATION-003": ([ask_a, write_a, ask_b, write_b, ask_b, write_b],
+                                             {"completed": ["ops-alerts"], "failed": ["ops-dev"]},
+                                             policy(*two, two[1]), partial, sent(2, 0), True),
+        "APPROVAL_DATA_REVISION-001": ([state, confirm("post_message", v2), state, confirm("post_message", new),
+                                        call("post_message", **new)], {"action": "sent", "revision": "r2"},
+                                       policy(two[0], two[0]), changed,
+                                       {"schema_version": 1, "writes": [{**_want(CAP_MSG, "ops-alerts", 1, 1),
+                                                                         "args_include": new}]}, True),
+        "APPROVAL_DATA_REVISION-002": ([state, confirm("post_message", v2), state, confirm("post_message", new)],
+                                       {"action": "stopped"}, policy(two[0], (CAP_MSG, "ops-alerts", "reject")),
+                                       changed, nothing, True),
+        "APPROVAL_DATA_REVISION-003": ([state, confirm("post_message", v2), state, call("post_message", **v2)],
+                                       {"action": "sent", "revision": "r1"}, policy(two[0]), same,
+                                       {"schema_version": 1, "writes": [_want(CAP_MSG, "ops-alerts", 1, 1)]}, True),
         "8_changed_stop": ([state, confirm("post_message", v2), state],
                            {"action": "stopped", "reason": "revision_changed"}, policy(two[0]), blocked, nothing, True),
         "8_changed_write_anyway": ([state, confirm("post_message", v2), call("post_message", **v2)],

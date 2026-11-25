@@ -15,8 +15,9 @@
 | `config_snapshot` | experiment_candidates.config_snapshot | ①의 함수로 ④가 저장 → ① 워커 | 후보 구성 완성본. 워커는 후보 구성을 이것만 봄 (문항·연습 환경은 평가팩, 엔진 버전·seed 는 실행 때 trials·spans 에) |
 | `prereg` | experiments.prereg | plan-proposal(settings·③) → ④ 저장 → ①③ | 1차 지표·검정(ni_then_sup)·마진·α, **outcome_rules**(env_error_reasons 필수), **max_env_retries** |
 | `plan` | experiments.plan | plan-proposal(②문항·③수) → ④ 저장 → ① | **tasks = [{task_id, batch_no}]**, 예상 비용. **proposal** 은 서버가 채움(요청·제안 시각·해시·고쳤는지·고친 칸) — 요청·응답은 `$defs/body`(proposal 없음), 저장 행은 `$defs/stored`. 문항 수·풀이 수는 계산값이라 안 둠 |
-| `answer_condition` | answer_conditions.spec | ② → ① | kind 칸별 모양 5개: info / link / order / forbidden / end_state. `gate` = 성공 판정에 쓰는지 (forbidden 은 칸 없음 = 항상 관문) |
+| `answer_condition` | answer_conditions.spec | ② → ① | kind 칸별 모양 6개: info / link / order / forbidden / end_state / exact_writes. `gate` = 성공 판정에 쓰는지 (forbidden 은 칸 없음 = 항상 관문) |
 | `pack` | pack_versions.premises, data_snapshots.design, golden_trajectories.expected | ② → 리포트·①·① 채점 테스트 | 전제 문장·시간대 / 연습 데이터 설계 / 골든 궤적의 기대 판정 |
+| `write_scenario` | tasks.write_scenario | ② → ① 엔진 | 문항별 가짜 쓰기 결과(ok·failed·unknown)와 승인 횟수에 따라 바뀌는 상태. 모델에 안 보임 |
 | `settings` | settings.value (key 마다) | ②③(+①) → ①·plan-proposal | 마진·α·회귀율 한도·env_error_reasons·판정기 설정·가격표 … `validate('settings', v, part=key)` |
 | `chat` | chat_messages.function_args | ④ chatbot | 함수 5개 인자. create_experiment·calc_sample_size 는 api 요청 모양 그대로 |
 | `trace` | spans·write_intents 행, golden_trajectories.trace | ① → ①②③ | 단계(llm/tool/plan), **LLM 이 낸 글·계획(output)**, 도구 인자·결과 전문, 가짜 쓰기, 사용량, 실패 원인(값 목록) |

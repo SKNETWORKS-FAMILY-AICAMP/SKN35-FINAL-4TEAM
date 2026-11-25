@@ -70,7 +70,7 @@ def run_agent(
 ) -> RunResult:
     """설정·정답 없는 문항만 받아 trace를 만듭니다. 입력 dict는 변경하지 않습니다.
 
-    confirmation(P-05 고정 답)과 write_scenario(계약 초안)는 엔진 전용이며 모델 메시지에 넣지 않습니다.
+    confirmation(P-05 고정 답)과 write_scenario는 엔진 전용이며 모델 메시지에 넣지 않습니다.
     """
     snap = copy.deepcopy(contracts.validate("config_snapshot", snap))
     if snap.get("tool_search"):

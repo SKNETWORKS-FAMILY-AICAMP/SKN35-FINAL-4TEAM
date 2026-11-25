@@ -61,7 +61,7 @@ def run_trial(
         )
         with conn.cursor(row_factory=dict_row) as cur:
             row = cur.execute(
-                """SELECT t.*, ec.config_snapshot, ec.config_hash, k.prompt, k.seed, k.confirmation, e.prereg, e.status AS exp_status
+                """SELECT t.*, ec.config_snapshot, ec.config_hash, k.prompt, k.seed, k.confirmation, k.write_scenario, e.prereg, e.status AS exp_status
                    FROM sa_trials t JOIN sa_experiment_candidates ec USING (experiment_candidate_id)
                    JOIN sa_tasks k USING (task_id) JOIN sa_experiments e ON e.experiment_id=t.experiment_id
                    WHERE t.trial_id=%s FOR UPDATE OF t""",
@@ -188,6 +188,7 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job, stdio=None, canc
             active,
             prereg=row["prereg"],
             confirmation=row["confirmation"],
+            write_scenario=row["write_scenario"],
         )
     trace = copy.deepcopy(result.trace)
     trace.update(trial_id=trial_id, attempt=row["attempt"])

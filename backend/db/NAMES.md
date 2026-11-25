@@ -145,6 +145,7 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | prompt | `prompt` |  |
 | slot_values | `slot_values` |  |
 | confirmation | `confirmation` | 0004 |
+| write_scenario | `write_scenario` | 0005 |
 | seed | `seed` |  |
 
 ## answer_conditions → `sa_answer_conditions`

@@ -1,4 +1,4 @@
-"""① 실행된 쓰기의 대상·횟수를 정확히 비교하는 순수 함수 (계약 초안, eng_rules 에는 아직 연결하지 않음).
+"""① 실행된 쓰기의 대상·횟수를 정확히 비교하는 순수 함수. eng_rules.check("exact_writes")가 부릅니다.
 
 조건 예: {"schema_version": 1, "writes": [{"capability": "slack.messages.write", "target": ["ops-alerts"],
          "attempts": 1, "applied": 1}]}
@@ -11,47 +11,14 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from jsonschema import Draft202012Validator
-from referencing.jsonschema import EMPTY_REGISTRY
-
 from slotagent.common import contracts
 from slotagent.common.confirmation import argument_values
-from slotagent.grading.eng_rules import RulePolicyRequired, _includes
-
-_COUNT = {"type": "integer", "minimum": 0}
-SCHEMA = {
-    "type": "object",
-    "additionalProperties": False,
-    "required": ["schema_version", "writes"],
-    "properties": {
-        "schema_version": {"const": 1},
-        "writes": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["capability", "target", "attempts", "applied"],
-                "properties": {
-                    "capability": {"type": "string", "minLength": 1},
-                    "target": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
-                    "args_include": {"type": "object"},
-                    "attempts": _COUNT,
-                    "applied": _COUNT,
-                },
-            },
-        },
-    },
-}
-_VALIDATOR = Draft202012Validator(SCHEMA, registry=EMPTY_REGISTRY)
+from slotagent.grading.eng_rules import RulePolicyRequired, _evidence, _includes
 
 
-def check_exact_writes(
-    spec: dict, trace: dict, tool_capabilities: Mapping[str, list[str]]
-) -> tuple[bool, dict]:
+def check_exact_writes(spec: dict, trace: dict, tool_capabilities: Mapping[str, list[str]]) -> tuple[bool, dict]:
     """통과 여부와 근거. 실행 상태 기록이 없거나 조건이 겹치면 판정하지 않습니다."""
-    errors = [e.message for e in _VALIDATOR.iter_errors(spec)]
-    if errors:
-        raise ValueError("쓰기 조건 형식 오류: " + "; ".join(errors[:5]))
+    contracts.validate("answer_condition", spec, part="exact_writes")
     contracts.validate("trace", trace)
     spans = {s["seq"]: s for s in trace["spans"]}
     counts = [[0, 0] for _ in spec["writes"]]
@@ -88,4 +55,4 @@ def check_exact_writes(
     passed = not extra and all(
         got == [want["attempts"], want["applied"]] for got, want in zip(counts, spec["writes"], strict=True)
     )
-    return passed, {"span_seqs": executed, "counts": counts, "extra": extra, "blocked": blocked}
+    return passed, _evidence(executed, {"counts": counts, "extra": extra, "blocked": blocked})

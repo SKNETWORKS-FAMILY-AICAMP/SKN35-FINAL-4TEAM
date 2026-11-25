@@ -19,7 +19,8 @@ from eng_write_examples import (
 
 from slotagent.common import contracts
 from slotagent.engine import write_scenario
-from slotagent.grading.eng_rules import RulePolicyRequired
+from slotagent.grading.eng_context import from_snapshot
+from slotagent.grading.eng_rules import RulePolicyRequired, check
 from slotagent.grading.eng_writes import check_exact_writes
 
 ASK, WRITE = confirm("create_issue", ISSUE), call("create_issue", **ISSUE)
@@ -140,7 +141,7 @@ def test_examples_match_exact_write_condition(name):
     calls, final, confirmation, scenario, condition, expected = examples()[name]
     trace, _ = run(calls, final, confirmation=confirmation, write_scenario=scenario)
     contracts.validate("trace", trace)
-    passed, evidence = check_exact_writes(condition, trace, CAPS)
+    passed, evidence = check("exact_writes", condition, trace, **from_snapshot(snapshot(), confirmation))
     assert passed is expected, evidence
 
 
@@ -152,6 +153,14 @@ def test_unknown_result_is_settled_only_by_lookup():
         "fake": True, "status": "unknown", "write_ref": "w1", "reason": "response_lost"
     }
     assert json.loads(look["tool_result"]) == {"write_ref": "w1", "status": "applied", "result": {"number": 301}}
+
+
+def test_lookup_can_stay_unknown():
+    scenario = {"schema_version": 1, "writes": [{"capability": CAP_ISSUE, "target": ["ops-service"], "outcomes": [
+        {"status": "unknown", "applied": True, "lookup": "unknown", "result": {"number": 301}}]}]}
+    look = call("get_write_result", write_ref="w1")
+    trace, _ = run([ASK, WRITE, look], "끝", confirmation=APPROVE, write_scenario=scenario)
+    assert json.loads(tools(trace)[-1]["tool_result"]) == {"write_ref": "w1", "status": "unknown"}
 
 
 def test_unknown_write_ref_and_subject_are_not_found():
@@ -203,6 +212,8 @@ def test_builtin_name_clash_is_rejected():
         {"schema_version": 1, "writes": [{"capability": CAP_MSG, "target": ["a"], "outcomes": [{"status": "unknown"}]}]},
         {"schema_version": 1, "writes": [{"capability": CAP_MSG, "target": ["a"],
                                           "outcomes": [{"status": "ok", "applied": False}]}]},
+        {"schema_version": 1, "writes": [{"capability": CAP_MSG, "target": ["a"],
+                                          "outcomes": [{"status": "ok", "lookup": "unknown"}]}]},
         {"schema_version": 1, "states": [{"subject": "a", "versions": [{"from_approvals": 1, "value": {}}]}]},
         {"schema_version": 1, "states": [{"subject": "a", "versions": [{"from_approvals": 0, "value": {}},
                                                                        {"from_approvals": 0, "value": {}}]}]},
@@ -231,3 +242,20 @@ def test_exact_writes_refuses_to_guess():
         with pytest.raises(RulePolicyRequired) as caught:
             check_exact_writes(*args)
         assert caught.value.code == code
+
+
+def test_loader_checks_and_hashes_scenario():
+    from slotagent.packs.loader import pack_content_hash, write_scenario_for_storage
+
+    base = {"tasks": [{"code": "a"}]}
+    assert pack_content_hash(base) == pack_content_hash({"tasks": [{"code": "a", "write_scenario": None}]})
+    assert pack_content_hash(base) != pack_content_hash({"tasks": [{"code": "a", "write_scenario": {"schema_version": 1}}]})
+    with pytest.raises(ValueError):
+        write_scenario_for_storage({"write_scenario": {"schema_version": 1, "other": 1}})
+
+
+def test_snapshot_context_covers_engine_tools():
+    context = from_snapshot(snapshot(), None)
+    assert context["tool_access"]["get_write_result"] == "builtin"
+    assert context["confirmation"].write_tools == frozenset(snapshot()["write_tools"])
+    assert context["tool_access_complete"] is True

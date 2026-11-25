@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "purpose": "연습 도구의 읽기/쓰기와 이름표 (2026-11-25 ① 결정). 골든 채점의 권한 출처. 실제 후보는 config_snapshot 의 도구 정의를 씀",
+  "notes": [
+    "엔진 내장 도구(request_user_confirmation, get_write_result, get_work_state)는 엔진이 builtin 으로 정하므로 여기 넣지 않음",
+    "capabilities 가 [] 인 get_write_case·get_write_context·get_followup_context 는 문항 자료만 주는 도구라 해당 이름표가 없음",
+    "read_workflow_context 는 시나리오마다 다른 자료를 주는 연습 도구라 이름표가 여러 개"
+  ],
+  "tools": [
+    {
+      "name": "create_issue",
+      "access": "write",
+      "capabilities": [
+        "github.issues.write"
+      ]
+    },
+    {
+      "name": "fetch_url",
+      "access": "read",
+      "capabilities": [
+        "web.pages.read"
+      ]
+    },
+    {
+      "name": "get_followup_context",
+      "access": "read",
+      "capabilities": []
+    },
+    {
+      "name": "get_incident_case",
+      "access": "read",
+      "capabilities": [
+        "github.actions.logs.read"
+      ]
+    },
+    {
+      "name": "get_incident_detail",
+      "access": "read",
+      "capabilities": [
+        "ops.incidents.read"
+      ]
+    },
+    {
+      "name": "get_incident_logs",
+      "access": "read",
+      "capabilities": [
+        "github.actions.logs.read"
+      ]
+    },
+    {
+      "name": "get_run_facts",
+      "access": "read",
+      "capabilities": [
+        "github.actions.read"
+      ]
+    },
+    {
+      "name": "get_service_state",
+      "access": "read",
+      "capabilities": [
+        "ops.status.read"
+      ]
+    },
+    {
+      "name": "get_write_case",
+      "access": "read",
+      "capabilities": []
+    },
+    {
+      "name": "get_write_context",
+      "access": "read",
+      "capabilities": []
+    },
+    {
+      "name": "list_deployments",
+      "access": "read",
+      "capabilities": [
+        "github.actions.read"
+      ]
+    },
+    {
+      "name": "list_incident_issues",
+      "access": "read",
+      "capabilities": [
+        "github.issues.read"
+      ]
+    },
+    {
+      "name": "list_incident_runs",
+      "access": "read",
+      "capabilities": [
+        "github.actions.read"
+      ]
+    },
+    {
+      "name": "list_issues",
+      "access": "read",
+      "capabilities": [
+        "github.issues.read"
+      ]
+    },
+    {
+      "name": "list_operation_issues",
+      "access": "read",
+      "capabilities": [
+        "github.issues.read"
+      ]
+    },
+    {
+      "name": "list_operation_releases",
+      "access": "read",
+      "capabilities": [
+        "github.releases.read"
+      ]
+    },
+    {
+      "name": "list_operation_runs",
+      "access": "read",
+      "capabilities": [
+        "github.actions.read"
+      ]
+    },
+    {
+      "name": "list_paged_issues",
+      "access": "read",
+      "capabilities": [
+        "github.issues.read"
+      ]
+    },
+    {
+      "name": "list_service_dependencies",
+      "access": "read",
+      "capabilities": [
+        "ops.dependencies.read"
+      ]
+    },
+    {
+      "name": "list_version_evidence",
+      "access": "read",
+      "capabilities": [
+        "github.actions.read"
+      ]
+    },
+    {
+      "name": "lookup_workflow_items",
+      "access": "read",
+      "capabilities": [
+        "github.issues.read"
+      ]
+    },
+    {
+      "name": "post_message",
+      "access": "write",
+      "capabilities": [
+        "slack.messages.write"
+      ]
+    },
+    {
+      "name": "query_issue_ids",
+      "access": "read",
+      "capabilities": [
+        "github.issues.read"
+      ]
+    },
+    {
+      "name": "query_metric_errors",
+      "access": "read",
+      "capabilities": [
+        "db.errors.read"
+      ]
+    },
+    {
+      "name": "query_metric_incidents",
+      "access": "read",
+      "capabilities": [
+        "db.incidents.read"
+      ]
+    },
+    {
+      "name": "query_metric_latency",
+      "access": "read",
+      "capabilities": [
+        "db.latency.read"
+      ]
+    },
+    {
+      "name": "query_metric_traffic",
+      "access": "read",
+      "capabilities": [
+        "db.requests.read"
+      ]
+    },
+    {
+      "name": "read_code_at_commit",
+      "access": "read",
+      "capabilities": [
+        "github.code.content.read"
+      ]
+    },
+    {
+      "name": "read_workflow_context",
+      "access": "read",
+      "capabilities": [
+        "db.errors.read",
+        "github.actions.logs.read",
+        "github.code.read",
+        "github.issues.read",
+        "ops.traces.read"
+      ]
+    }
+  ]
+}

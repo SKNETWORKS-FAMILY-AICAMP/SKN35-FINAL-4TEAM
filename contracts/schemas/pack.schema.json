@@ -150,6 +150,9 @@
     },
     "confirmation": {
       "$ref": "confirmation.schema.json#/$defs/policy"
+    },
+    "write_scenario": {
+      "$ref": "write_scenario.schema.json"
     }
   }
 }

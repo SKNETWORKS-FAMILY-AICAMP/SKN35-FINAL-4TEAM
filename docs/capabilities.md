@@ -24,6 +24,17 @@
 | `github.issues.write` | 이슈 생성 | 댓글만 달기 | `create_issue` |
 | `slack.messages.write` | 지정 채널에 메시지 작성 | 채널 목록 조회만 | `post_message` |
 | `db.errors.read` | 연습 DB 에서 기간별 에러 수 조회 (읽기 전용) | 임의 SQL 실행 (= 쓰기로 봄) | `query_errors` (1.3 5.5 예시) |
+| `github.code.content.read` | repo·commit·path 로 그 커밋의 **파일 내용** 조회 | 코드 검색 → `github.code.read` | `read_code_at_commit` |
+| `db.requests.read` | 서비스·시간별 요청 수와 오류 요청 수 조회 | 에러 로그 건수만 조회 | `query_metric_traffic` |
+| `db.incidents.read` | 서비스별 장애 시작·종료 시각 조회 | 로그 시각으로 추정 | `query_metric_incidents` |
+| `db.latency.read` | 개별 요청 지연 표본 조회 | 집계된 평균만 조회 | `query_metric_latency` |
+| `ops.traces.read` | trace ID 의 span·부모 관계 조회 | 실행 목록으로 경로 추정 | `read_workflow_context` |
+| `ops.dependencies.read` | 서비스 호출 관계 조회 | 실제 장애 확정 | `list_service_dependencies` |
+| `ops.status.read` | 고정 시각의 서비스 상태·자체/상위 오류 조회 | 로그만으로 원인 확정 | `get_service_state` |
+| `ops.incidents.read` | 장애 원문 조회 | 답의 민감정보 검사 | `get_incident_detail` |
+| `web.pages.read` | 고정 URL 의 응답(200/302/403)·location 조회 | 자동 리다이렉트 | `fetch_url` |
+
+**11/25 ① 결정:** 위 9개(②의 제안)를 사전에 넣어 씁니다. 아래 제안 절은 기록으로 남기고, 사용 여부는 이 표를 봅니다. 연습 도구의 매핑은 `packs/it_ops/v0.1/practice/tool_permissions.json`, 실제 후보의 매핑은 등록 때 ④가 도구 정의(`capabilities`)에 넣습니다. ②④ 이견이 있으면 조정합니다.
 
 ## 확인할 것 (②④)
 - [ ] 지금 예시는 `list_workflow_jobs` 를 `github.actions.read` 로 붙였는데, 단계·로그까지 보는 도구라 `github.actions.logs.read` 로 나눌지

@@ -139,7 +139,7 @@ def check_baseline(comp: Mapping[str, Any], agent_spec: Mapping[str, Any], slot:
 
 
 # ---- 정답 조건 ------------------------------------------------------------
-GATE_DEFAULT = {"info": True, "order": True, "end_state": True, "link": False}
+GATE_DEFAULT = {"info": True, "order": True, "end_state": True, "exact_writes": True, "link": False}
 
 
 def condition_gate(kind: str, spec: Mapping[str, Any]) -> bool:

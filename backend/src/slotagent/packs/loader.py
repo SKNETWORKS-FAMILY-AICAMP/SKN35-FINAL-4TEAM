@@ -7,6 +7,7 @@ from psycopg.types.json import Jsonb
 
 from slotagent.common import checks, contracts
 from slotagent.common.hashing import canonical_hash
+from slotagent.engine import write_scenario
 
 
 def confirmation_for_storage(task: dict) -> dict | None:
@@ -26,9 +27,30 @@ def store_task_confirmation(conn, task_id: int, task: dict) -> None:
         raise ValueError(f"Unknown task_id: {task_id}")
 
 
+def write_scenario_for_storage(task: dict) -> dict | None:
+    """생략/NULL은 SQL NULL. 엔진과 같은 검사를 저장 전에 합니다."""
+    return write_scenario.validate(task.get("write_scenario"))
+
+
+def store_task_write_scenario(conn, task_id: int, task: dict) -> None:
+    """기존 문항에 시나리오 저장. 트랜잭션은 호출자가 관리합니다."""
+    scenario = write_scenario_for_storage(task)
+    result = conn.execute("UPDATE sa_tasks SET write_scenario = %s WHERE task_id = %s",
+                          (Jsonb(scenario) if scenario is not None else None, task_id))
+    if result.rowcount != 1:
+        raise ValueError(f"Unknown task_id: {task_id}")
+
+
 def pack_content_hash(pack: dict) -> str:
     """① 해시에 사용할 원본 해시. confirmation 포함, 생략과 NULL은 같은 의미로 정규화."""
-    tasks = [{**task, "confirmation": confirmation_for_storage(task)} for task in pack["tasks"]]
+    tasks = []
+    for task in pack["tasks"]:
+        row = {**task, "confirmation": confirmation_for_storage(task)}
+        row.pop("write_scenario", None)  # 시나리오 없는 문항의 기존 해시를 유지합니다.
+        scenario = write_scenario_for_storage(task)
+        if scenario is not None:
+            row["write_scenario"] = scenario
+        tasks.append(row)
     return canonical_hash({**pack, "tasks": tasks})
 
 
@@ -66,6 +88,7 @@ def read_pack(pack_dir):
         if task["template"] not in templates:
             raise ValueError("Unknown task template")
         confirmation_for_storage(task)
+        write_scenario_for_storage(task)
         seqs = [c["seq"] for c in task["conditions"]]
         if len(set(seqs)) != len(seqs) or any(type(seq) is not int or seq < 1 for seq in seqs):
             raise ValueError("Invalid condition sequence")
@@ -149,6 +172,8 @@ def load_pack(conn, pack_dir) -> int:
             ).fetchone()[0]
             if has_confirmation:
                 store_task_confirmation(conn, task_id, task)
+            if write_scenario_for_storage(task) is not None:
+                store_task_write_scenario(conn, task_id, task)
             for condition in task["conditions"]:
                 conn.execute(
                     "INSERT INTO sa_answer_conditions(task_id,seq,kind,spec,spec_schema_version) VALUES (%s,%s,%s,%s,%s)",

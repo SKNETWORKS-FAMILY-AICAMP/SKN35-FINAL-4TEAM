@@ -315,6 +315,69 @@ def test_write_is_stored_with_task_confirmation_and_never_executed(experiment, a
     ).fetchall() == [("create_issue", args, True, approve, "create_issue", 1)]
 
 
+def test_write_scenario_is_read_from_task(experiment):
+    conn, ids = experiment
+    trial = ids["trials"][0]
+    args = {"owner": "acme", "repo": "ops-service", "title": "x"}
+    policy = {
+        "schema_version": 1,
+        "responses": [{"capability": "github.issues.write", "target": ["ops-service"], "decision": "approve"}],
+    }
+    scenario = {
+        "schema_version": 1,
+        "writes": [
+            {
+                "capability": "github.issues.write",
+                "target": ["ops-service"],
+                "outcomes": [{"status": "unknown", "applied": True, "result": {"number": 301}}],
+            }
+        ],
+    }
+    conn.execute("SET session_replication_role = replica")
+    conn.execute(
+        """UPDATE sa_tasks SET confirmation=%s, write_scenario=%s
+           WHERE task_id=(SELECT task_id FROM sa_trials WHERE trial_id=%s)""",
+        (Jsonb(policy), Jsonb(scenario), trial),
+    )
+    conn.execute("SET session_replication_role = DEFAULT")
+    ask = json.dumps({"action": {"tool_name": "create_issue", "arguments": args}})
+    deps = Dependencies(
+        FakeModel(
+            [
+                Reply(tool_calls=(ToolCall("c", "request_user_confirmation", ask),)),
+                Reply(tool_calls=(ToolCall("w", "create_issue", json.dumps(args)),)),
+                Reply(tool_calls=(ToolCall("r", "get_write_result", '{"write_ref":"w1"}'),)),
+                Reply(text="끝"),
+            ]
+        ),
+        lambda *a: pytest.fail("밖으로 나가면 안 됩니다."),
+    )
+    assert run_trial(conn, trial, deps=deps).outcome == "completed"
+    rows = dict(
+        conn.execute("SELECT name, tool_result FROM sa_spans WHERE trial_id=%s AND kind='tool'", (trial,)).fetchall()
+    )
+    assert json.loads(rows["create_issue"])["status"] == "unknown"
+    assert json.loads(rows["get_write_result"])["result"] == {"number": 301}
+
+
+def test_exact_writes_kind_is_stored(experiment):
+    conn, ids = experiment
+    with conn.transaction(force_rollback=True):
+        conn.execute("SET LOCAL session_replication_role = replica")
+        conn.execute(
+            """INSERT INTO sa_answer_conditions(task_id,seq,kind,spec)
+               SELECT task_id,99,'exact_writes','{"schema_version":1,"writes":[]}' FROM sa_trials WHERE trial_id=%s""",
+            (ids["trials"][0],),
+        )
+    with pytest.raises(psycopg.errors.CheckViolation), conn.transaction():
+        conn.execute("SET LOCAL session_replication_role = replica")
+        conn.execute(
+            "INSERT INTO sa_answer_conditions(task_id,seq,kind,spec) "
+            "SELECT task_id,99,'other','{}' FROM sa_trials WHERE trial_id=%s",
+            (ids["trials"][0],),
+        )
+
+
 def test_tool_error_is_saved_in_error_column(experiment):
     conn, ids = experiment
     deps = Dependencies(

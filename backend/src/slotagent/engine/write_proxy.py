@@ -17,6 +17,7 @@ from slotagent.engine import write_scenario
 CONFIRM = "request_user_confirmation"
 WRITE_RESULT = "get_write_result"
 WORK_STATE = "get_work_state"
+BUILTIN_NAMES = frozenset({CONFIRM, WRITE_RESULT, WORK_STATE})
 
 
 def _builtin(name, description, properties):
@@ -109,7 +110,7 @@ class WriteProxy:
             if self.scenario.get("states"):
                 self.tools.append(WORK_STATE_TOOL)
         self.builtins = {t["name"]: t for t in self.tools}
-        clash = sorted({CONFIRM, WRITE_RESULT, WORK_STATE} & set(self.definitions))
+        clash = sorted(BUILTIN_NAMES & set(self.definitions))
         if clash:
             raise ValueError("후보 도구 이름이 엔진 내장 도구와 겹칩니다: " + ", ".join(clash))
         self.intents: list[dict] = []
@@ -154,6 +155,8 @@ class WriteProxy:
             entry = self.ledger.get(args["write_ref"])
             if entry is None:
                 return {"write_ref": args["write_ref"], "status": "not_found"}
+            if entry["lookup"] == "unknown":
+                return {"write_ref": args["write_ref"], "status": "unknown"}
             answer = {"write_ref": args["write_ref"], "status": "applied" if entry["applied"] else "not_applied"}
             if entry["applied"] and entry["result"]:
                 answer["result"] = entry["result"]
@@ -191,7 +194,7 @@ class WriteProxy:
         outcome = self._outcome(name, args)
         status = outcome["status"]
         applied = outcome.get("applied", status == "ok")
-        self.ledger[ref] = {"applied": applied, "result": outcome.get("result")}
+        self.ledger[ref] = {"applied": applied, "result": outcome.get("result"), "lookup": outcome.get("lookup")}
         attributes.update(write_status=status, write_applied=applied, write_ref=ref)
         if outcome.get("raw") is not None:
             return outcome["raw"], attributes
