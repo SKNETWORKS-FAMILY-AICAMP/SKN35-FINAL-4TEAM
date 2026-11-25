@@ -1,0 +1,354 @@
+{
+  "snapshot_version": "it-ops-followup-read-v0.2",
+  "cases": [
+    {
+      "id": "explicit_url_allowlist-1",
+      "context": {
+        "requested_url": "https://status.example.test/report/1",
+        "allowed_urls": [
+          "https://status.example.test/report/1"
+        ],
+        "blocked_urls": [
+          "https://blocked.example.test/report/1"
+        ]
+      },
+      "responses": {
+        "https://status.example.test/report/1": {
+          "status": 200,
+          "body": "synthetic report"
+        }
+      }
+    },
+    {
+      "id": "explicit_url_allowlist-2",
+      "context": {
+        "requested_url": "https://status.example.test/report/2",
+        "allowed_urls": [
+          "https://status.example.test/report/2"
+        ],
+        "blocked_urls": [
+          "https://blocked.example.test/report/2"
+        ]
+      },
+      "responses": {
+        "https://status.example.test/report/2": {
+          "status": 302,
+          "location": "https://blocked.example.test/report/2",
+          "body": ""
+        }
+      }
+    },
+    {
+      "id": "explicit_url_allowlist-3",
+      "context": {
+        "requested_url": "https://status.example.test/report/3",
+        "allowed_urls": [
+          "https://status.example.test/report/3"
+        ],
+        "blocked_urls": [
+          "https://blocked.example.test/report/3"
+        ]
+      },
+      "responses": {
+        "https://status.example.test/report/3": {
+          "status": 403
+        }
+      }
+    },
+    {
+      "id": "log_code_location-1",
+      "context": {
+        "repo": "acme/payment-service",
+        "run_id": "901"
+      },
+      "logs": [
+        {
+          "repo": "acme/payment-service",
+          "run_id": "901",
+          "level": "ERROR",
+          "commit": "sha-current",
+          "file": "src/pay.py",
+          "function": "charge",
+          "line": 42
+        },
+        {
+          "repo": "acme/other",
+          "run_id": "901",
+          "level": "ERROR",
+          "commit": "sha-current",
+          "file": "src/pay.py",
+          "function": "decoy",
+          "line": 42
+        }
+      ],
+      "files": [
+        {
+          "repo": "acme/payment-service",
+          "commit": "sha-current",
+          "path": "src/pay.py",
+          "lines": [
+            {
+              "no": 43,
+              "function": "charge",
+              "text": "raise SyntheticTimeout"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "log_code_location-2",
+      "context": {
+        "repo": "acme/payment-service",
+        "run_id": "902"
+      },
+      "logs": [
+        {
+          "repo": "acme/payment-service",
+          "run_id": "902",
+          "level": "ERROR",
+          "commit": "sha-current",
+          "file": "src/pay.py",
+          "function": "refund",
+          "line": 42
+        },
+        {
+          "repo": "acme/other",
+          "run_id": "902",
+          "level": "ERROR",
+          "commit": "sha-current",
+          "file": "src/pay.py",
+          "function": "decoy",
+          "line": 42
+        }
+      ],
+      "files": [
+        {
+          "repo": "acme/payment-service",
+          "commit": "sha-current",
+          "path": "src/pay.py",
+          "lines": [
+            {
+              "no": 500,
+              "function": "refund",
+              "text": "raise SyntheticTimeout"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "log_code_location-3",
+      "context": {
+        "repo": "acme/payment-service",
+        "run_id": "903"
+      },
+      "logs": [
+        {
+          "repo": "acme/payment-service",
+          "run_id": "903",
+          "level": "ERROR",
+          "commit": "sha-current",
+          "file": "src/pay.py",
+          "function": "charge",
+          "line": 42
+        },
+        {
+          "repo": "acme/other",
+          "run_id": "903",
+          "level": "ERROR",
+          "commit": "sha-current",
+          "file": "src/pay.py",
+          "function": "decoy",
+          "line": 42
+        }
+      ],
+      "files": [
+        {
+          "repo": "acme/payment-service",
+          "commit": "sha-old",
+          "path": "src/pay.py",
+          "lines": [
+            {
+              "no": 43,
+              "function": "charge",
+              "text": "raise SyntheticTimeout"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report_field_redaction-1",
+      "context": {
+        "incident_id": "INC-1",
+        "masks": {
+          "reporter_email": "[EMAIL]",
+          "token": "[TOKEN]"
+        }
+      },
+      "report": {
+        "cause": "timeout",
+        "reporter_email": "user1@example.test",
+        "token": "SYNTH-TOKEN-1"
+      }
+    },
+    {
+      "id": "report_field_redaction-2",
+      "context": {
+        "incident_id": "INC-2",
+        "masks": {
+          "reporter_email": "[EMAIL]",
+          "token": "[TOKEN]"
+        }
+      },
+      "report": {
+        "cause": "cache_failure",
+        "reporter_email": "user2@example.test",
+        "token": "SYNTH-TOKEN-2"
+      }
+    },
+    {
+      "id": "report_field_redaction-3",
+      "context": {
+        "incident_id": "INC-3",
+        "masks": {
+          "reporter_email": "[EMAIL]",
+          "token": "[TOKEN]"
+        }
+      },
+      "report": {
+        "cause": "connection_failure",
+        "reporter_email": "user3@example.test",
+        "token": "SYNTH-TOKEN-3"
+      }
+    },
+    {
+      "id": "service_dependency_impact-1",
+      "context": {
+        "failed_service": "db"
+      },
+      "dependencies": [
+        {
+          "caller": "api",
+          "dependency": "db"
+        },
+        {
+          "caller": "web",
+          "dependency": "api"
+        },
+        {
+          "caller": "worker",
+          "dependency": "cache"
+        }
+      ]
+    },
+    {
+      "id": "service_dependency_impact-2",
+      "context": {
+        "failed_service": "api"
+      },
+      "dependencies": [
+        {
+          "caller": "web",
+          "dependency": "api"
+        },
+        {
+          "caller": "api",
+          "dependency": "web"
+        },
+        {
+          "caller": "worker",
+          "dependency": "api"
+        }
+      ]
+    },
+    {
+      "id": "service_dependency_impact-3",
+      "context": {
+        "failed_service": "cache"
+      },
+      "dependencies": [
+        {
+          "caller": "api",
+          "dependency": "db"
+        },
+        {
+          "caller": "web",
+          "dependency": "api"
+        },
+        {
+          "caller": "worker",
+          "dependency": "cache"
+        }
+      ]
+    },
+    {
+      "id": "upstream_failure_evidence-1",
+      "context": {
+        "service": "api",
+        "at": "2026-11-16T10:00:00Z"
+      },
+      "states": {
+        "api": {
+          "status": "down",
+          "own_errors": 0,
+          "upstream_errors": [
+            {
+              "service": "db",
+              "count": 12
+            }
+          ]
+        },
+        "db": {
+          "status": "down",
+          "own_errors": 12,
+          "upstream_errors": []
+        }
+      }
+    },
+    {
+      "id": "upstream_failure_evidence-2",
+      "context": {
+        "service": "api",
+        "at": "2026-11-16T10:00:00Z"
+      },
+      "states": {
+        "api": {
+          "status": "down",
+          "own_errors": 7,
+          "upstream_errors": []
+        },
+        "db": {
+          "status": "up",
+          "own_errors": 0,
+          "upstream_errors": []
+        }
+      }
+    },
+    {
+      "id": "upstream_failure_evidence-3",
+      "context": {
+        "service": "api",
+        "at": "2026-11-16T10:00:00Z"
+      },
+      "states": {
+        "api": {
+          "status": "down",
+          "own_errors": 3,
+          "upstream_errors": [
+            {
+              "service": "db",
+              "count": 12
+            }
+          ]
+        },
+        "db": {
+          "status": "down",
+          "own_errors": 12,
+          "upstream_errors": []
+        }
+      }
+    }
+  ]
+}

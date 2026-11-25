@@ -7,8 +7,9 @@ from pathlib import Path
 
 import pytest
 from jsonschema.exceptions import ValidationError
-from slotagent.packs.select import plan_rows
+
 from slotagent.packs.groups import load_group
+from slotagent.packs.select import plan_rows
 
 ROOT = Path(__file__).resolve().parents[2]
 PACK = ROOT / "packs/it_ops/v0.1"
@@ -20,7 +21,7 @@ def test_all_fifteen_golden_suites():
 
     pack = load_group(PACK, "lookup")
     tasks = {t["code"]: t for t in pack["tasks"]}
-    assert len(pack["golden"]) == 60
+    assert len(pack["golden"]) == 32
     for template in pack["templates"]:
         entries = [g for g in pack["golden"] if g["template"] == template["code"]]
         assert {g["kind"] for g in entries} == {"success", "alt_success", "near_miss", "forbidden"}

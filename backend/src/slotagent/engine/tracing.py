@@ -16,6 +16,10 @@ class Recorder:
     spans: list[dict] = field(default_factory=list)
     cost: Decimal = Decimal(0)
 
+    def plan(self, started_at: datetime) -> dict:
+        """다음에 넣을 span의 번호와 시각. 쓰기 승인 검사에 예정 span으로 씁니다."""
+        return {"seq": len(self.spans) + 1, "started_at": started_at.astimezone(UTC).isoformat()}
+
     def add(self, kind: str, name: str, started_at: datetime, duration_sec: float, **fields) -> dict:
         span = {
             "seq": len(self.spans) + 1,
@@ -64,7 +68,7 @@ class Recorder:
             attributes={"model.seed": self.seed, "api_retries": error.api_retries},
         )
 
-    def finish(self, outcome: str, reason: str | None, final_answer: str | None) -> dict:
+    def finish(self, outcome: str, reason: str | None, final_answer: str | None, write_intents=()) -> dict:
         _tokens(sum(s.get("in_tokens", 0) for s in self.spans))
         _tokens(sum(s.get("out_tokens", 0) for s in self.spans))
         storage_cost(self.cost)
@@ -81,7 +85,7 @@ class Recorder:
         trace = {
             "schema_version": 1,
             "spans": self.spans,
-            "write_intents": [],
+            "write_intents": list(write_intents),
             "final_answer": final_answer,
             "run_outcome": outcome,
             "usage": usage,

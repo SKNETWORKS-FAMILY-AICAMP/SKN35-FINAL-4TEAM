@@ -5,7 +5,8 @@ import json
 from pathlib import Path
 
 import pytest
-from slotagent.packs.groups import read_group, load_group
+
+from slotagent.packs.groups import load_group, read_group
 
 PACK = Path(__file__).resolve().parents[2] / "packs/it_ops/v0.1"
 spec = importlib.util.spec_from_file_location("incident_eval", PACK / "reference/evaluators/incidents.py")
@@ -15,10 +16,10 @@ spec.loader.exec_module(module)
 
 def test_nine_tasks_and_fixed_golden(tmp_path):
     pack, snapshots, golden = read_group(PACK, "incidents")
-    assert len(pack["templates"]) == 3 and len(pack["tasks"]) == 9 and len(golden) == 12
-    assert len(snapshots) == 1
+    assert len(pack["templates"]) == 9 and len(pack["tasks"]) == 27 and len(golden) == 36
+    assert len(snapshots) == 3
     result = module.run(tmp_path)
-    assert result["runs"] == 46 and result["all_matched"]
+    assert result["runs"] == 154 and result["all_matched"]
     tasks = {t["code"]: t for t in pack["tasks"]}
     for entry, trace in golden:
         assert module.grade(tasks[entry["task_code"]], trace) == entry["expected"]

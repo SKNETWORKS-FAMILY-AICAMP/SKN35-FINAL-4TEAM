@@ -1,16 +1,18 @@
 # ② 독립 준비 결과 / ① 확인 요청 — 2026-11-24
 
-기준: 평가팩1개(it_ops/v0.1)·총42유형·128문항·골든168개. [현재 안내](../packs/README.md)와 [전체 문항 목록](../packs/QUESTIONS.md)을 함께 본다.
+현재: 활성 평가팩1개(it_ops/v0.1)·47유형·143문항·골든188개. 별도3유형9문항은 엔진/계약 대기 초안이며 아래 이전 수량은 당시 검증 이력이다. [현재 안내](../packs/README.md)와 [전체 문항 목록](../packs/QUESTIONS.md)을 함께 본다.
 
 7개 업무 그룹은 독립 평가팩이 아니다. 데이터·문항·골든·개발 어댑터를 단일 폴더에 통합했고 전체 가짜 실행은 reference/run_pack.py로 수행한다.
+
+최신 재편: 조회8유형·26문항, 쓰기6유형·18문항, 장애6유형·18문항이다. 아래 과거 검증 수량은 당시 범위의 기록이며 현재 구성은 packs/README.md를 기준으로 한다. 실제 서버 도구5개는 유지했고 활성 MCP 지원 목록은8유형이다. 새로운7유형은 로컬 시뮬레이터 단계다.
 
 ## 준비한 것
 
 | 항목 | 결과 | 제품 통합 상태 |
 |---|---|---|
-| 조회 그룹 | 15유형·47문항·골든60개 | 전부 dev, 독립 검수 전 |
-| 쓰기 그룹 | 2유형·6문항·골든8개·가짜28실행 | confirmation 칼럼 적용 대기, 실제 write_proxy 미검증 |
-| 장애 분석 그룹 | 3유형·9문항·골든12개·가짜46실행 | 로그·관계근거·승인공유. MCP 확장/제품 채점 미연동 |
+| 조회 그룹 | 8유형·26문항·골든32개 | 전부 dev, 독립 검수 전 |
+| 쓰기 그룹 | 6유형·18문항·골든24개·가짜100실행 | confirmation 칼럼 적용 대기, 실제 write_proxy 미검증 |
+| 장애 분석 그룹 | 6유형·18문항·골든24개·가짜100실행 | 로그·관계근거·승인공유. MCP 확장/제품 채점 미연동 |
 | 오류복구/페이지 그룹 | 3유형·9문항·골든12개·가짜60실행 | 순서 재생·한도·cursor 검사. 전용 MCP/제품 의미검증 미연동 |
 | 정보충돌 그룹 | 3유형·9문항·골든12개·가짜69실행 | 동급 충돌/신선도/근거부족. 제품 출처 매핑·MCP 미연동 |
 | 운영계산 그룹 | 6유형·18문항·골든24개·가짜108실행 | JSON 원본 어댑터. 요청/장애/지연 기능 제안·파생 지표 제품 채점 미연동 |
@@ -96,3 +98,74 @@ it_ops/v0.1 내부 metrics 그룹에 에러 수 비교·트래픽 정규화 비�
 ## 독립 제작10유형 추가 확인 요청
 
 it_ops/v0.1 내부 workflows 그룹에 설정 우선순위·trace 복원·점검 누락·본문 악성 지시 무시·고정 저장소 범위·권한오류 구별·JSON 파싱·중복 이슈 방지·조건부 승인 쓰기·완료 범위 보고를 추가했다. 30문항/골든40개/가짜189실행을 준비했으며 50개 목표까지 남은8유형은 선협의 상태다. read_workflow_context/lookup_workflow_items의 실제 도구 매핑, ops.traces.read 기능 확정, 관계·범위·정확한 쓰기 횟수·부분완료 의미 검증을 ①④와 확인해야 한다. 일반 보안 통제나 동시 쓰기 검증을 완료한 것은 아니다.
+
+
+## 쓰기 그룹 데이터 조회 보완
+
+writes 그룹6문항의 하드코딩된 버전을 제거했다. context.json 단일 조회 → 원본 버전으로 요청 생성 → 승인 → 같은 인자로 fake 쓰기를 수행한다. 임시 채점기는 조회 원본·순서와 요청/실제 쓰기의 버전을 검증한다. 승인받았지만 버전이 틀린 쓰기는 완료 조건 실패로 구분한다. get_write_context는 개발용 로컬 도구라 실제 MCP/필요 capability 매핑은 ①④ 확인이 필요하다. 현재 GitHub 연습 서버가 지원한다고 간주하지 않는다. 쓰기 골든8개는 조회를 추가했으며 기대값은 유지했다. 계약·DB·동결 데이터·문항 수는 변경하지 않았다. tool_error 관련 변경은 별도 대기다.
+
+
+## ① 회신 반영 — 2026-11-24
+
+- ① 규칙 채점 eng_rules·채점 실행 흐름 eng*pipeline·제품 골든 검증 기록 / ② 정답 조건·골든168개·LLM 판정·결과3분류·첫 실패 단계로 역할 표기를 맞췄다. 독립 판정/제품 채점이 구현 완료됐다는 뜻은 아니다.
+- 조회15유형·47문항 서버부터 연결한다는 방향을 확인했다. golden.task_code는 현재 방식으로 ①이 읽는다.
+- lock_pack에 lock_timeout_ms(기본5000)를 추가했다. 트랜잭션 로컬 설정을 잠금 전에 적용하고 성공 시 이전 설정을 복원한다. 실패는 transaction/savepoint 롤백에 맡긴다.
+- content_hash 칼럼이 있으면 load_pack 트랜잭션에서 pack_content_hash를 저장한다. 칼럼이 없으면 이전 경로를 유지하며 해시는 미저장이다. 칼럼은 ① 제안/적용 대기이고 ②는 DDL/DB 적용을 하지 않았다. 모의 연결 검사이며 실제 칼럼 저장 검증은 마이그레이션 후 필요하다.
+- sa_tasks.confirmation jsonb(NULL 허용)는 ① 계약 검토 회신·4명 확인 대기다. 현재 loader의 정책 검증/SQL NULL 처리는 유지한다.
+- tool_error는 구조 변경 없는 기록 규약으로 CHANGELOG에 기록했다. ① 구현과 실제 trace 예시가 오면 ② reliability/workflows를 조정한다. product_grader_version을 임시 검사기 버전으로 채우지 않는다.
+
+비중 재편 후에도 전체42유형/128문항/168골든은 유지한다. 새 유형7개는 required_capabilities의 기존 이름표를 재사용하지만 실제 도구 응답·매핑은 ①④ 확인 대기다. 문항 선택의 실제 출제 비율·held 계획까지 확정한 변경은 아니다.
+
+
+## 후보8개 후속 — 활성5 + 대기 초안3
+
+① 회신의1~5를 각3문항·골든4종으로 로컬 등록했다. 실제 MCP 지원은 조회8유형·26문항 유지다. 제한4·5의 다른 필드 유출/미기재 URL 탐지 한계는 문항/검수표에 명시했다. 후보6~8은 write_proxy가 아직 주석 상태라 pending_writes.json에 요구사항과9개 시나리오만 준비했고 활성 제외했다. 정확한 쓰기/횟수 계약과 trace 예시를 받은 뒤 골든·활성 등록을 진행한다. 기존 응답 규격/도구 정의19종/골든 불일치/DB/tool_error/held 선정 보완은 사용자 요청대로 보류 중이다.
+
+
+## 상세 MD 수신 후 추가5유형 정리
+
+role2_reply_8types.md의 제안에 맞춰 direct/indirect 단계 조회, cause/certainty, commit/file/function, [EMAIL]/[TOKEN], fetch_url의302/403을 반영했다. 신규20골든은 명시적 access 문맥으로 eng_rules.check 조건별 일치까지 확인한다. 원래188개 전체 제품 대조/파이프라인 연결이 완료된 것은 아니다. 이름표는 ops.dependencies.read/ops.status.read/github.code.content.read/ops.incidents.read/web.pages.read 제안으로 정리했으며 ②④ 최종 확인 대기다. 실제 MCP 서버 지원은8유형26문항 그대로다. 쓰기3유형·DB·기존tool_error 작업은 계속 보류한다.
+
+
+## ①에게 전달: 질문 개선 이후 제품 채점 경계
+
+② 반영: 47유형143문항을 업무 요청/기준/응답 형식/제약으로 분리했고 조회26문항의 응답 필드명·형식도 포함했습니다. 정답 조건·데이터·승인 계약·188개 expected는 바꾸지 않았습니다. 제목/메시지 필수 사실, 라벨 집합, 반복 읽기, 독립 읽기 순서의 대체 성공을 임시 검사기와 골든에 연결했습니다. 아래는 ① 코드 수정 완료를 요구하는 일방적 확정이 아니라 함께 정해야 할 경계입니다.
+
+| 항목 | 현재 관찰 / 재현 | ① 확인 요청 |
+|---|---|---|
+| 반복 조회의 order | 읽기2회 후 쓰기1회, 두 읽기 모두 쓰기 전인데 check(order)는 repeated_order_policy_missing | 반복 자체를 실패/미정으로 고정하지 말고 어떤 정보 획득이 해당 행동의 근거인지 정책 합의. 상태 변경 읽기에는 임의 min/max 규칙을 적용하지 않기 |
+| 후보 도구·인자 대응 | 문항의 post_message/channel과 후보 slack_send/channel_id 같은 차이가 남음 | 신뢰할 snapshot의 capability/대상 매핑을 어느 계층이 제공할지 ①④ 확인. 모델이 trace에 적은 이름표를 신뢰하거나 도구 이름만 보고 추정하지 않기 |
+| 정확한 쓰기 수 | post_message2회를 넣어도 end_state의 포함 조건은 True | 기존 포함 계약은 유지. 정확히1회/추가 쓰기 배제는 별도 계약으로 합의 후 구현. 무작정 골든 기대값에 맞춰 기존 의미를 바꾸지 않기 |
+| 승인 순번과 대상 순서 | MULTI_TARGET_APPROVAL은 policy.responses 순번에 대상이 묶여 역순 요청을 거절함 | 독립 대상의 실행 순서도 열어둘 필요가 있는지 결정. 현 계약에서는 문항에 대상 순서를 명시했고 same_action 전체 일치는 유지 |
+| link의 의미 | RUN_ISSUE_RELATION-001 near_miss 조건3은 source 문자열이 있어 제품 True, 잘못된 final head_sha 때문에 골든 False | 근거 존재와 최종 답의 관계 검증 중 어디까지 link가 담당하는지 합의. 기존 불일치 expected는 이번에 고치지 않음 |
+| 자유문장 내용 | 제목/메시지의 필수 버전/번호·제한된 사실 표기만 ② 임시 검사. 일반 문장 부정/모순은 규칙만으로 완결 못 함 | 구조화 필수 사실 비교와 ② LLM 판정의 경계를 명시하고 파이프라인에서 판정 필요 상태/근거를 보존. LLM 의미 판정 자체는 ② 담당 |
+| 독립 대조 테스트 수량 | test_eng_rules.py의 test_golden_audit는168, 승인18, 변조192를 고정 기대함 | 현재47유형/143문항/188골든 기준으로 재집계하고 의미 있는 검증을 유지하도록 fixture 갱신 필요. ① 테스트는 ②가 임의 변경하지 않음 |
+
+함수 단위 재현: 반복 order는 repeated_order_policy_missing, 추가 쓰기가 있는 end_state는 현재 True, 기존 link 불일치는 현재 True를 확인했습니다. 재현 spec/trace와 명시적 로컬 tool_access fixture는 packs/it_ops/v0.1/reference/grader_review_cases.json에 보관했습니다. 각 항목의 kind/spec/trace/tool_access/tool_access_complete로 check를 호출하면 됩니다. 이 fixture 권한은 실제 후보의 권한 정의로 사용하지 않습니다. 실제 엔진/DB는 실행하지 않았습니다.
+
+이번 작업에서 ① eng_rules·파이프라인·공용 스키마·DB는 변경하지 않았습니다. tool_error 대응과 쓰기3유형도 계속 보류입니다. 응답 규격26문항만 이번 질문 개선에 포함돼 완료 상태로 바뀌었습니다. 모든 정상 도구 후보가 연결됐다는 뜻은 아니며 실제 MCP 지원은8유형26문항 그대로입니다.
+# ② 추가 준비: 도구 목록·독립 검수
+
+## 파일럿 15유형 선정안과 확인 요청
+
+기계 판독 목록은 `packs/it_ops/v0.1/practice/pilot_selection.json`입니다. 유형별 전체 문항 코드, required_capabilities, 데이터 경로, 정상/대안 골든에서 관측한 예시 도구와 연결 상태를 담았습니다. 예시 도구는 강제 풀이 경로나 후보 권한이 아닙니다. 이 목록은 러너 입력이나 held 분할을 변경하지 않습니다.
+
+| 그룹 | 선정 유형 |
+|---|---|
+| 조회 3 | DEPLOY_LATEST_SUCCESS, ISSUES_UNASSIGNED_OPEN, DEPLOY_RELEASE_LINK |
+| 쓰기 3 | CONFIRMED_RELEASE_SHARE, CONFIRMED_ISSUE_CREATE, LATEST_CONFIRMATION_SCOPE |
+| 장애 3 | LOG_FIRST_ERROR, INCIDENT_TIMELINE, INCIDENT_RECOVERY_EVIDENCE |
+| 오류복구 2 | RETRY_TRANSIENT_READ, RETRY_EXHAUSTED_READ |
+| 정보충돌 1 | CONFLICT_EQUAL_AUTHORITY |
+| 운영계산 1 | ERROR_COUNTS_BEFORE_AFTER |
+| 운영절차 2 | CONFIG_OVERRIDE_PRECEDENCE, UNTRUSTED_ISSUE_INSTRUCTIONS |
+
+④ 확인: 각 유형의 필요 기능과 실제 후보 도구의 제공 범위·인자·권한 매핑을 확인해 주세요. ① 확인: 조회 3유형을 먼저 연결할 수 있는지, 나머지 로컬 도구의 연결 계획 및 fake 승인/쓰기·tool_error 처리 준비 상태를 확인해 주세요. 쓰기3유형과 오류복구2유형은 해당 연동/채점 확인 전 제품 실행 완료로 표시하지 않습니다.
+
+독립 검수는 위 파일럿에 포함된 그룹별 첫 유형 7개×4종=28건으로 시작합니다. 검수자용 CSV·JSON을 준비했고 실제 검수는 0/28, 검수자는 미배정입니다. 팀원이 먼저 라벨과 문항 피드백을 작성한 뒤 ②가 관리본과 비교합니다.
+
+`packs/it_ops/v0.1/practice/tool_inventory.json`은 활성188골든에서 관측된30도구를 정리한 검토 자료입니다. 실제 연습 MCP 명세5종은 원본 정의를 포함했고, 나머지25종은 로컬/확인 도구로 구분했습니다. 로컬 read/write는 시뮬레이터 동작 설명이며 후보 권한을 증명하지 않습니다. 미확정 capability는 비워 두었으므로 ①④의 공식 도구 매핑을 대체하지 않습니다. 특히 확인 도구의 access는 null로 남겼습니다.
+
+①④ 확인 요청: 목록의 미확정 도구를 후보/엔진 도구에 어떻게 연결할지, 실제 읽기/쓰기 권한과 capability·인자 스키마를 확인해 주세요. 관측된 argument_keys는 스키마가 아닙니다. `scripts/prepare_pack_review.py --check`로 목록 최신 여부를 확인할 수 있습니다.
+
+②는 독립 검수용 7유형28기록과 별도 관리본을 생성하는 도구 및 라벨 기준 초안을 준비했습니다. 검수 절차는 `packs/it_ops/v0.1/golden/README.md`에 있습니다. 사람 판정·LLM 판정기·held 분할·통계 검증 완료를 의미하지 않으며 기존 정답/골든 기대값도 변경하지 않았습니다. 보류된 DB·tool_error·추가 쓰기3유형은 이번 범위에 포함하지 않았습니다.

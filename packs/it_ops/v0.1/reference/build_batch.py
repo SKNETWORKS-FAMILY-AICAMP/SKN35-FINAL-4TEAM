@@ -12,6 +12,8 @@ TITLES = [
 
 
 def build():
+    if (PACK_DIR.parent / "archive/lookup-retired/retired.json").exists():
+        raise ValueError("조회 비중 재편 후에는 이전 배치 생성기로 보관 유형을 재등록할 수 없습니다")
     data = {"snapshot_version": "it_ops-operations-v0.1", "runs": [], "issues": [], "releases": []}
     repos = ["acme/payment-service", "acme/catalog-service", "acme/auth-service"]
     for index, repo in enumerate(repos, 1):

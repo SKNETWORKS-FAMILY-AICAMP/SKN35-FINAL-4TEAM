@@ -61,7 +61,7 @@ def run_trial(
         )
         with conn.cursor(row_factory=dict_row) as cur:
             row = cur.execute(
-                """SELECT t.*, ec.config_snapshot, ec.config_hash, k.prompt, k.seed, e.prereg, e.status AS exp_status
+                """SELECT t.*, ec.config_snapshot, ec.config_hash, k.prompt, k.seed, k.confirmation, k.write_scenario, e.prereg, e.status AS exp_status
                    FROM sa_trials t JOIN sa_experiment_candidates ec USING (experiment_candidate_id)
                    JOIN sa_tasks k USING (task_id) JOIN sa_experiments e ON e.experiment_id=t.experiment_id
                    WHERE t.trial_id=%s FOR UPDATE OF t""",
@@ -187,6 +187,8 @@ def _execute_trial(conn, row, snap, price_id, price, deps, job, stdio=None, canc
             trial_seed(row["seed"], row["rep"]),
             active,
             prereg=row["prereg"],
+            confirmation=row["confirmation"],
+            write_scenario=row["write_scenario"],
         )
     trace = copy.deepcopy(result.trace)
     trace.update(trial_id=trial_id, attempt=row["attempt"])
@@ -226,13 +228,13 @@ def _save_result(conn, row, trace, outcome, price_id, job):
         ).fetchone()
         if current != ("running", row["attempt"]):
             raise RunCancelled("현재 시도의 소유권을 잃어 결과를 저장하지 않습니다.")
-        total_cost = Decimal(0)
+        total_cost, span_ids = Decimal(0), {}
         for span in trace["spans"]:
             attrs = dict(span.get("attributes", {}))
-            conn.execute(
+            span_ids[span["seq"]] = conn.execute(
                 """INSERT INTO sa_spans(trial_id,attempt,seq,kind,name,started_at,duration_sec,wait_sec,
                    in_tokens,out_tokens,output,tool_args,tool_result,error,attributes)
-                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING span_id""",
                 (
                     trial_id,
                     row["attempt"],
@@ -250,7 +252,7 @@ def _save_result(conn, row, trace, outcome, price_id, job):
                     span.get("error"),
                     Jsonb(attrs),
                 ),
-            )
+            ).fetchone()[0]
             if span["kind"] == "llm" and "in_tokens" in span:
                 total_cost = add_cost(total_cost, Decimal(attrs["cost_krw"]))
                 record_trial_cost(
@@ -261,6 +263,20 @@ def _save_result(conn, row, trace, outcome, price_id, job):
                     experiment_id=row["experiment_id"],
                     price_setting_id=price_id,
                 )
+        # DB 트리거가 running 상태와 현재 시도의 span인지 확인하므로 풀이 상태를 바꾸기 전에 넣습니다.
+        for intent in trace["write_intents"]:
+            conn.execute(
+                """INSERT INTO sa_write_intents(trial_id,span_id,tool_name,payload,in_rule_list,user_confirmed)
+                   VALUES (%s,%s,%s,%s,%s,%s)""",
+                (
+                    trial_id,
+                    span_ids[intent["span_seq"]],
+                    intent["tool_name"],
+                    Jsonb(intent["payload"]),
+                    intent["in_rule_list"],
+                    intent["user_confirmed"],
+                ),
+            )
         usage = trace["usage"]
         conn.execute(
             """UPDATE sa_trials SET status=%s,run_outcome=%s,outcome_reason=%s,finished_at=now(),final_answer=%s,

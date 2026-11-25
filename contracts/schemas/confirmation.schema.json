@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://slotagent.local/schemas/confirmation.schema.json",
-  "title": "P-05 승인 계약 v1 — ① 검토 및 4명 확인 대기",
+  "title": "P-05 승인 계약 v1 — 2026-11-25 적용 (① 결정, ②④ 이견이 있으면 조정)",
   "$defs": {
     "action": {
       "type": "object",

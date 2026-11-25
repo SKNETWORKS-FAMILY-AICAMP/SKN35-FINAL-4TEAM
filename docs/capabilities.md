@@ -24,6 +24,17 @@
 | `github.issues.write` | 이슈 생성 | 댓글만 달기 | `create_issue` |
 | `slack.messages.write` | 지정 채널에 메시지 작성 | 채널 목록 조회만 | `post_message` |
 | `db.errors.read` | 연습 DB 에서 기간별 에러 수 조회 (읽기 전용) | 임의 SQL 실행 (= 쓰기로 봄) | `query_errors` (1.3 5.5 예시) |
+| `github.code.content.read` | repo·commit·path 로 그 커밋의 **파일 내용** 조회 | 코드 검색 → `github.code.read` | `read_code_at_commit` |
+| `db.requests.read` | 서비스·시간별 요청 수와 오류 요청 수 조회 | 에러 로그 건수만 조회 | `query_metric_traffic` |
+| `db.incidents.read` | 서비스별 장애 시작·종료 시각 조회 | 로그 시각으로 추정 | `query_metric_incidents` |
+| `db.latency.read` | 개별 요청 지연 표본 조회 | 집계된 평균만 조회 | `query_metric_latency` |
+| `ops.traces.read` | trace ID 의 span·부모 관계 조회 | 실행 목록으로 경로 추정 | `read_workflow_context` |
+| `ops.dependencies.read` | 서비스 호출 관계 조회 | 실제 장애 확정 | `list_service_dependencies` |
+| `ops.status.read` | 고정 시각의 서비스 상태·자체/상위 오류 조회 | 로그만으로 원인 확정 | `get_service_state` |
+| `ops.incidents.read` | 장애 원문 조회 | 답의 민감정보 검사 | `get_incident_detail` |
+| `web.pages.read` | 고정 URL 의 응답(200/302/403)·location 조회 | 자동 리다이렉트 | `fetch_url` |
+
+**11/25 ① 결정:** 위 9개(②의 제안)를 사전에 넣어 씁니다. 아래 제안 절은 기록으로 남기고, 사용 여부는 이 표를 봅니다. 연습 도구의 매핑은 `packs/it_ops/v0.1/practice/tool_permissions.json`, 실제 후보의 매핑은 등록 때 ④가 도구 정의(`capabilities`)에 넣습니다. ②④ 이견이 있으면 조정합니다.
 
 ## 확인할 것 (②④)
 - [ ] 지금 예시는 `list_workflow_jobs` 를 `github.actions.read` 로 붙였는데, 단계·로그까지 보는 도구라 `github.actions.logs.read` 로 나눌지
@@ -51,3 +62,26 @@
 | `ops.traces.read` | 지정 trace ID의 span·부모 관계·시각·서비스 조회 | 단순 워크플로 실행 목록만으로 서비스 간 요청 경로를 추정 | read_workflow_context(trace 시나리오) |
 
 it_ops 팩 workflows 그룹의 개발용 필요 기능이며 실제 후보에 자동 부여하지 않는다. 실제 trace 조회 도구·서비스 범위는 ①④ 확인이 필요하다. 나머지 새 유형의 기존 이름표도 실제 어댑터 입력·출력을 확인한 뒤 매핑한다.
+
+
+## ① 회신 후보1~5의 기능 제안 — ② 제안 / ④ 확인 대기
+
+| 이름표 | 제안 의미 | 경계 |
+|---|---|---|
+| ops.dependencies.read | 명시된 서비스의 caller→dependency 그래프 조회 | 그래프만으로 실제 장애를 확정하지 않음 |
+| ops.health.read | 이전 제안·사용 안 함(현재 후보2는 ops.status.read로 정리) | 자동 별칭 매핑하지 않음 |
+| web.urls.read | 이전 제안·사용 안 함(현재 후보5는 web.pages.read로 정리) | 자동 별칭 매핑하지 않음 |
+
+위3개는 로컬 합성 평가의 필요 기능을 표현한 제안이며 후보 도구에 자동 부여하지 않는다. 로그·코드·명시 필드 마스킹은 기존 이름표를 재사용하되 실제 데이터 필드 제공 여부는 도구 매핑에서 확인해야 한다.
+
+
+## role2_reply_8types.md 제안 형식으로 정리 — ②④ 최종 확인 대기
+
+| 이름표 | 이번 로컬 유형의 의미 | 경계 |
+|---|---|---|
+| ops.status.read | 고정 시각의 서비스 상태·자체 오류 수·상위 오류 조회 | 임의 로그만으로 원인 확정 아님 |
+| github.code.content.read | repo/commit/path로 해당 커밋의 파일 내용 조회 | 기존 github.code.read의 코드 검색과 구별 |
+| ops.incidents.read | 합성 장애 원문 조회 | 답 전체의 민감정보 유출 검사 아님 |
+| web.pages.read | 고정 URL의200/302/403 응답과 location 조회 | 자동 리다이렉트·실제 네트워크 허용 아님 |
+
+ops.dependencies.read는 앞선 제안을 유지한다. ① MD의 이름은 가칭이며 이번 정리는 평가팩의 필요 기능 제안이다. 실제 후보의 기능 확정/자동 등록/기존 이름표의 자동 별칭은 수행하지 않는다. MD 예시의 service=github도 자리표시이므로 실제 서비스 분류로 임의 확정하지 않는다.

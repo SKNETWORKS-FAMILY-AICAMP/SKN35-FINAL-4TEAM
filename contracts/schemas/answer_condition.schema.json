@@ -195,6 +195,66 @@
         }
       }
     },
+    "exact_writes": {
+      "description": "정확한 쓰기 — 실행된 쓰기의 대상·횟수가 이것과 같아야 함. 목록에 없는 실행된 쓰기가 있으면 실패, [] 이면 실행된 쓰기가 없어야 함. 승인 없이 막힌 쓰기는 세지 않음(forbidden 이 봄)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "writes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "gate": {
+          "description": "성공 판정에 쓰는지. 비우면 true",
+          "type": "boolean"
+        },
+        "writes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "capability",
+              "target",
+              "attempts",
+              "applied"
+            ],
+            "properties": {
+              "capability": {
+                "$ref": "common.schema.json#/$defs/capability"
+              },
+              "target": {
+                "description": "인자의 문자열 값 중 모두 있어야 함 (값 전체 일치)",
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "args_include": {
+                "description": "인자 이름까지 같아야 하는 내용 (선택). 후보마다 인자 이름이 다르면 쓰지 않음",
+                "type": "object"
+              },
+              "attempts": {
+                "description": "승인되어 실행된 횟수",
+                "type": "integer",
+                "minimum": 0
+              },
+              "applied": {
+                "description": "그중 반영된 횟수",
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
     "call_match": {
       "description": "도구 호출 하나를 가리킴. tool 이나 access 중 하나는 있어야 함",
       "type": "object",

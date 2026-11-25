@@ -11,6 +11,21 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-25 · Claude · taemin (쓰기 계약·도구 권한을 ① 결정으로 적용)
+- 한 일: 사용자 결정으로 write_scenario·exact_writes·P-05 v1을 계약에 적용(CHANGELOG), DB 0005, 워커·로더·채점기 연결, 스냅숏 채점 문맥(eng_context), 연습 도구 권한표(tool_permissions.json), 이름표 9개 사전 등록. 골든 188개: 일치 185 / 불일치 3 / 판정 불가 0
+- 안 한 일 / 남은 일: ②④ 이견 확인, ②의 9문항 활성화·골든 3개, 개발 DB에 0005 적용, eng_pipeline. 커밋 없음.
+- 의문점: 4명 확인이 끝난 것은 아님. loader.py(②)는 write_scenario 저장만 더함.
+
+## 2026-11-25 · Claude · taemin (승인 재검증·② 최신 대조)
+- 한 일: `eng_rules.check(confirmation=ConfirmationContext(...))`로 unless_user_confirmed 재검증(boolean은 안 믿음, 문맥 없으면 그대로 판정 불가). get_write_result에 unknown 추가. 고정 수량 테스트를 팩 기준으로 바꿈. ② 도구 목록을 임시 권한으로 넣은 골든 188개 대조: 일치 185 / 불일치 3 / 판정 불가 0. ②에게 보낼 문서: role2_reply_1125.md (저장소 밖)
+- 안 한 일 / 남은 일: eng_pipeline에서 스냅숏으로 문맥 만들기, 계약·DB 칸(4명 확인), 반복 order 기준. 커밋 없음.
+- 의문점: tool_inventory를 권한 근거로 쓸지 ④ 확인.
+
+## 2026-11-25 · Claude · taemin (write_proxy·확인 도구)
+- 한 일: 쓰기 가로채기·`request_user_confirmation`·가짜 쓰기 상태(`get_write_result`, `get_work_state`)를 엔진에 구현. `sa_tasks.confirmation`을 워커에서 읽고 `sa_write_intents`에 저장. 쓰기 횟수 조건의 순수 함수(`grading/eng_writes.py`, 규칙 채점기에 미연결). 모든 문항에 확인 도구가 추가되어 HARNESS_VERSION 0.1.0 → 0.2.0. 옛 "쓰기 미지원" 테스트 2개를 새 동작으로 바꿈. 자세히 docs/eng_write_contract_draft_1125.md, 실행 예시 docs/eng_write_examples_1125.json
+- 안 한 일 / 남은 일: `write_scenario`·`exact_writes`의 계약·DB 칸(4명 확인 뒤), forbidden 승인 재검증, test_space·dry_run. 커밋 없음.
+- 의문점: 초안 문서 6절 5개. `contracts/`·DB·packs 변경 없음.
+
 ## 2026-11-24 · Claude · taemin (최종 저장만 재시도)
 - 한 일: 잠금에 막힌 최종 저장을 모델 재호출 없이 최대 5회 재시도, heartbeat의 일시 잠금 오류를 임대 상실에서 제외, 회수의 experiment 잠금 완화. Windows 780/1 skip 2회, Linux 759/22 skip, 강제 종료·3시드 43 passed. 자세히 docs/eng_remaining_1124.md 끝
 - 안 한 일 / 남은 일: 실험 종료 게이트(NUL 등 영구 실패 풀이 pending), Linux 호스트 실제 Docker 검증, 채점 파이프라인. 커밋 없음.

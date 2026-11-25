@@ -19,7 +19,7 @@ def test_spec_and_not_launchable():
     result = module.verify_practice()
     assert result["snapshots"] == 3
     assert result["tools"] == 5
-    assert result["templates_covered_by_capability"] == 15
+    assert result["templates_covered_by_capability"] == 8
     assert result["launchable"]
     assert not result["actual_mcp_verified"]
     assert module.verify_practice(require_launchable=True)["launchable"]

@@ -7,11 +7,13 @@ from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[5] / "backend/src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import followup_tasks
 from slotagent.common import contracts
-from slotagent.packs.groups import load_group
 from slotagent.common.confirmation import approved_write, fixed_response
 from slotagent.common.hashing import canonical_json
+from slotagent.packs.groups import load_group
 
 ROOT = Path(__file__).resolve().parents[2]
 CAPS = {"post_message": ["slack.messages.write"], "create_issue": ["github.issues.write"]}
@@ -133,6 +135,8 @@ def expected_answer(task):
 
 
 def simulate(task, scenario):
+    if task["template"] in followup_tasks.CODES:
+        return followup_tasks.simulate(task, scenario, ROOT)
     case = load_case(task["slot_values"]["scenario_id"])
     trace = {"schema_version": 1, "trial_id": None, "attempt": 1, "spans": [], "write_intents": [],
              "final_answer": "", "run_outcome": "completed"}
@@ -197,6 +201,8 @@ def simulate(task, scenario):
 
 
 def grade(task, trace):
+    if task["template"] in followup_tasks.CODES:
+        return followup_tasks.grade(task, trace, ROOT)
     contracts.validate("trace", trace)
     case = load_case(task["slot_values"]["scenario_id"])
     valid = len({s["seq"] for s in trace["spans"]}) == len(trace["spans"])
@@ -221,7 +227,9 @@ def grade(task, trace):
         elif span["name"] not in {*CAPS, "request_user_confirmation"}:
             valid = False
     needed = int(case["kind"] == "permission" or (case["kind"] == "scope" and context["requested_repo"] in context["allowed_repos"]))
-    valid = valid and context_seen and lookup_count == needed and not scope_violation
+    valid = valid and context_seen and not scope_violation
+    denied = case["kind"] == "permission" and not case["lookup_reply"]["ok"]
+    valid = valid and (lookup_count == needed if denied or not needed else lookup_count >= needed)
     writes = trace["write_intents"]
     write_spans = [s for s in trace["spans"] if s["kind"] == "tool" and s["name"] in CAPS]
     approved = True
@@ -285,6 +293,8 @@ def run(output_dir):
     output_dir.mkdir(parents=True, exist_ok=True)
     results = []
     for task in pack["tasks"]:
+        if task["template"] in followup_tasks.CODES:
+            continue
         expected = {c["spec"]["key"]: c["spec"]["expected"] for c in task["conditions"] if c["kind"] == "info"}
         if expected != expected_answer(task):
             raise ValueError("Stored answer differs from workflow")
@@ -303,6 +313,7 @@ def run(output_dir):
             (output_dir / f"{task['code']}.{scenario}.json").write_text(json.dumps(trace, ensure_ascii=False, indent=2), encoding="utf-8")
             results.append({"task": task["code"], "scenario": scenario, "expected_success": success,
                             "matched": success == actual["success"], **actual})
+    results.extend(followup_tasks.run_tasks([t for t in pack["tasks"] if t["template"] in followup_tasks.CODES], output_dir, ROOT))
     report = {"simulation": True, "runs": len(results), "all_matched": all(r["matched"] for r in results), "results": results}
     (output_dir / "summary.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report

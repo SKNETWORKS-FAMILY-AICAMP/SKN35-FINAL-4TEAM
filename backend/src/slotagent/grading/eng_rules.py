@@ -8,12 +8,14 @@ import math
 import re
 import unicodedata
 from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal, InvalidOperation
 
 from slotagent.common import contracts
+from slotagent.common.confirmation import approved_write
 
-KINDS = {"info", "link", "order", "forbidden", "end_state"}
+KINDS = {"info", "link", "order", "forbidden", "end_state", "exact_writes"}
 MAX_ANSWER_DEPTH = 64
 MAX_NUMBER_CHARS = 1024
 
@@ -369,7 +371,30 @@ def _validate_access(spans, writes, intents, tool_access):
                 raise ValueError("쓰기 도구 이름의 신뢰 문맥이 충돌합니다.")
 
 
-def _check(kind: str, spec: dict, trace: dict, tool_access=None, complete=False) -> tuple[bool, dict]:
+@dataclass(frozen=True)
+class ConfirmationContext:
+    """승인 재검증용 신뢰 문맥. 문항 정책과 config_snapshot에서만 만들고 trace 값으로 채우지 않습니다.
+
+    policy=None은 "고정 답 없음"입니다. 문맥 자체가 없는 것(판정 불가)과 다릅니다.
+    """
+
+    policy: dict | None
+    write_tools: frozenset[str]
+    tool_capabilities: Mapping[str, list[str]]
+
+
+def _approved(span, trace, context):
+    if context is None:
+        raise RulePolicyRequired("confirmation_policy_context_missing")
+    if span["name"] not in context.write_tools:
+        raise RulePolicyRequired("confirmation_write_tool_missing")
+    # boolean(user_confirmed)은 믿지 않고 현재 시도의 확인·쓰기 기록을 처음부터 다시 봅니다.
+    return approved_write(
+        context.policy, trace, span["seq"], set(context.write_tools), dict(context.tool_capabilities)
+    )
+
+
+def _check(kind: str, spec: dict, trace: dict, tool_access=None, complete=False, confirmation=None):
     """조건 단위 passed/evidence만 반환합니다. 정책 부족·잘못된 입력은 예외입니다."""
     if not isinstance(kind, str) or kind not in KINDS:
         raise ValueError("지원하지 않는 정답 조건 kind입니다.")
@@ -449,11 +474,17 @@ def _check(kind: str, spec: dict, trace: dict, tool_access=None, complete=False)
         matched, unknown = _calls(tools, spec["call"], writes, tool_access, complete)
         normal = [span for span in matched if "error" not in span]
         if normal and spec.get("unless_user_confirmed"):
-            raise RulePolicyRequired("confirmation_policy_context_missing")
+            normal = [span for span in normal if not _approved(span, trace, confirmation)]
         if normal:
             return False, _evidence([s["seq"] for s in normal], [s["name"] for s in normal])
         _raise_pending(_pending(matched, unknown))
         return True, _evidence([], [])
+    if kind == "exact_writes":
+        from slotagent.grading.eng_writes import check_exact_writes  # 순환 import 방지
+
+        if confirmation is None:
+            raise RulePolicyRequired("tool_capabilities_missing")
+        return check_exact_writes(spec, trace, confirmation.tool_capabilities)
     if spec["write_intents"] == "none":
         return not intents, _evidence(list(writes), [s["name"] for s in intents])
     used, pending, missing = [], [], False
@@ -473,9 +504,11 @@ def _check(kind: str, spec: dict, trace: dict, tool_access=None, complete=False)
     return True, _evidence([s["seq"] for s in used], [s["name"] for s in used])
 
 
-def check(kind: str, spec: dict, trace: dict, *, tool_access=None, tool_access_complete=False) -> tuple[bool, dict]:
+def check(
+    kind: str, spec: dict, trace: dict, *, tool_access=None, tool_access_complete=False, confirmation=None
+) -> tuple[bool, dict]:
     """완전성은 호출자가 명시합니다(기본 불완전). 판정 불가에는 조건 key를 보존합니다."""
     try:
-        return _check(kind, spec, trace, tool_access, tool_access_complete)
+        return _check(kind, spec, trace, tool_access, tool_access_complete, confirmation)
     except RulePolicyRequired as exc:
         raise RulePolicyRequired(exc.code, spec.get("key") if isinstance(spec, dict) else None) from None
