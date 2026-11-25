@@ -1,21 +1,209 @@
 """④ 저장 함수. 형식 검사(contracts) → 내용 검사(common.checks) → DB 저장 → DB 오류를 api.error 로 바꿈."""
+
+from psycopg.types.json import Jsonb
+
 from slotagent.common import checks, contracts  # noqa: F401  checks 는 ④ 구현 때 씀
-from slotagent.common.hashing import canonical_hash  # noqa: F401  ④ 구현 때 씀
+from slotagent.common.hashing import agent_spec_hash, canonical_hash
 from slotagent.common.snapshot import build_config_snapshot
+
+RESERVED_TOOL_NAMES = {
+    "request_user_confirmation",
+    "get_write_result",
+    "get_work_state",
+}
+
+
+def _check_registration_tools(
+    tools: list[dict],
+    *,
+    is_tool_search: bool = False,
+) -> None:
+    """등록 시 예약 도구 이름과 쓰기 도구의 capabilities를 검사한다."""
+    errors = []
+
+    reserved = RESERVED_TOOL_NAMES.copy()
+
+    if is_tool_search:
+        reserved.add("search_tools")
+
+    for tool in tools:
+        name = tool["name"]
+
+        # 1. 엔진 예약 도구 이름 충돌 검사
+        if name in reserved:
+            errors.append(f"{name}은(는) 엔진 예약 도구 이름입니다.")
+
+        # 2. 쓰기 도구의 capabilities 누락 검사
+        if tool["access"] == "write":
+            if not tool.get("capabilities"):
+                errors.append(f"쓰기 도구 {name}에는 capabilities가 필요합니다.")
+
+    if errors:
+        raise checks.CheckError("invalid_spec", errors)
 
 
 def register_agent(conn, req: dict, owner_id: int) -> dict:
     """api.register_agent_request → agents·agent_versions + (service, access) 마다 slots + 자리마다 기준 후보 A.
     기준 후보는 checks.baseline_component(spec, slot) 로 만듦 (손으로 받지 않음). 돌려주는 값: api.register_agent_response"""
     contracts.validate("api", req, part="register_agent_request")
-    raise NotImplementedError
+
+    # ② Agent 버전 및 도구 구성 추출
+    version = req["version"]
+    spec = version["spec"]
+
+    # ③ 도구 등록 제약 검사
+    _check_registration_tools(spec["tools"])
+
+    # ④ 연결 방식별 쓰기 도구 검사
+    checks.check_write_modes(
+        version["connection_type"],
+        spec,
+    )
+
+    # ⑤ API 연결의 제어 수준 검사
+    if version["connection_type"] == "api" and version["control_level"] == "C2":
+        raise checks.CheckError(
+            "invalid_spec",
+            ["API 연결에서는 C2 제어 수준을 사용할 수 없습니다."],
+        )
+
+    # ⑥ 트랜잭션 시작
+    with conn.transaction():
+        # ⑦ Agent 기본 정보 저장
+        agent_row = conn.execute(
+            """
+            INSERT INTO sa_agents (
+                owner_id,
+                name,
+                purpose,
+                domain_code,
+                expected_monthly_calls
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING agent_id
+            """,
+            (
+                owner_id,
+                req["name"],
+                req.get("purpose"),
+                req.get("domain_code"),
+                req.get("expected_monthly_calls"),
+            ),
+        ).fetchone()
+
+        agent_id = agent_row[0]
+
+        # ⑧ Agent 구성 해시 생성
+        spec_hash = agent_spec_hash(
+            version["model"],
+            version["temperature"],
+            version["instructions"],
+            spec,
+        )
+
+        # ⑨ Agent 첫 번째 버전 저장
+        version_row = conn.execute(
+            """
+            INSERT INTO sa_agent_versions (
+                agent_id,
+                version_no,
+                connection_type,
+                questions_used,
+                model_provider,
+                control_level,
+                model,
+                temperature,
+                instructions,
+                spec,
+                spec_schema_version,
+                spec_hash
+            )
+            VALUES (%s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s)
+            RETURNING agent_version_id
+            """,
+            (
+                agent_id,
+                1,
+                version["connection_type"],
+                version.get("questions_used", False),
+                version["model_provider"],
+                version["control_level"],
+                version["model"],
+                version["temperature"],
+                version["instructions"],
+                Jsonb(spec),
+                spec["schema_version"],
+                spec_hash,
+            ),
+        ).fetchone()
+
+        # TODO: Slot 자동 생성 시 사용
+        agent_version_id = version_row[0]  # noqa: F841
+
+        raise NotImplementedError
 
 
 def register_candidate(conn, slot_id: int, req: dict) -> int:
-    """api.register_candidate_request → candidates 행 (기준 아님). checks.check_component 후 INSERT. 돌려주는 값: candidate_id"""
+    # ① 요청 JSON 검증
     contracts.validate("api", req, part="register_candidate_request")
-    comp = req["component_spec"]  # noqa: F841  ④ 구현 자리
-    raise NotImplementedError("INSERT INTO candidates(..., spec_hash=canonical_hash(comp))")
+    comp = req["component_spec"]
+
+    # ② Slot 조회 (comparable 포함)
+    row = conn.execute(
+        """
+        SELECT service, access, comparable
+        FROM sa_slots
+        WHERE slot_id = %s
+        """,
+        (slot_id,),
+    ).fetchone()
+
+    # ③ Slot 존재 여부 확인
+    if row is None:
+        raise checks.CheckError("not_found", ["존재하지 않는 Slot입니다."])
+
+    # ④ 비교 불가능한 Slot 등록 차단
+    if not row[2]:
+        raise checks.CheckError("wrong_slot", ["비교할 수 없는 Slot에는 Candidate를 등록할 수 없습니다."])
+
+    slot = {
+        "service": row[0],
+        "access": row[1],
+    }
+
+    # ⑤ 후보가 Slot에 적합한지 확인
+    checks.check_component(comp, slot)
+
+    # ⑤-1 도구 등록 제약 검사
+    _check_registration_tools(
+        comp.get("tools", []),
+        is_tool_search=comp["kind"] == "tool_search",
+    )
+
+    # ⑥ 후보 저장
+    result = conn.execute(
+        """
+        INSERT INTO sa_candidates (
+            slot_id, label, name, component_kind,
+            component_spec, spec_schema_version,
+            spec_hash, is_baseline
+        )
+        VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s, FALSE)
+        RETURNING candidate_id
+        """,
+        (
+            slot_id,
+            req["label"],
+            req["name"],
+            comp["kind"],
+            __import__("json").dumps(comp, ensure_ascii=False),
+            comp["schema_version"],
+            canonical_hash(comp),
+        ),
+    ).fetchone()
+
+    return result[0]
 
 
 def create_experiment_draft(conn, req: dict, user_id: int) -> int:
