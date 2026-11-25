@@ -1,5 +1,7 @@
 # 팀 프로젝트 Daily Plan
 
+> 이 문서는 2026-11-06의 초기 계획 기록입니다. 아래 예정 표시를 현재 미완료 목록으로 해석하지 않습니다. 현재 프로젝트 진행은 [프로젝트 README](README.md#진행-상황), ② 담당 진행은 [평가팩 안내](packs/README.md)와 [시작 체크리스트](docs/checklist.md), 별도 ML 실험은 [오답 위험 예측 안내](backend/ml_failure_risk/README.md)를 봅니다.
+
 - 날짜: 2026-11-06 (Fri, Nov 6th)
 - 팀명: 미정 — 오늘 결정
 - plan.md 작성 담당: 권준호

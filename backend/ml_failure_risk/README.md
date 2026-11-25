@@ -1,17 +1,30 @@
-# 오답 위험 예측 (LightGBM) 뼈대
+# 오답 위험 예측 (LightGBM)
 
 실행 기록 1건(풀이 1회)을 보고 **이 답이 틀렸을 가능성**을 예측합니다. 채택·기각 판정에는 쓰지 않습니다.
-전처리 코드는 여기에 없습니다. 전처리 담당이 아래 모양의 표를 `data/`에 넣으면 됩니다.
+`preprocess.py`가 실행 기록 JSONL을 아래 형식의 `data/train.csv`, `data/final.csv`로 변환합니다.
+
+## 현재 상태 — 2026-11-25
+
+- 전처리 완료: 원본 1,656건에서 `cand=A_own`이면서 `scope_a=false`인 108건을 제외했습니다. 학습 1,080건·최종 평가 468건입니다.
+- 기준 모델·로지스틱 회귀·LightGBM의 유형 단위 5겹 교차검증을 완료했습니다. PR-AUC(AP)는 각각 0.2093·0.7490·0.9205이며 LightGBM을 선정·저장했습니다.
+- 모델·설정·임계값 확정 후 최종 평가를 1회 완료했습니다. PR-AUC(AP) 0.9546, 오답 재현율 94.64%이며 T7 재현율은 40%입니다.
+- 사람 확인은 0건입니다. 오답 50건·정답 50건 검수와 결과 반영이 남아 있습니다(11/27 금요일까지).
+- 입력은 11/18 사전 실험의 46문항·11유형·GPT-4.1-mini 1종 기록이며, 현재 50유형 평가팩과 별개입니다. 연습용 데이터·도구 결과 600자 잘림·글자 포함 여부 자동 라벨의 한계가 있습니다.
+
+세부사항: [전처리결과서](reports/전처리결과서.md), [학습결과서](reports/학습결과서.md), [교차검증 비교표](reports/cv_comparison.csv). CSV·모델·수치 결과는 Git 제외 대상이므로 별도 전달이 필요합니다.
 
 ## 실행
+
+아래는 새 데이터로 처음 실행하는 순서입니다. 현재 최종 평가는 이미 1회 완료했으므로 결과 확인에는 저장된 보고서를 사용합니다. 학습 재실행은 기존 모델·보고서를 덮어쓸 수 있습니다.
+
 ```bash
 cd backend/ml_failure_risk
-uv run python make_sample.py      # 연습용 가짜 표 (진짜 표가 없을 때만)
+uv run python -m pytest -q tests
+uv run python preprocess.py --source <trace_main_20261118_152602.jsonl의_경로>
 uv run python train.py            # 교차검증 비교, 모델 저장
 uv run python evaluate.py --final # 모델을 다 정한 뒤 마지막에 한 번
-uv run python -m pytest -q tests  # 안전장치 검사
 ```
-진짜 표로 바꿀 때는 가짜 `data/`, `models/`와 `reports/`의 결과 파일(`final_opened.log` 포함)을 먼저 지웁니다.
+가짜 표 연습은 진짜 데이터가 없는 별도 작업 사본에서 `make_sample.py` → `train.py`로 수행합니다. 가짜 결과에서 진짜 표로 전환할 때만 가짜 `data/`, `models/`, `reports/` 결과 파일(`final_opened.log` 포함)을 정리하며 `*_틀.md`는 남깁니다. 현재 저장된 실제 실험의 결과·최종 평가 기록은 보존합니다. 전처리는 출력이 이미 있으면 중단하므로 재현 확인에는 별도 `--output-dir`와 `--report`를 지정합니다.
 
 ## 전처리 표 (`data/train.csv`, `data/final.csv`, UTF-8)
 풀이 1회 = 1줄.

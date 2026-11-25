@@ -1,4 +1,4 @@
-# 기능 이름표 사전 (초안, 11/23) — ②④ 같이 관리
+# 기능 이름표 사전 (11/25 반영) — ②④ 같이 관리
 
 문항 유형의 `required_capabilities`(②)와 도구의 `capabilities`(④)는 **이 표의 이름만** 씁니다.
 같은 이름이어야 실행 전 범위 판정(`checks.template_scope`)이 맞습니다. 결정 기록: `docs/decisions_pending.md` P-13.
