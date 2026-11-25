@@ -11,6 +11,23 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-25 · Claude · taemin (Codex 감사 22건 수정)
+- 한 일: ① gate=false 조건은 성공을 막지 않음, `ConditionResult.gate` 추가 ② 임대마다 `leased_by`에 고유값(워커#난수) → 재개 뒤 옛 임대 거절 ③ 조건·코드 결함은 채점을 멈추고, 기록 오류(`load_trace` 실패, `eng_rules.TraceError`)만 grader_error ④ 이어서 채점할 때 저장된 규칙 결과와 다르면 멈춤 ⑤ 같은 실행 동시 호출 ⑥ 트랜잭션 끝에서 임대 재확인 ⑦ 풀이 워커는 run_trial만 회수 ⑧ plan.tasks가 배열이 아니면 invalid_plan ⑨ DB 원문 대신 코드별 문구 ⑩ 처리 못 한 예외는 로그에 종류·위치만
+- 검증: 전체 1254 passed / 1 skipped / 실패 0, Ruff 0건. 감사 테스트는 고치지 않음. `test_db_trace_gives_same_rule_results_as_engine_trace`는 시간의 부동소수 끝자리 때문에 가끔 실패해 근사 비교로 바꿈.
+- 안 한 일 / 남은 일: analyze·report 워커를 만들 때 자기 종류의 만료 임대를 직접 회수해야 함. 계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: ②에게 — undecided·judge_status 조합, gate=false인 forbidden은 없음(항상 관문).
+
+## 2026-11-25 · Claude · taemin (자체 조회 도구 고정 응답, 등록 검사)
+- 한 일: `engine/fixed_tools.py` — custom 조회 도구를 `fixed_responses`로 실행(stdio·Docker에는 연결 안 함, 자체 조회 도구만 있어도 됨). 맞는 응답이 없으면 `tool_error`로 모델에 돌려주고 계속. `checks.check_registration`(이름 겹침·엔진 도구 이름·쓰기 이름표·write_mode)·`checks.build_slots`(자리 이름·비교 가능 여부·이유). 테스트 `test_eng_registration.py`
+- 정한 것: 값은 JSON으로 비교(true와 1은 다름, 쓰기 도구의 고정 응답도 같음) / 쓰기 자리는 write_mode와 관계없이 비교 불가 / 업로드는 자체 도구가 하나라도 섞인 자리를 비교 불가로 봄
+- 안 한 일 / 남은 일: ④ `register_agent`에서 두 함수를 부르기. ④ 파일·계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: 쓰기 자리 비교 불가는 DB 주석(0002)이 근거이고 기획서 1.3에는 직접 없음.
+
+## 2026-11-25 · Codex · taemin (채점 파이프라인·실험 API 감사)
+- 한 일: cce73b8 이후 전체(현재 96e8cc5) 검증. 새 감사 파일 `test_eng_pipeline_audit.py`·`test_eng_api_audit.py`만 추가(119건: 97 passed / 22 failed, 문제 10종 재현). 기준 전체 1108 passed / 1 skipped → 감사 포함 최종 전체 1205 passed / 22 failed / 1 skipped(실패는 새 감사 파일에만), Ruff 0건, 골든 185 일치 / 3 불일치 / 0 판정 불가. 프로세스 즉시 종료 3단계 재개·조건 6종 trace 왕복·긴 판정 하트비트·재채점/원래 승인 정책·API 경쟁/503 뒤 재호출 확인. 메모리 변이 6개를 기존 테스트가 검출, 복구 확인.
+- 안 한 일 / 남은 일: 제품 수정 없음. attempts 초기화의 옛 임대 토큰 재사용, gate 누락(현재 팩 비관문 0개이나 유효한 gate=false 입력은 거절), 코드/팩 오류의 grader_error 확정, 재계산 규칙과 저장 규칙 충돌 무시, 동시 직접 호출 오류, 트랜잭션 중 임대 만료 후 쓰기, 풀이 워커의 grade 회수 상한 적용, 비배열 plan.tasks의 500, DB HINT 원문 응답·일반 예외 원문 로그 노출을 보고. 개발 DB·외부 API·계약·DB 파일·packs·기존 테스트·checklist 변경, 커밋·push·브랜치 전환 없음.
+- 의문점 / 미검증: undecided의 ② 해결 증거·judge_status 조합, 블라인드 경계, 본문/Content-Type 및 교차 출처 요청 정책. Origin이 다른 빈 POST도 상태를 바꿈(HTTP 확인, 실제 브라우저 보호 정책 미검증). ② 실제 판정·③ 최종 집계·PostgreSQL 17·분산 호스트 Docker는 미검증. P-01 실패·undecidable 제외 등 확정 정책은 재결정하지 않음. 별도 보고서 파일 없음.
+
 ## 2026-11-25 · Claude · taemin (실험 실행·중지·상태 API)
 - 한 일: `api/eng_experiments.py`(run·stop·status), `api/eng_app.py`(앱, 오류를 모두 api.error로), `engine/lock.py`의 오류를 CheckError(not_found·experiment_locked)로. 테스트 `test_eng_api.py`
 - 정한 것: 초안 상태는 풀이 행이 없어 계획 수를 pending으로 셈(계약: 합계=trials_total≥1) / 초안 멈춤은 not_lockable, 끝난 실험의 실행·멈춤은 experiment_locked / 이미 멈춘 실험을 다시 멈추면 지금 상태 / DB 원문은 화면에 안 보냄, 잠금 경합은 503

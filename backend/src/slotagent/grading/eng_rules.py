@@ -28,6 +28,10 @@ class RulePolicyRequired(NotImplementedError):
         super().__init__(f"{code} (key={key})")
 
 
+class TraceError(ValueError):
+    """이 풀이의 실행 기록이 잘못됐습니다. 조건·코드 결함과 달리 다른 풀이의 채점은 계속할 수 있습니다."""
+
+
 class _NumberRangeError(ValueError):
     """숫자처럼 생겼지만 비교 표현 범위를 넘은 값입니다."""
 
@@ -39,13 +43,13 @@ def _canonical(value):
         raise ValueError("유한한 JSON 값이 필요합니다.") from exc
 
 
-def _json_quality(value, *, model=False):
+def _json_quality(value, *, model=False, error=ValueError):
     """jsonb가 거절할 NUL·surrogate·비유한 수를 검사합니다. 원문은 오류에 넣지 않습니다."""
 
     def fail(code):
         if model:
             raise RulePolicyRequired(code)
-        raise ValueError(f"조건 또는 trace 자체의 JSON 값이 올바르지 않습니다: {code}")
+        raise error(f"조건 또는 trace 자체의 JSON 값이 올바르지 않습니다: {code}")
 
     stack = [(value, 0)]
     while stack:
@@ -293,7 +297,7 @@ def _access(span, writes, tool_access=None, complete=False):
     declared = span.get("attributes", {}).get("access")
     if span["seq"] in writes:
         if declared is not None and declared != "write":
-            raise ValueError("쓰기 기록과 span access가 다릅니다.")
+            raise TraceError("쓰기 기록과 span access가 다릅니다.")
         return "write"
     if declared is None:
         raise RulePolicyRequired("tool_access_missing")
@@ -358,17 +362,17 @@ def _validate_access(spans, writes, intents, tool_access):
             continue
         declared = span.get("attributes", {}).get("access")
         if span["seq"] in writes and declared is not None and declared != "write":
-            raise ValueError("쓰기 기록과 trace access가 충돌합니다.")
+            raise TraceError("쓰기 기록과 trace access가 충돌합니다.")
         if tool_access is not None and span["name"] in tool_access:
             trusted = tool_access[span["name"]]
             if declared is not None and declared != trusted:
-                raise ValueError("신뢰 문맥과 trace access가 충돌합니다.")
+                raise TraceError("신뢰 문맥과 trace access가 충돌합니다.")
             if span["seq"] in writes and trusted != "write":
-                raise ValueError("신뢰 문맥과 쓰기 기록이 충돌합니다.")
+                raise TraceError("신뢰 문맥과 쓰기 기록이 충돌합니다.")
     if tool_access is not None:
         for intent in intents:
             if intent["name"] in tool_access and tool_access[intent["name"]] != "write":
-                raise ValueError("쓰기 도구 이름의 신뢰 문맥이 충돌합니다.")
+                raise TraceError("쓰기 도구 이름의 신뢰 문맥이 충돌합니다.")
 
 
 @dataclass(frozen=True)
@@ -413,18 +417,18 @@ def _check(kind: str, spec: dict, trace: dict, tool_access=None, complete=False,
         for span in trace["spans"]
     ]
     # 모델 원문은 info에서 별도 분류합니다. 다른 확정 조건의 채점을 막지 않습니다.
-    _json_quality(structural)
+    _json_quality(structural, error=TraceError)
     _canonical(spec)
     _canonical(trace)
     spans = sorted(trace["spans"], key=lambda s: s["seq"])
     by_seq = {s["seq"]: s for s in spans}
     if len(by_seq) != len(spans):
-        raise ValueError("span seq가 중복됐습니다.")
+        raise TraceError("span seq가 중복됐습니다.")
     writes, intents = set(), []
     for intent in trace["write_intents"]:
         span = by_seq.get(intent["span_seq"])
         if span is None or span["kind"] != "tool":
-            raise ValueError("쓰기 기록의 span 참조가 올바르지 않습니다.")
+            raise TraceError("쓰기 기록의 span 참조가 올바르지 않습니다.")
         writes.add(intent["span_seq"])
         # end_state는 호출 입력이 아니라 기록된 쓰기의 이름·payload를 비교합니다.
         # 하나의 호출이 여러 쓰기 기록을 남길 수 있으며 계약에 없는 1:1 제약은 넣지 않습니다.

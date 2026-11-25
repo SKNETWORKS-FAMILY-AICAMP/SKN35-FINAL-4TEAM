@@ -29,7 +29,7 @@ def status(conn, experiment_id: int) -> dict:
         # 한 문장으로 읽어 세는 동안 상태·풀이가 바뀌어도 같은 시점입니다.
         row = conn.execute(
             """SELECT e.status, e.stop_reason, e.budget_krw,
-                 coalesce(jsonb_array_length(e.plan->'tasks'),0) * e.reps
+                 CASE WHEN jsonb_typeof(e.plan->'tasks')='array' THEN jsonb_array_length(e.plan->'tasks') ELSE 0 END * e.reps
                    * (SELECT count(*) FROM sa_experiment_candidates c WHERE c.experiment_id=e.experiment_id),
                  (SELECT coalesce(jsonb_object_agg(s, n), '{}') FROM (
                     SELECT status AS s, count(*) AS n FROM (

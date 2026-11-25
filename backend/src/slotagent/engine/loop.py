@@ -16,9 +16,10 @@ from jsonschema import Draft202012Validator
 
 from slotagent.common import checks, contracts
 from slotagent.common.llm import ChatModel, ModelError, Price, openai_tools, storage_text
+from slotagent.engine import fixed_tools
 from slotagent.engine.tool_search import SEARCH, SEARCH_TOOL, ToolSearch
 from slotagent.engine.tracing import Recorder, storable_args
-from slotagent.engine.write_proxy import InvalidCall, WriteProxy
+from slotagent.engine.write_proxy import InvalidCall, WriteProxy, fill_defaults
 
 
 class RunCancelled(RuntimeError):
@@ -167,6 +168,11 @@ def run_agent(
                         result = json.dumps(answer, ensure_ascii=False)
                     elif proxy.handles(call.name):
                         result, attributes = proxy.run(call.name, args, record.plan(at), record.spans)
+                    elif fixed_tools.is_fixed_read(definition):
+                        attributes = {"origin": "custom", "fixed_response": True}
+                        result = fixed_tools.match(definition, fill_defaults(definition["parameters"], args))
+                        if result is None:
+                            error, result = "tool_error", fixed_tools.no_match()
                     else:
                         try:
                             result = deps.call_tool(call.name, args, seconds)

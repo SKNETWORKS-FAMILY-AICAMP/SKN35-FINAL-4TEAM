@@ -247,6 +247,19 @@ def test_broken_condition_stops_grading(experiment):
     assert grades(conn, run_id) == [] and not finished(conn, run_id)
 
 
+def test_conflicting_trace_only_marks_its_own_trial(experiment):
+    """기록이 등록한 권한과 어긋난 풀이만 grader_error. 채점 전체를 멈추지 않습니다."""
+    conn, data, run_id = prepare(experiment)
+    with conn.transaction():
+        conn.execute("SET LOCAL session_replication_role=replica")
+        conn.execute(
+            """UPDATE sa_spans SET attributes='{"access":"write"}' WHERE trial_id=%s AND kind='tool'""",
+            (data["trials"][0],),
+        )
+    grade(conn, run_id, classify=lambda *_: Verdict("correct"))
+    assert [(g[1], g[2]) for g in grades(conn, run_id)] == [("grader_error", None), ("graded", True)]
+
+
 def test_unreadable_trace_becomes_grader_error_not_failure(experiment):
     conn, data, run_id = prepare(experiment)
     conn.execute("SET session_replication_role = replica")
@@ -346,7 +359,10 @@ def test_db_trace_gives_same_rule_results_as_engine_trace(experiment):
     assert stored["write_intents"] == trace["write_intents"]
     metrics = trial_metrics(stored)
     assert (metrics["tool_calls"], metrics["distinct_tools"], metrics["repeated_calls"], metrics["steps"]) == (3, 2, 1, 7)
-    assert metrics == trial_metrics(trace)
+    expected = trial_metrics(trace)
+    # DB numeric 을 거치면 시간의 마지막 자리 부동소수만 달라질 수 있습니다.
+    assert metrics.pop("tool_sec_by_tool") == pytest.approx(expected.pop("tool_sec_by_tool"))
+    assert metrics == expected
 
 
 def test_metrics_empty_results():

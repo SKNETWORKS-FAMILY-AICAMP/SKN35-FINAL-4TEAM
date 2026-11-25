@@ -15,17 +15,18 @@ from __future__ import annotations
 import json
 from collections import Counter
 from collections.abc import Callable
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 
 from psycopg.pq import TransactionStatus
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from slotagent.common import contracts, queue
+from slotagent.common import checks, contracts, queue
 from slotagent.common.hashing import canonical_hash, canonical_json
 from slotagent.engine import advance
 from slotagent.grading.eng_context import from_snapshot
-from slotagent.grading.eng_rules import RulePolicyRequired, check
+from slotagent.grading.eng_rules import RulePolicyRequired, TraceError, check
 
 
 class JudgeNotConnected(NotImplementedError):
@@ -40,6 +41,7 @@ class ConditionResult:
     passed: bool | None  # None = 규칙으로 판정 불가
     evidence: dict = field(default_factory=dict)
     undecided: str | None = None
+    gate: bool = True  # False 면 진단용. 성공 여부를 막지 않습니다 (checks.condition_gate)
 
 
 @dataclass(frozen=True)
@@ -142,13 +144,14 @@ def check_conditions(conditions: list[dict], trace: dict, context: dict) -> tupl
     results = []
     for c in conditions:
         base = (c["answer_condition_id"], c["seq"], c["kind"])
+        gate = checks.condition_gate(c["kind"], c["spec"])
         try:
             passed, evidence = check(c["kind"], c["spec"], trace, **context)
         except RulePolicyRequired as exc:
-            results.append(ConditionResult(*base, None, undecided=exc.code))
+            results.append(ConditionResult(*base, None, undecided=exc.code, gate=gate))
             continue
         contracts.validate("grading", evidence, part="condition_evidence")
-        results.append(ConditionResult(*base, passed, evidence))
+        results.append(ConditionResult(*base, passed, evidence, gate=gate))
     return tuple(results)
 
 
@@ -199,17 +202,29 @@ def _load(conn, run, trial_id):
     return trial, conditions
 
 
-def _guard(conn, job):
-    if job is not None:
-        queue.guard(conn, job)
+@contextmanager
+def _fenced(conn, job):
+    """임대를 쥔 채로만 저장합니다. 트랜잭션 도중 만료되면 끝에서 전부 되돌립니다."""
+    with queue.transaction(conn):
+        if job is not None:
+            queue.guard(conn, job)
+        yield
+        if job is not None:
+            queue.guard(conn, job)
+
+
+def _is_finished(conn, run_id) -> bool:
+    """채점 실행 행을 잠가 _finish 와 순서를 정합니다. 작업 없이 같은 실행을 동시에 부를 때 필요합니다."""
+    return conn.execute(
+        "SELECT finished_at IS NOT NULL FROM sa_grading_runs WHERE grading_run_id=%s FOR SHARE", (run_id,)
+    ).fetchone()[0]
 
 
 def _grade_rules(conn, run, trial_id, job) -> GradeItem | None:
     """규칙 결과를 저장하고 ②에게 넘길 값을 만듭니다. 이미 채점한 풀이와 채점기 오류 풀이는 None."""
     run_id = run["grading_run_id"]
-    with queue.transaction(conn):
-        _guard(conn, job)
-        if conn.execute(
+    with _fenced(conn, job):
+        if _is_finished(conn, run_id) or conn.execute(
             "SELECT 1 FROM sa_trial_grades WHERE grading_run_id=%s AND trial_id=%s", (run_id, trial_id)
         ).fetchone():
             return None
@@ -217,9 +232,16 @@ def _grade_rules(conn, run, trial_id, job) -> GradeItem | None:
         context = from_snapshot(trial["config_snapshot"], trial["confirmation"])
         try:
             trace = load_trace(conn, trial)
-            results = check_conditions(conditions, trace, context)
-            trial_metrics(trace)
+            unreadable = False
         except (ValueError, RecursionError):
+            unreadable = True
+        if not unreadable:
+            try:
+                # 기록 오류(TraceError)만 풀이 탓입니다. 조건·코드 결함은 그대로 올려 채점을 멈춥니다.
+                results = check_conditions(conditions, trace, context)
+            except TraceError:
+                unreadable = True
+        if unreadable:
             # 이 풀이의 기록을 채점기가 읽지 못했습니다. 후보 실패로 세지 않습니다.
             conn.execute(
                 """INSERT INTO sa_trial_grades(grading_run_id,trial_id,grade_status) VALUES (%s,%s,'grader_error')
@@ -227,8 +249,18 @@ def _grade_rules(conn, run, trial_id, job) -> GradeItem | None:
                 (run_id, trial_id),
             )
             return None
+        trial_metrics(trace)
+        saved = dict(
+            conn.execute(
+                "SELECT answer_condition_id,passed FROM sa_condition_results WHERE grading_run_id=%s AND trial_id=%s",
+                (run_id, trial_id),
+            ).fetchall()
+        )
         for r in results:
             if r.passed is not None:
+                if saved.get(r.answer_condition_id, r.passed) != r.passed:
+                    # 중단 전과 다른 규칙으로 이어서 채점하면 한 실행에 결과가 섞입니다.
+                    raise ValueError("저장된 규칙 결과와 다시 계산한 결과가 다릅니다. 새 채점 실행을 만드세요.")
                 conn.execute(
                     """INSERT INTO sa_condition_results(grading_run_id,trial_id,answer_condition_id,passed,evidence)
                        VALUES (%s,%s,%s,%s,%s)
@@ -264,7 +296,7 @@ def check_verdict(item: GradeItem, verdict: Verdict) -> bool:
     success = verdict.result_class == "correct"
     if success and item.run_outcome != "completed":
         raise ValueError("끝까지 실행하지 못한 풀이는 성공일 수 없습니다.")
-    if success and any(r.passed is False for r in item.conditions):
+    if success and any(r.gate and r.passed is False for r in item.conditions):
         raise ValueError("규칙 조건에서 실패한 풀이를 성공으로 바꿀 수 없습니다.")
     if success and verdict.first_fail_type is not None:
         raise ValueError("성공한 풀이에는 첫 실패 단계가 없습니다.")
@@ -275,8 +307,9 @@ def check_verdict(item: GradeItem, verdict: Verdict) -> bool:
 
 def _save_grade(conn, item, verdict, job):
     success = check_verdict(item, verdict)
-    with queue.transaction(conn):
-        _guard(conn, job)
+    with _fenced(conn, job):
+        if _is_finished(conn, item.grading_run_id):
+            return  # 같은 실행을 다른 호출이 먼저 끝냈습니다. 끝난 채점에는 더하지 않습니다.
         conn.execute(
             """INSERT INTO sa_trial_grades(grading_run_id,trial_id,success,result_class,first_fail_type,fail_tags,
                out_of_scope,forbidden_action,judge_status,unmeasurable,metrics)
@@ -300,7 +333,8 @@ def _save_grade(conn, item, verdict, job):
 def _finish(conn, run, job):
     """finished_at·analyze 작업·작업 완료를 한 트랜잭션으로. 빠진 채점은 DB 트리거가 거절합니다."""
     with queue.transaction(conn):
-        _guard(conn, job)
+        if job is not None:
+            queue.guard(conn, job)
         conn.execute(
             "UPDATE sa_grading_runs SET finished_at=now() WHERE grading_run_id=%s AND finished_at IS NULL",
             (run["grading_run_id"],),

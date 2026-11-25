@@ -11,7 +11,7 @@ import json
 
 from slotagent.common import contracts
 from slotagent.common.confirmation import approved_write, argument_values, fixed_response
-from slotagent.engine import write_scenario
+from slotagent.engine import fixed_tools, write_scenario
 from slotagent.engine.tracing import storable_args
 
 CONFIRM = "request_user_confirmation"
@@ -204,8 +204,8 @@ class WriteProxy:
                 count = self.used.get(number, 0)
                 self.used[number] = count + 1
                 return rule["outcomes"][min(count, len(rule["outcomes"]) - 1)]
-        for fixed in self.definitions[name].get("fixed_responses", []):
-            # tool_def: 인자가 맞는 첫 항목. 시나리오 문항에서는 write_ref 가 있는 공통 응답을 씁니다.
-            if self.scenario is None and all(k in args and args[k] == v for k, v in fixed["when"].items()):
-                return {"status": "ok", "raw": fixed["result"]}
+        # 시나리오 문항에서는 write_ref 가 있는 공통 응답을 씁니다.
+        raw = fixed_tools.match(self.definitions[name], args) if self.scenario is None else None
+        if raw is not None:
+            return {"status": "ok", "raw": raw}
         return {"status": "ok"}

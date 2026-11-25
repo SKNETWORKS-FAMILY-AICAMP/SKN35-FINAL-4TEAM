@@ -112,6 +112,7 @@ def run_once(connect, worker_id, *, deps, heartbeat_sec=20, max_attempts=MAX_ATT
         queue.reclaim(
             conn,
             max_attempts=max_attempts,
+            kinds=("run_trial",),  # 다른 종류는 그 워커가 자기 상한으로 회수합니다.
             cleanup_expired=(lambda jobs: cleanup(jobs, conn=conn)) if cleanup is not None else None,
         )
         job = queue.lease(conn, worker_id)
