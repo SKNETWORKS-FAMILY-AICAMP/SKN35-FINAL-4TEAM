@@ -87,10 +87,6 @@
                 "api"
               ]
             },
-            "questions_used": {
-              "description": "등록 질문으로 정보를 채웠는지 (11/23). 연결 방식과 따로 셈. 비면 false",
-              "type": "boolean"
-            },
             "control_level": {
               "enum": [
                 "C0",
