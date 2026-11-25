@@ -240,6 +240,21 @@ def on_grading_finished(conn, grading_run_id: int) -> int:
         return enqueue(conn, p)
 
 
+def resume_failed_grading(conn, grading_run_id: int) -> bool:
+    """사람이 원인을 고친 뒤 failed 로 끝난 grade 작업을 다시 넣습니다. 저장한 규칙·채점 결과는 이어서 씁니다."""
+    with queue.transaction(conn):
+        done = _one(conn, "SELECT finished_at IS NOT NULL FROM sa_grading_runs WHERE grading_run_id=%s FOR UPDATE",
+                    grading_run_id)
+        if done is None:
+            raise ValueError("채점 실행이 없습니다.")
+        if done:
+            return False
+        job = _event_job(conn, "grade", "grading_run_id", grading_run_id)
+        return job is not None and _one(
+            conn, "UPDATE sa_jobs SET status='queued', attempts=0, updated_at=now() WHERE job_id=%s AND status='failed' RETURNING job_id",
+            job) is not None
+
+
 def _event_job(conn, kind: str, field: str, event_id: int) -> int | None:
     """호출자는 대응하는 부모 행을 같은 트랜잭션에서 잠근 뒤 조회합니다."""
     return _one(conn, """SELECT job_id FROM sa_jobs WHERE kind=%s AND payload->>%s=%s

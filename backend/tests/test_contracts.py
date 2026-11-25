@@ -288,9 +288,12 @@ def test_tool_first_gate():
 
 
 def test_questions_is_not_a_connection_type():
-    """질문은 연결 방식이 아니라 questions_used 칸 (11/23)"""
+    """질문은 연결 방식이 아님 (11/23). 질문을 썼는지도 요청으로 받지 않음 (11/25)"""
     req = load("api_and_jobs.json")["api.register_agent_request"]
     assert not contracts.errors("api", req, part="register_agent_request")
+    old = copy.deepcopy(req)
+    old["version"]["questions_used"] = False
+    assert contracts.errors("api", old, part="register_agent_request")
     bad = copy.deepcopy(req)
     bad["version"]["connection_type"] = "questions"
     assert contracts.errors("api", bad, part="register_agent_request")

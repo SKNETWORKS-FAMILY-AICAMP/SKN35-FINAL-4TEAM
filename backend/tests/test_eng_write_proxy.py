@@ -259,3 +259,33 @@ def test_snapshot_context_covers_engine_tools():
     assert context["tool_access"]["get_write_result"] == "builtin"
     assert context["confirmation"].write_tools == frozenset(snapshot()["write_tools"])
     assert context["tool_access_complete"] is True
+
+
+@pytest.mark.parametrize("depth,ok", [(64, True), (65, False), (5000, False)])
+def test_argument_depth_limit(depth, ok):
+    from slotagent.engine.tracing import storable_args
+
+    value = {}
+    for _ in range(depth - 1):
+        value = {"v": value}
+    assert storable_args(value) is ok
+
+
+def test_exact_writes_without_capability_is_undecided():
+    trace, _ = run([ASK, WRITE], "끝", confirmation=APPROVE)
+    with pytest.raises(RulePolicyRequired, match="tool_capabilities_missing"):
+        check_exact_writes({"schema_version": 1, "writes": []}, trace, {**CAPS, "create_issue": []})
+
+
+@pytest.mark.parametrize("name", ["request_user_confirmation", "list_issues"])
+def test_unparsable_deep_arguments_are_returned_to_model(name):
+    from conftest import load
+
+    from slotagent.common.llm import FakeModel, Reply, ToolCall
+    from slotagent.engine.loop import Dependencies, run_agent
+
+    raw = '{"v":' * 10000 + "1" + "}" * 10000
+    model = FakeModel([Reply(tool_calls=(ToolCall("a", name, raw),)), Reply(text="끝")])
+    result = run_agent(snapshot(), "q", 1, Dependencies(model, lambda *a: ""), prereg=load("experiment.json")["prereg"])
+    assert tools(result.trace)[0]["error"] == "agent_invalid_tool_call"
+    assert len(model.requests) == 2

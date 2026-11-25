@@ -35,5 +35,5 @@
     },
     "runtime": { "$ref": "common.schema.json#/$defs/runtime" }
   },
-  "$comment": "어떻게 받았는지(파일·러너·API, 질문 사용 여부)는 agent_versions.connection_type·questions_used 칸에만 둠. spec 에 넣으면 같은 구성이 받는 방법에 따라 spec_hash 가 달라짐 (11/22 검토 16)"
+  "$comment": "어떻게 받았는지(파일·러너·API)는 agent_versions.connection_type 칸에만 둠. spec 에 넣으면 같은 구성이 받는 방법에 따라 spec_hash 가 달라짐 (11/22 검토 16)"
 }

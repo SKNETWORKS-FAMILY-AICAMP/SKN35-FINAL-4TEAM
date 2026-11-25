@@ -1,6 +1,6 @@
 """① DB를 모르는 실행 코어. 모델·읽기 도구·시계·중단 신호를 외부에서 주입합니다.
 
-쓰기와 확인 도구는 write_proxy가 밖으로 보내지 않고 처리합니다. 검색은 연결 전이라 명시적으로 막습니다.
+쓰기와 확인 도구는 write_proxy가 밖으로 보내지 않고 처리합니다. 도구 검색 후보는 검색으로 찾은 도구만 모델에 보입니다.
 """
 
 from __future__ import annotations
@@ -16,8 +16,10 @@ from jsonschema import Draft202012Validator
 
 from slotagent.common import checks, contracts
 from slotagent.common.llm import ChatModel, ModelError, Price, openai_tools, storage_text
-from slotagent.engine.tracing import Recorder
-from slotagent.engine.write_proxy import InvalidCall, WriteProxy
+from slotagent.engine import fixed_tools
+from slotagent.engine.tool_search import SEARCH, SEARCH_TOOL, ToolSearch
+from slotagent.engine.tracing import Recorder, storable_args
+from slotagent.engine.write_proxy import InvalidCall, WriteProxy, fill_defaults
 
 
 class RunCancelled(RuntimeError):
@@ -73,16 +75,14 @@ def run_agent(
     confirmation(P-05 고정 답)과 write_scenario는 엔진 전용이며 모델 메시지에 넣지 않습니다.
     """
     snap = copy.deepcopy(contracts.validate("config_snapshot", snap))
-    if snap.get("tool_search"):
-        raise NotImplementedError("도구 검색 실행은 다음 단계입니다.")
+    search = ToolSearch(snap) if snap.get("tool_search") else None
     proxy = WriteProxy(snap, confirmation, write_scenario)
     runtime = snap["runtime"]
     started = deps.clock()
     deadline = started + runtime["timeout_sec"]
     record = Recorder(seed)
     messages = [{"role": "system", "content": snap["instructions"]}, {"role": "user", "content": task_prompt}]
-    definitions = {t["name"]: t for t in [*snap["tools"], *proxy.tools]}
-    tools = openai_tools([*snap["tools"], *proxy.tools])
+    every = [*snap["tools"], *proxy.tools, *([SEARCH_TOOL] if search else [])]
     final = None
     steps = 0
 
@@ -104,6 +104,9 @@ def run_agent(
             seconds = remaining()
             steps += 1
             at = deps.now()
+            # 이번 요청에 보여 준 도구만 부를 수 있습니다. 같은 응답에서 검색한 도구는 다음 요청부터입니다.
+            definitions = {t["name"]: t for t in every if search is None or t["name"] not in search.hidden}
+            tools = openai_tools(list(definitions.values()))
             try:
                 reply = deps.model.chat(
                     provider=snap["model"]["provider"],
@@ -143,7 +146,8 @@ def run_agent(
                 definition = definitions.get(call.name)
                 try:
                     args = json.loads(call.arguments)
-                    if not isinstance(args, dict) or definition is None:
+                    # 저장할 수 없는 인자(NaN·Infinity, 너무 깊은 중첩)는 읽기 도구라도 실행하지 않습니다.
+                    if not isinstance(args, dict) or definition is None or not storable_args(args):
                         raise ValueError
                     if list(Draft202012Validator(definition["parameters"]).iter_errors(args)):
                         raise ValueError
@@ -152,15 +156,23 @@ def run_agent(
                 except InvalidCall:
                     args, error = {}, "agent_invalid_tool_call"
                     result = json.dumps({"error": error}, ensure_ascii=False)
-                except (ValueError, TypeError):
+                except (ValueError, TypeError, RecursionError):
                     if not isinstance(args, dict):
                         args = {}
                     error = "agent_invalid_tool_call"
                     result = json.dumps({"error": error}, ensure_ascii=False)
                 storage_text(args)
                 if error is None:
-                    if proxy.handles(call.name):
+                    if search is not None and call.name == SEARCH:
+                        answer, attributes = search.run(args)
+                        result = json.dumps(answer, ensure_ascii=False)
+                    elif proxy.handles(call.name):
                         result, attributes = proxy.run(call.name, args, record.plan(at), record.spans)
+                    elif fixed_tools.is_fixed_read(definition):
+                        attributes = {"origin": "custom", "fixed_response": True}
+                        result = fixed_tools.match(definition, fill_defaults(definition["parameters"], args))
+                        if result is None:
+                            error, result = "tool_error", fixed_tools.no_match()
                     else:
                         try:
                             result = deps.call_tool(call.name, args, seconds)

@@ -12,6 +12,8 @@
     check_experiment_candidates(rows)           # 32  기준 후보(is_baseline) 정확히 1개
     check_method(method, prereg)                # 33  analyses.method 의 복사본이 prereg 와 같은지
     check_write_modes(connection_type, spec)    # 1.3 쓰기 도구 실행 방식(연결별 허용 값)·쓰기 도구 10개까지
+    check_registration(connection_type, spec)   # 등록 때 도구·서비스 이름 겹침, 쓰기 도구 이름표, 쓰기 실행 방식
+    build_slots(connection_type, control_level, spec)  # 등록 때 만들 자리 목록 (비교 가능 여부·이유·이름)
     template_scope(tools, templates)            # 1.3 실행 전에 문항 유형별 범위 판정 (범위 밖 = 실패로 셈, P-01)
 제안값 추적(plan.proposal)은 common.proposal 에서 (3차 5 — 서버가 다시 계산해 비교)
 """
@@ -60,6 +62,58 @@ def check_write_modes(connection_type: str, agent_spec: Mapping[str, Any]) -> No
         elif mode is not None and mode not in allowed:
             errs.append(f"{connection_type} 연결에서 {t['name']} 의 write_mode 는 {', '.join(allowed)} 중 하나입니다")
     _raise("invalid_spec", errs)
+
+
+# ---- 등록: 자리와 이름 ------------------------------------------------------
+# 엔진이 주는 도구 이름. engine 과 같은지는 test_eng_registration 이 확인
+RESERVED_TOOL_NAMES = frozenset({"request_user_confirmation", "get_write_result", "get_work_state", "search_tools"})
+NOT_COMPARABLE_API = "API 연결 또는 통제 수준 C0·C1이라 자리 교체 비교를 하지 않습니다"
+NOT_COMPARABLE_WRITE = "쓰기 자리는 비교 대상이 아닙니다"
+NOT_COMPARABLE_CUSTOM = "코드를 받지 못한 자체 도구가 있어 비교할 수 없습니다"
+
+
+def check_registration(connection_type: str, agent_spec: Mapping[str, Any]) -> None:
+    """등록 때 (④). 저장 전에 한 번. check_write_modes 도 같이 부름."""
+    check_write_modes(connection_type, agent_spec)
+    errs = []
+
+    def dup(values):
+        values = list(values)
+        return sorted({v for v in values if values.count(v) > 1})
+
+    services, tools = agent_spec["services"], agent_spec["tools"]
+    for what, values in (("서비스 code", (s["code"] for s in services)), ("서비스 이름", (s["name"] for s in services)),
+                         ("도구 이름", (t["name"] for t in tools))):
+        if d := dup(values):
+            errs.append(f"{what} 이(가) 겹칩니다: {', '.join(d)}")
+    codes = {s["code"] for s in services}
+    for t in tools:
+        if t["service"] not in codes:
+            errs.append(f"도구 {t['name']} 의 서비스 {t['service']} 이(가) services 에 없습니다")
+        if t["name"] in RESERVED_TOOL_NAMES:
+            errs.append(f"{t['name']} 은(는) 엔진이 쓰는 도구 이름이라 쓸 수 없습니다")
+        if t["access"] == "write" and not t.get("capabilities"):
+            errs.append(f"쓰기 도구 {t['name']} 에 이름표(capabilities)가 필요합니다")
+    _raise("invalid_spec", errs)
+
+
+def build_slots(connection_type: str, control_level: str, agent_spec: Mapping[str, Any]) -> list[dict]:
+    """도구가 있는 (service, access) 마다 자리 하나. check_registration 을 통과한 spec 만 넣음.
+    기준 후보 A 는 비교할 수 없는 자리에도 만든다 (baseline_component). name 은 화면용이라 로직에서 쓰지 않음."""
+    names = {s["code"]: s["name"] for s in agent_spec["services"]}
+    slots = []
+    for service, access in sorted({(t["service"], t["access"]) for t in agent_spec["tools"]}):
+        tools = [t for t in agent_spec["tools"] if (t["service"], t["access"]) == (service, access)]
+        reason = None
+        if connection_type == "api" or control_level != "C2":
+            reason = NOT_COMPARABLE_API
+        elif access == "write":
+            reason = NOT_COMPARABLE_WRITE
+        elif connection_type == "spec_upload" and any(not t["origin"].startswith("mcp:") for t in tools):
+            reason = NOT_COMPARABLE_CUSTOM
+        slots.append({"name": f"{names[service]} {'조회' if access == 'read' else '쓰기'}", "service": service,
+                      "access": access, "comparable": reason is None, "not_comparable_reason": reason})
+    return slots
 
 
 # ---- 문항 유형 범위 (기획서 1.3 5.4, P-01 = fail) ---------------------------

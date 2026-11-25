@@ -2,12 +2,29 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
 
 from slotagent.common import contracts
 from slotagent.common.llm import ModelError, Reply, _tokens, add_cost, storage_cost
+
+MAX_ARGS_DEPTH = 64
+
+
+def storable_args(value) -> bool:
+    """jsonb에 넣을 수 있는 인자인지. 재귀 없이 유한한 수와 중첩 깊이를 봅니다."""
+    stack = [(value, 1)]
+    while stack:
+        item, depth = stack.pop()
+        if isinstance(item, float) and not math.isfinite(item):
+            return False
+        if isinstance(item, (dict, list)):
+            if depth > MAX_ARGS_DEPTH:
+                return False
+            stack.extend((child, depth + 1) for child in (item.values() if isinstance(item, dict) else item))
+    return True
 
 
 @dataclass
@@ -21,6 +38,9 @@ class Recorder:
         return {"seq": len(self.spans) + 1, "started_at": started_at.astimezone(UTC).isoformat()}
 
     def add(self, kind: str, name: str, started_at: datetime, duration_sec: float, **fields) -> dict:
+        if fields.get("error") == "agent_invalid_tool_call" and not storable_args(fields.get("tool_args")):
+            # 실행하지 않은 호출입니다. 모델 원문은 llm span의 tool_calls에 문자열로 남아 있습니다.
+            fields["tool_args"] = {}
         span = {
             "seq": len(self.spans) + 1,
             "kind": kind,

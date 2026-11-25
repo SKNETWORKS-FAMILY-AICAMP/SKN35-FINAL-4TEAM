@@ -756,10 +756,6 @@ export interface RegisterAgentRequest {
   expected_monthly_calls?: number;
   version: {
     connection_type: "spec_upload" | "runner" | "api";
-    /**
-     * 등록 질문으로 정보를 채웠는지 (11/23). 연결 방식과 따로 셈. 비면 false
-     */
-    questions_used?: boolean;
     control_level: "C0" | "C1" | "C2";
     model: string;
     temperature: number;

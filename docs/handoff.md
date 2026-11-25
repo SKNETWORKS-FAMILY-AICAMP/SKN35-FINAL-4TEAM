@@ -11,6 +11,55 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-25 · Claude · taemin (Codex 감사 22건 수정)
+- 한 일: ① gate=false 조건은 성공을 막지 않음, `ConditionResult.gate` 추가 ② 임대마다 `leased_by`에 고유값(워커#난수) → 재개 뒤 옛 임대 거절 ③ 조건·코드 결함은 채점을 멈추고, 기록 오류(`load_trace` 실패, `eng_rules.TraceError`)만 grader_error ④ 이어서 채점할 때 저장된 규칙 결과와 다르면 멈춤 ⑤ 같은 실행 동시 호출 ⑥ 트랜잭션 끝에서 임대 재확인 ⑦ 풀이 워커는 run_trial만 회수 ⑧ plan.tasks가 배열이 아니면 invalid_plan ⑨ DB 원문 대신 코드별 문구 ⑩ 처리 못 한 예외는 로그에 종류·위치만
+- 검증: 전체 1254 passed / 1 skipped / 실패 0, Ruff 0건. 감사 테스트는 고치지 않음. `test_db_trace_gives_same_rule_results_as_engine_trace`는 시간의 부동소수 끝자리 때문에 가끔 실패해 근사 비교로 바꿈.
+- 안 한 일 / 남은 일: analyze·report 워커를 만들 때 자기 종류의 만료 임대를 직접 회수해야 함. 계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: ②에게 — undecided·judge_status 조합, gate=false인 forbidden은 없음(항상 관문).
+
+## 2026-11-25 · Claude · taemin (자체 조회 도구 고정 응답, 등록 검사)
+- 한 일: `engine/fixed_tools.py` — custom 조회 도구를 `fixed_responses`로 실행(stdio·Docker에는 연결 안 함, 자체 조회 도구만 있어도 됨). 맞는 응답이 없으면 `tool_error`로 모델에 돌려주고 계속. `checks.check_registration`(이름 겹침·엔진 도구 이름·쓰기 이름표·write_mode)·`checks.build_slots`(자리 이름·비교 가능 여부·이유). 테스트 `test_eng_registration.py`
+- 정한 것: 값은 JSON으로 비교(true와 1은 다름, 쓰기 도구의 고정 응답도 같음) / 쓰기 자리는 write_mode와 관계없이 비교 불가 / 업로드는 자체 도구가 하나라도 섞인 자리를 비교 불가로 봄
+- 안 한 일 / 남은 일: ④ `register_agent`에서 두 함수를 부르기. ④ 파일·계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: 쓰기 자리 비교 불가는 DB 주석(0002)이 근거이고 기획서 1.3에는 직접 없음.
+
+## 2026-11-25 · Codex · taemin (채점 파이프라인·실험 API 감사)
+- 한 일: cce73b8 이후 전체(현재 96e8cc5) 검증. 새 감사 파일 `test_eng_pipeline_audit.py`·`test_eng_api_audit.py`만 추가(119건: 97 passed / 22 failed, 문제 10종 재현). 기준 전체 1108 passed / 1 skipped → 감사 포함 최종 전체 1205 passed / 22 failed / 1 skipped(실패는 새 감사 파일에만), Ruff 0건, 골든 185 일치 / 3 불일치 / 0 판정 불가. 프로세스 즉시 종료 3단계 재개·조건 6종 trace 왕복·긴 판정 하트비트·재채점/원래 승인 정책·API 경쟁/503 뒤 재호출 확인. 메모리 변이 6개를 기존 테스트가 검출, 복구 확인.
+- 안 한 일 / 남은 일: 제품 수정 없음. attempts 초기화의 옛 임대 토큰 재사용, gate 누락(현재 팩 비관문 0개이나 유효한 gate=false 입력은 거절), 코드/팩 오류의 grader_error 확정, 재계산 규칙과 저장 규칙 충돌 무시, 동시 직접 호출 오류, 트랜잭션 중 임대 만료 후 쓰기, 풀이 워커의 grade 회수 상한 적용, 비배열 plan.tasks의 500, DB HINT 원문 응답·일반 예외 원문 로그 노출을 보고. 개발 DB·외부 API·계약·DB 파일·packs·기존 테스트·checklist 변경, 커밋·push·브랜치 전환 없음.
+- 의문점 / 미검증: undecided의 ② 해결 증거·judge_status 조합, 블라인드 경계, 본문/Content-Type 및 교차 출처 요청 정책. Origin이 다른 빈 POST도 상태를 바꿈(HTTP 확인, 실제 브라우저 보호 정책 미검증). ② 실제 판정·③ 최종 집계·PostgreSQL 17·분산 호스트 Docker는 미검증. P-01 실패·undecidable 제외 등 확정 정책은 재결정하지 않음. 별도 보고서 파일 없음.
+
+## 2026-11-25 · Claude · taemin (실험 실행·중지·상태 API)
+- 한 일: `api/eng_experiments.py`(run·stop·status), `api/eng_app.py`(앱, 오류를 모두 api.error로), `engine/lock.py`의 오류를 CheckError(not_found·experiment_locked)로. 테스트 `test_eng_api.py`
+- 정한 것: 초안 상태는 풀이 행이 없어 계획 수를 pending으로 셈(계약: 합계=trials_total≥1) / 초안 멈춤은 not_lockable, 끝난 실험의 실행·멈춤은 experiment_locked / 이미 멈춘 실험을 다시 멈추면 지금 상태 / DB 원문은 화면에 안 보냄, 잠금 경합은 503
+- 안 한 일 / 남은 일: **로그인·소유자 확인 없음**(정해진 것이 없어 127.0.0.1에서만), plan-proposal 라우터(②③ 값 대기), 다른 역할 라우터 연결, 화면 연결. 계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: 초안 멈춤에 맞는 오류 코드가 계약에 없어 not_lockable을 씀.
+
+## 2026-11-25 · Claude · taemin (채점 파이프라인)
+- 한 일: `grading/eng_pipeline.py` — 풀이마다 규칙 채점 저장 → 주입한 ② 판정 함수(`classify(conn, item) -> Verdict`) → trial_grades → finished_at·analyze 작업. `workers/eng_main.grade_once`, `advance.resume_failed_grading`, `queue.reclaim(kinds=)` 추가. 하트비트는 run_once와 같이 쓰도록 뽑아냄(동작 같음). 테스트 `test_eng_pipeline.py`(가짜 판정)
+- 정한 것: 판정 함수가 없으면 규칙 결과만 저장하고 작업을 빌리지 않음 / 규칙으로 못 정한 조건은 행 없이 undecided로 ②에게 / 규칙 실패를 ②가 성공으로 못 바꿈 / 조건·범위 판정·해시가 틀리면 채점을 멈춤, 풀이 기록을 못 읽을 때만 grader_error
+- 안 한 일 / 남은 일: ② pack_judge·pack_classify를 Verdict 모양에 맞춰 끼우기, 실제 모델 풀이로 확인, ② 판정기 비용(source=judge) 예산 연결, grade 작업이 끝내 실패할 때 실험을 failed로 둘지(P-08), Codex 검증. 계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: undecided가 남은 풀이를 ②가 correct로 낼 수 있게 두었음(LLM이 정한 경우). 아니면 막아야 함 — ② 확인. 범위 밖인데 correct인 경우도 저장하고 실패로 세는 것은 ③의 outcome_rules에 맡김.
+
+## 2026-11-25 · Claude · taemin (감사 수정에 빠진 읽기 도구 경로)
+- 한 일: 읽기 도구 인자에 NaN·Infinity가 섞이면 도구가 실행된 뒤 저장이 실패하던 것을, 실행 전 agent_invalid_tool_call로 돌려줌(중첩 64 상한도 같이 적용). DB 저장 테스트 3개. 아래 감사 3건 수정은 다른 Claude 세션이 했고, 도구 검색과 합친 상태로 다시 확인함
+- 안 한 일 / 남은 일: Codex 검증. 커밋 없음.
+- 의문점: 없음. 계약·DB·packs 변경 없음.
+
+## 2026-11-25 · Claude · taemin (Codex 감사 3건 수정)
+- 한 일: ① 인자 검사를 재귀 없이(깊이 64, 넘으면 agent_invalid_tool_call), JSON 읽기 RecursionError도 같은 처리 ② 쓰기 이름표가 비면 승인 재검증·exact_writes를 판정 불가로 ③ 형식 오류 호출의 비유한 숫자·깊은 인자는 tool_args를 {}로 저장(원문은 llm span). 감사 테스트 76건 전부 통과, 골든 185/3/0. 기준 test.ps1 1049 passed/1 skipped 뒤 loop.py 한 줄과 테스트 2건을 더해 관련 테스트만 다시 확인
+- 안 한 일 / 남은 일: 시나리오 규칙 겹침·미일치 승인 쓰기의 정책(사용자 결정 대기). 커밋 없음.
+- 의문점: 없음. 계약·DB·packs 변경 없음.
+
+## 2026-11-25 · Claude · taemin (도구 검색 후보 실행)
+- 한 일: `engine/tool_search.py`(BM25) 구현, loop·worker의 "다음 단계" 차단 해제, `eng_context`에서 검색 후보일 때만 `search_tools`를 내장 도구로 인정. deferred 도구는 검색한 다음 응답부터 보이고, 안 보인 도구 호출은 실행하지 않음. 검색도 한 단계로 셈. 테스트 26개(`test_eng_tool_search.py`)
+- 안 한 일 / 남은 일: 실제 모델·실제 MCP 도구 설명으로 절감량 측정, Codex 검증. 바로 아래 Codex 감사의 실패 5건은 고치지 않음(9절: 고치기 전 보고). HARNESS_VERSION은 그대로(다른 후보 동작은 안 바뀜). 계약·DB·packs 변경 없음. 커밋 없음.
+- 의문점: 한국어 질의는 영어 도구 설명과 낱말이 안 겹쳐 못 찾음. 검색 도구 설명에 영어 낱말도 적으라고 안내만 함. `search_tools` 이름은 검색 후보에서만 예약(④에게 알릴 것).
+
+## 2026-11-25 · Codex · taemin (11/25 쓰기 계약·승인 재검증 감사)
+- 한 일: a498ceb→70dd43c 검증. 재현 테스트는 `backend/tests/test_eng_write_audit.py`에만 추가(71 passed / 5 failed: 새 문제 2건·기존 경로 문제 1건 재현). 기존 전체 943 passed / 1 skipped → 감사 포함 최종 전체 1014 passed / 5 failed / 1 skipped(실패는 감사 파일에만), Ruff 0건, 골든 185 일치 / 3 불일치 / 0 판정 불가. 쓰기 외부 호출·승인 위조 통과·비공개 값 유출은 검사 범위에서 발견하지 못함. 저장 롤백·재시도·임대 상실·풀이/attempt 초기화·해시·권한표와 임시 DB 신규/0004→0005 적용 확인.
+- 안 한 일 / 남은 일: `_finite` 깊은 입력의 RecursionError, eng_context의 쓰기 이름표 누락을 후보 실패로 판정, 형식 오류+NaN/Infinity의 JSONB 저장 실패(기존 오류 경로에도 존재)는 미수정. pgserver 16.2에서 검증했으며 PostgreSQL 17은 미검증. 제품·계약·DB 파일·packs·기존 테스트·checklist 수정, 외부 API·개발 DB 변경·커밋·push·브랜치 전환 없음.
+- 의문점: 시나리오 규칙 중복은 첫 항목 선택(순서를 바꾸면 결과 변경), 일치 규칙 없는 승인 쓰기는 ok 처리. 두 경우의 정책 명시 필요. AGENTS.md 9절 확정 규칙은 재결정하지 않음. 별도 보고서 파일 없음.
+
 ## 2026-11-25 · Claude · taemin (쓰기 계약·도구 권한을 ① 결정으로 적용)
 - 한 일: 사용자 결정으로 write_scenario·exact_writes·P-05 v1을 계약에 적용(CHANGELOG), DB 0005, 워커·로더·채점기 연결, 스냅숏 채점 문맥(eng_context), 연습 도구 권한표(tool_permissions.json), 이름표 9개 사전 등록. 골든 188개: 일치 185 / 불일치 3 / 판정 불가 0
 - 안 한 일 / 남은 일: ②④ 이견 확인, ②의 9문항 활성화·골든 3개, 개발 DB에 0005 적용, eng_pipeline. 커밋 없음.

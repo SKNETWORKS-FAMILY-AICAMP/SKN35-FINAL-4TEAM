@@ -23,6 +23,7 @@ from threading import Event, Lock, Thread
 from jsonschema import Draft202012Validator
 
 from slotagent.common import contracts
+from slotagent.engine import fixed_tools
 from slotagent.engine.loop import RunCancelled, ToolEnvironmentError, ToolExecutionError
 
 VERSION = "2025-11-25"
@@ -543,16 +544,16 @@ class LocalStdioConfig:
         grouped = {}
         declared = {server["name"]: server for server in snapshot["mcp_servers"]}
         for tool in snapshot["tools"]:
-            if tool["access"] != "read":
-                continue
+            if tool["access"] != "read" or fixed_tools.is_fixed_read(tool):
+                continue  # 쓰기는 write_proxy, 자체 조회 도구는 실행 코어의 고정 응답이 처리합니다.
             if not tool["origin"].startswith("mcp:"):
-                raise NotImplementedError("로컬 stdio 연결은 MCP 조회 도구만 지원합니다.")
+                raise NotImplementedError("로컬 stdio 연결은 MCP·자체 조회 도구만 지원합니다.")
             name = tool["origin"][4:]
             if name not in self.commands or name not in declared or declared[name].get("transport", "stdio") != "stdio":
                 raise ValueError("후보 MCP 서버에 맞는 신뢰한 stdio 명령이 없습니다.")
             grouped.setdefault(name, []).append(tool)
-        if not grouped:
-            raise ValueError("연결할 MCP 조회 도구가 없습니다.")
+        if not grouped and not any(fixed_tools.is_fixed_read(t) for t in snapshot["tools"]):
+            raise ValueError("연결할 조회 도구가 없습니다.")
         with ExitStack() as stack:
             routes = {}
             for name, tools in grouped.items():

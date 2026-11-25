@@ -1,10 +1,11 @@
-"""① DB 큐 임대. 전용 연결에서 짧은 트랜잭션을 쓰며 attempts를 임대 토큰으로 씁니다.
+"""① DB 큐 임대. 전용 연결에서 짧은 트랜잭션을 쓰며 attempts와 임대마다 새로 만드는 leased_by를 토큰으로 씁니다.
 
 만료 뒤 연장·완료·실패를 거부합니다. 풀이 복구와 작업 반환은 같은 트랜잭션으로 처리합니다.
 재시도 상한은 호출자가 정합니다(fail 의 retry, reclaim 의 max_attempts).
 """
 
 from contextlib import contextmanager
+from uuid import uuid4
 
 from psycopg import errors
 from psycopg.pq import TransactionStatus
@@ -62,6 +63,8 @@ def lease(conn, worker_id: str, *, kinds=("run_trial",), lease_sec=None) -> dict
     _idle(conn)
     if not worker_id.strip() or not kinds:
         raise ValueError("워커 이름과 처리할 종류가 필요합니다.")
+    # 수동 재개가 attempts를 0으로 되돌려도 같은 워커의 옛 임대가 되살아나지 않게 합니다.
+    owner = f"{worker_id}#{uuid4().hex}"
     with transaction(conn):
         seconds = _duration(conn, lease_sec)
         with conn.cursor(row_factory=dict_row) as cur:
@@ -72,7 +75,7 @@ def lease(conn, worker_id: str, *, kinds=("run_trial",), lease_sec=None) -> dict
                    ) UPDATE sa_jobs j SET status='leased', attempts=attempts+1, leased_by=%s,
                      lease_until=clock_timestamp()+%s*interval '1 second', updated_at=clock_timestamp()
                    FROM ready WHERE j.job_id=ready.job_id RETURNING j.*""",
-                (list(kinds), worker_id, seconds),
+                (list(kinds), owner, seconds),
             ).fetchone()
         if job:
             contracts.validate("job_payload", job["payload"])
@@ -164,11 +167,14 @@ def fail(conn, job: dict, *, retry: bool, error: str = "worker_error") -> None:
         _return_job(conn, job, status, error)
 
 
-def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None, cleanup_expired=None) -> int:
+def reclaim(
+    conn, *, limit: int = 100, max_attempts: int | None = None, cleanup_expired=None, kinds=None
+) -> int:
     """죽거나 DB가 끊긴 워커의 만료 임대와 실행 중 풀이를 원자적으로 회수합니다.
 
     max_attempts 를 주면 그 횟수만큼 빌려 간 작업은 다시 넣지 않고 failed 로 둡니다
     (매번 프로세스를 죽이는 작업이 끝없이 돌지 않게). None 이면 상한 없이 다시 넣습니다.
+    kinds 를 주면 그 종류만 회수합니다 (채점 워커가 컨테이너 정리 없이 풀이를 회수하지 않게).
     """
     _idle(conn)
     if limit < 1:
@@ -179,8 +185,8 @@ def reclaim(conn, *, limit: int = 100, max_attempts: int | None = None, cleanup_
         with conn.cursor(row_factory=dict_row) as cur:
             jobs = cur.execute(
                 """SELECT * FROM sa_jobs WHERE status='leased' AND lease_until<=clock_timestamp()
-                   ORDER BY job_id FOR UPDATE SKIP LOCKED LIMIT %s""",
-                (limit,),
+                   AND (%s::text[] IS NULL OR kind=ANY(%s)) ORDER BY job_id FOR UPDATE SKIP LOCKED LIMIT %s""",
+                (None if kinds is None else list(kinds), None if kinds is None else list(kinds), limit),
             ).fetchall()
         if cleanup_expired is not None:
             # 만료 임대 잠금을 유지한 채 해당 컨테이너부터 정리합니다. 실패하면 DB도 반환하지 않습니다.
