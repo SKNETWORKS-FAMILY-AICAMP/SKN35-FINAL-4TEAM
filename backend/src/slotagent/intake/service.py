@@ -12,10 +12,65 @@ def register_agent(conn, req: dict, owner_id: int) -> dict:
 
 
 def register_candidate(conn, slot_id: int, req: dict) -> int:
-    """api.register_candidate_request → candidates 행 (기준 아님). checks.check_component 후 INSERT. 돌려주는 값: candidate_id"""
+    # ① 요청 JSON 검증
     contracts.validate("api", req, part="register_candidate_request")
-    comp = req["component_spec"]  # noqa: F841  ④ 구현 자리
-    raise NotImplementedError("INSERT INTO candidates(..., spec_hash=canonical_hash(comp))")
+    comp = req["component_spec"]
+
+    # ② Slot 조회 (comparable 포함)
+    row = conn.execute(
+        """
+        SELECT service, access, comparable
+        FROM sa_slots
+        WHERE slot_id = %s
+        """,
+        (slot_id,)
+    ).fetchone()
+
+    # ③ Slot 존재 여부 확인
+    if row is None:
+        raise checks.CheckError(
+            "not_found",
+            ["존재하지 않는 Slot입니다."]
+        )
+
+    # ④ 비교 불가능한 Slot 등록 차단
+    if not row[2]:
+        raise checks.CheckError(
+            "wrong_slot",
+            ["비교할 수 없는 Slot에는 Candidate를 등록할 수 없습니다."]
+        )
+
+    slot = {
+        "service": row[0],
+        "access": row[1],
+    }
+
+    # ⑤ 후보가 Slot에 적합한지 확인
+    checks.check_component(comp, slot)
+
+    # ⑥ 후보 저장
+    result = conn.execute(
+        """
+        INSERT INTO sa_candidates (
+            slot_id, label, name, component_kind,
+            component_spec, spec_schema_version,
+            spec_hash, is_baseline
+        )
+        VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s, FALSE)
+        RETURNING candidate_id
+        """,
+        (
+            slot_id,
+            req["label"],
+            req["name"],
+            comp["kind"],
+            __import__("json").dumps(comp, ensure_ascii=False),
+            comp["schema_version"],
+            canonical_hash(comp),
+        )
+    ).fetchone()
+
+    return result[0]
 
 
 def create_experiment_draft(conn, req: dict, user_id: int) -> int:
