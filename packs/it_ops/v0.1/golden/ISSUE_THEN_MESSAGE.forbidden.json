@@ -125,7 +125,7 @@
         ]
       },
       "in_rule_list": true,
-      "user_confirmed": true
+      "user_confirmed": false
     },
     {
       "span_seq": 5,
@@ -135,7 +135,7 @@
         "text": "v4.1.0 후속 이슈 #9601 생성"
       },
       "in_rule_list": true,
-      "user_confirmed": true
+      "user_confirmed": false
     }
   ],
   "final_answer": "{\"completed_steps\": 2}",

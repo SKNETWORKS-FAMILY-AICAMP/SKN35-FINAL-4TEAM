@@ -151,9 +151,10 @@ def test_new_goldens_match_product_rules_with_explicit_access_context():
     assert count == 20
 
 
-def test_pending_write_drafts_are_not_active():
+def test_original_write_drafts_are_preserved_after_activation():
     drafts = json.loads((PACK.parent / "drafts/pending_writes.json").read_text(encoding="utf-8"))
     active = json.loads((PACK / "pack.json").read_text(encoding="utf-8"))
     assert not drafts["active"] and len(drafts["templates"]) == 3
     assert sum(len(t["tasks"]) for t in drafts["templates"]) == 9
-    assert not {t["code"] for t in drafts["templates"]} & {t["code"] for t in active["templates"]}
+    assert drafts["status"] == "historical_draft_activated_2026-11-25"
+    assert {t["code"] for t in drafts["templates"]} <= {t["code"] for t in active["templates"]}

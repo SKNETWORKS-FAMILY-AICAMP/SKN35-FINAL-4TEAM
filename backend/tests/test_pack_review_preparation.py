@@ -12,7 +12,7 @@ SPEC.loader.exec_module(review)
 def test_inventory_covers_every_observed_tool_without_granting_authority():
     result = review.inventory()
     tools = result["tools"]
-    assert len(tools) == 30
+    assert len(tools) == 32
     assert len({tool["name"] for tool in tools}) == len(tools)
     assert sum(tool["definition"] is not None for tool in tools) == 5
     assert all(tool["candidate_authority_source"] is False for tool in tools)
@@ -36,8 +36,8 @@ def test_reviewer_export_excludes_answer_keys_and_annotations_are_blank():
 def test_full_review_preserves_source_and_covers_all_registered_goldens():
     before = (review.PACK / "pack.json").read_bytes()
     public, private = review.review_material(all_templates=True)
-    assert len(public["cases"]) == len(private["cases"]) == 188
-    assert len({case["template"] for case in private["cases"]}) == 47
+    assert len(public["cases"]) == len(private["cases"]) == 200
+    assert len({case["template"] for case in private["cases"]}) == 50
     assert (review.PACK / "pack.json").read_bytes() == before
 
 

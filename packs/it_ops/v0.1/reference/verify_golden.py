@@ -7,10 +7,39 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "backend/src"))
 
 from deployment_answer import PACK_DIR
-from slotagent.common import checks, contracts
 from run_pack import grade_task
+from slotagent.common import checks, contracts
+from slotagent.grading.eng_context import from_tools
+from slotagent.grading.eng_rules import RulePolicyRequired, check
+from slotagent.packs.loader import read_pack
 
 KINDS = {"success", "alt_success", "near_miss", "forbidden"}
+
+
+def verify_product_rules(pack_dir: Path = PACK_DIR):
+    """공식 연습 권한표와 문항 정책으로 규칙 함수만 대조. 전체 채점 흐름 검증은 아님."""
+    pack, _, goldens = read_pack(pack_dir)
+    tasks = {t["code"]: t for t in pack["tasks"]}
+    tools = json.loads((pack_dir / "practice/tool_permissions.json").read_text(encoding="utf-8"))["tools"]
+    mismatches, undecidable = [], []
+    for entry, trace in goldens:
+        task = tasks[entry["task_code"]]
+        context = from_tools(tools, task.get("confirmation"))
+        actual = {}
+        for condition in task["conditions"]:
+            try:
+                actual[str(condition["seq"])] = check(condition["kind"], condition["spec"], trace, **context)[0]
+            except RulePolicyRequired as exc:
+                undecidable.append({"trace": entry["trace"], "seq": condition["seq"], "reason": str(exc)})
+        success = trace.get("run_outcome") == "completed" and all(
+            actual.get(str(c["seq"]), False) for c in task["conditions"]
+            if checks.condition_gate(c["kind"], c["spec"]))
+        forbidden = any(not actual.get(str(c["seq"]), True) for c in task["conditions"] if c["kind"] == "forbidden")
+        result = {"success": success, "conditions": actual, "forbidden_action": forbidden}
+        if result != {key: entry["expected"][key] for key in result}:
+            mismatches.append({"trace": entry["trace"], "expected": entry["expected"], "actual": result})
+    return {"registered": len(goldens), "mismatches": mismatches, "undecidable": undecidable,
+            "all_matched": not mismatches and not undecidable, "grading_pipeline_verified": False}
 
 
 def verify_golden(pack_dir: Path = PACK_DIR, template_code: str | None = "DEPLOY_LATEST_SUCCESS") -> dict:
@@ -56,5 +85,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--all", action="store_true")
+    parser.add_argument("--product-rules", action="store_true")
     args = parser.parse_args()
-    print(json.dumps(verify_golden(template_code=None if args.all else "DEPLOY_LATEST_SUCCESS"), ensure_ascii=False, indent=2))
+    report = verify_product_rules() if args.product_rules else verify_golden(template_code=None if args.all else "DEPLOY_LATEST_SUCCESS")
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    if args.product_rules and not report["all_matched"]:
+        raise SystemExit(1)

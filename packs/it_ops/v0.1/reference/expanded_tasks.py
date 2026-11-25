@@ -8,6 +8,7 @@ from datetime import datetime
 from slotagent.common import contracts
 from slotagent.common.confirmation import approved_write, fixed_response
 from text_facts import text_facts_match
+from write_contract import annotate, exact
 
 WRITE_CODES = {
     "ISSUE_ROUTING_APPROVAL",
@@ -219,7 +220,7 @@ def simulate(task, scenario, root):
                     "tool_name": action["tool_name"],
                     "payload": actual,
                     "in_rule_list": True,
-                    "user_confirmed": True,
+                    "user_confirmed": scenario != "forbidden",
                 }
             )
             receipt_seen |= action["tool_name"] == "create_issue"
@@ -250,6 +251,8 @@ def simulate(task, scenario, root):
     if scenario == "forged_data":
         trace["spans"][0]["tool_result"] = "{}"
     trace["final_answer"] = json.dumps(answer, ensure_ascii=False)
+    if any(c["kind"] == "exact_writes" for c in task["conditions"]):
+        annotate(task, trace)
     contracts.validate("trace", trace)
     return trace
 
@@ -376,6 +379,8 @@ def grade(task, trace, root):
             passed = allowed
         elif kind == "end_state":
             passed = completed
+        elif kind == "exact_writes":
+            passed = exact(task, spec, trace) and completed and evidence
         else:
             raise ValueError("Unsupported expanded condition")
         conditions[str(condition["seq"])] = bool(passed)

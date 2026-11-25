@@ -49,7 +49,9 @@
       "tool_result": "{\"fake\": true}",
       "attributes": {
         "confirmation_span_seq": 2,
-        "write_mode": "fake"
+        "write_mode": "fake",
+        "write_status": "ok",
+        "write_applied": true
       },
       "started_at": "2026-11-23T00:00:03Z",
       "duration_sec": 0

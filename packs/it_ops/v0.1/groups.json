@@ -36,11 +36,15 @@
         "ISSUE_ROUTING_APPROVAL",
         "LATEST_CONFIRMATION_SCOPE",
         "MULTI_TARGET_APPROVAL",
-        "ISSUE_THEN_MESSAGE"
+        "ISSUE_THEN_MESSAGE",
+        "APPROVAL_DATA_REVISION",
+        "PARTIAL_WRITE_RECONCILIATION",
+        "UNCERTAIN_WRITE_RECONCILIATION"
       ],
       "snapshot_paths": [
         "data/context.json",
-        "data/write_scenarios.json"
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
       ],
       "premises": {
         "timezone": "Asia/Seoul",

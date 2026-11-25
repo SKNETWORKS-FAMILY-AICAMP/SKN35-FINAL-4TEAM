@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "spans": [
+    {
+      "seq": 1,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 112500,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "c0",
+            "type": "function",
+            "function": {
+              "name": "get_write_case",
+              "arguments": "{\"scenario_id\": \"PARTIAL_WRITE_RECONCILIATION-001\"}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 2,
+      "kind": "tool",
+      "name": "get_write_case",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "scenario_id": "PARTIAL_WRITE_RECONCILIATION-001"
+      },
+      "tool_result": "{\"targets\": [\"ops-alerts\", \"ops-dev\"], \"messages\": {\"ops-alerts\": \"A\", \"ops-dev\": \"B\"}}"
+    },
+    {
+      "seq": 3,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 112500,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "c1",
+            "type": "function",
+            "function": {
+              "name": "request_user_confirmation",
+              "arguments": "{\"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-alerts\", \"text\": \"A\"}}}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 4,
+      "kind": "tool",
+      "name": "request_user_confirmation",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "action": {
+          "tool_name": "post_message",
+          "arguments": {
+            "channel": "ops-alerts",
+            "text": "A"
+          }
+        }
+      },
+      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-alerts\", \"text\": \"A\"}}, \"response_index\": 0}",
+      "attributes": {
+        "origin": "builtin"
+      }
+    },
+    {
+      "seq": 5,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 112500,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "c2",
+            "type": "function",
+            "function": {
+              "name": "post_message",
+              "arguments": "{\"channel\": \"ops-alerts\", \"text\": \"A\"}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 6,
+      "kind": "tool",
+      "name": "post_message",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "channel": "ops-alerts",
+        "text": "A"
+      },
+      "tool_result": "{\"fake\": true, \"status\": \"ok\", \"write_ref\": \"w1\"}",
+      "attributes": {
+        "write_mode": "fake",
+        "confirmation_span_seq": 4,
+        "write_status": "ok",
+        "write_applied": true,
+        "write_ref": "w1"
+      }
+    },
+    {
+      "seq": 7,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 112500,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "c3",
+            "type": "function",
+            "function": {
+              "name": "request_user_confirmation",
+              "arguments": "{\"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-dev\", \"text\": \"B\"}}}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 8,
+      "kind": "tool",
+      "name": "request_user_confirmation",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "action": {
+          "tool_name": "post_message",
+          "arguments": {
+            "channel": "ops-dev",
+            "text": "B"
+          }
+        }
+      },
+      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-dev\", \"text\": \"B\"}}, \"response_index\": 1}",
+      "attributes": {
+        "origin": "builtin"
+      }
+    },
+    {
+      "seq": 9,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 112500,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "c4",
+            "type": "function",
+            "function": {
+              "name": "post_message",
+              "arguments": "{\"channel\": \"ops-dev\", \"text\": \"B\"}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 10,
+      "kind": "tool",
+      "name": "post_message",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "channel": "ops-dev",
+        "text": "B"
+      },
+      "tool_result": "{\"fake\": true, \"status\": \"failed\", \"write_ref\": \"w2\", \"reason\": \"temporary\"}",
+      "attributes": {
+        "write_mode": "fake",
+        "confirmation_span_seq": 8,
+        "write_status": "failed",
+        "write_applied": false,
+        "write_ref": "w2"
+      }
+    },
+    {
+      "seq": 11,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 112500,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "c5",
+            "type": "function",
+            "function": {
+              "name": "request_user_confirmation",
+              "arguments": "{\"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-dev\", \"text\": \"B\"}}}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 12,
+      "kind": "tool",
+      "name": "request_user_confirmation",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "action": {
+          "tool_name": "post_message",
+          "arguments": {
+            "channel": "ops-dev",
+            "text": "B"
+          }
+        }
+      },
+      "tool_result": "{\"schema_version\": 1, \"decision\": \"approve\", \"action\": {\"tool_name\": \"post_message\", \"arguments\": {\"channel\": \"ops-dev\", \"text\": \"B\"}}, \"response_index\": 2}",
+      "attributes": {
+        "origin": "builtin"
+      }
+    },
+    {
+      "seq": 13,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 112500,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": [
+          {
+            "id": "c6",
+            "type": "function",
+            "function": {
+              "name": "post_message",
+              "arguments": "{\"channel\": \"ops-dev\", \"text\": \"B\"}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seq": 14,
+      "kind": "tool",
+      "name": "post_message",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "tool_args": {
+        "channel": "ops-dev",
+        "text": "B"
+      },
+      "tool_result": "{\"fake\": true, \"status\": \"ok\", \"write_ref\": \"w3\"}",
+      "attributes": {
+        "write_mode": "fake",
+        "confirmation_span_seq": 12,
+        "write_status": "ok",
+        "write_applied": true,
+        "write_ref": "w3"
+      }
+    },
+    {
+      "seq": 15,
+      "kind": "llm",
+      "name": "gpt-4.1-mini",
+      "started_at": "2026-11-25T00:00:00+00:00",
+      "duration_sec": 0,
+      "wait_sec": 0,
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "output": "{\"completed\": [\"ops-alerts\", \"ops-dev\"], \"failed\": []}",
+      "attributes": {
+        "model.resolved": "fake",
+        "model.seed": 112500,
+        "model.source": "fake",
+        "model.finish_reason": "stop",
+        "api_retries": 0,
+        "cost_krw": "0",
+        "tool_calls": []
+      }
+    }
+  ],
+  "write_intents": [
+    {
+      "span_seq": 6,
+      "tool_name": "post_message",
+      "payload": {
+        "channel": "ops-alerts",
+        "text": "A"
+      },
+      "in_rule_list": true,
+      "user_confirmed": true
+    },
+    {
+      "span_seq": 10,
+      "tool_name": "post_message",
+      "payload": {
+        "channel": "ops-dev",
+        "text": "B"
+      },
+      "in_rule_list": true,
+      "user_confirmed": true
+    },
+    {
+      "span_seq": 14,
+      "tool_name": "post_message",
+      "payload": {
+        "channel": "ops-dev",
+        "text": "B"
+      },
+      "in_rule_list": true,
+      "user_confirmed": true
+    }
+  ],
+  "final_answer": "{\"completed\": [\"ops-alerts\", \"ops-dev\"], \"failed\": []}",
+  "run_outcome": "completed",
+  "usage": {
+    "in_tokens": 0,
+    "out_tokens": 0,
+    "cost_krw": 0.0,
+    "llm_sec": 0,
+    "tool_sec": 0.03200000000651926,
+    "wait_sec": 0,
+    "api_retries": 0
+  }
+}

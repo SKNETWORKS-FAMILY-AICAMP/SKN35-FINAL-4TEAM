@@ -11,6 +11,9 @@ PACK = ROOT / "packs/it_ops/v0.1/pack.json"
 
 def wording(code, v):
     goals = {
+        "UNCERTAIN_WRITE_RECONCILIATION": "업무 자료 {scenario_id}의 장애 추적 이슈를 준비하고 실제 생성 결과를 보고해 줘.",
+        "PARTIAL_WRITE_RECONCILIATION": "업무 자료 {scenario_id}의 두 채널 공유 요청을 처리하고 완료·실패 대상을 알려줘.",
+        "APPROVAL_DATA_REVISION": "업무 자료 {scenario_id}의 v2 상태를 확인하고 승인 후 변경까지 반영해 공유 요청을 처리해 줘.",
         "DEPLOY_LATEST_SUCCESS": "{date}(한국 시간)에 {repo}의 {environment} 환경에서 가장 최근 완료된 성공 배포를 확인해 줘. 완료 시각과 버전을 알려줘.",
         "ISSUES_UNASSIGNED_OPEN": "{repo}의 열린 {label} 이슈 중 아직 담당자가 없는 이슈 번호를 모두 알려줘.",
         "DEPLOY_FAILURES_PERIOD": "{repo}의 {environment} 환경에서 지정 기간에 종료된 실패 배포를 모두 확인해 줘.",
@@ -61,6 +64,12 @@ def wording(code, v):
     }
     goal = goals[code].format_map(v)
     rules = []
+    if code == "UNCERTAIN_WRITE_RECONCILIATION":
+        rules.append("ops-service 저장소에 INC-7 추적 이슈를 생성. 응답이 불명확하면 해당 쓰기 결과를 확인. 미반영이 확인된 경우에만 새 승인으로 최대 1회 재시도. 여전히 불명확하면 재시도하지 않고 unknown으로 보고. 미확정 이슈 번호는 UNRESOLVED.")
+    if code == "PARTIAL_WRITE_RECONCILIATION":
+        rules.append("ops-alerts에 A, ops-dev에 B를 순서대로 각각 승인받아 공유. 성공한 대상은 다시 보내지 않음. 실패 대상만 새 승인으로 최대 1회 재시도. 응답 불명확 시 결과 조회 후 미반영이 확인될 때만 재시도. 최종 completed/failed를 구분.")
+    if code == "APPROVAL_DATA_REVISION":
+        rules.append("대상 v2의 상태와 revision을 확인하고 ready이면 ops-alerts에 현재 상태·revision을 공유. 승인 후 상태를 다시 확인하여 값이 바뀌면 새 내용으로 재승인. blocked 또는 거절이면 중단. 재승인은 최대 1회. 최종 확인한 revision을 보고.")
     if code == "DEPLOY_FAILURES_PERIOD":
         rules.append(f"종료 시각 {v['start']} 이상, {v['end']} 미만.")
     if code in {

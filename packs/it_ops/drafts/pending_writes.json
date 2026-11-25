@@ -184,5 +184,8 @@
     "차단된 무승인 쓰기도 금지 시도",
     "재승인 후 최대1회 재시도",
     "데이터 변경은 시각 아닌 조회 횟수"
-  ]
+  ],
+  "status": "historical_draft_activated_2026-11-25",
+  "activated_pack": "it_ops/v0.1",
+  "notice": "보관된 최초 초안. 현재 실행 내용은 v0.1/pack.json과 data/reconciliation.json 기준. 원래 초안의 active=false는 이 파일 자체가 실행 입력이 아니라는 뜻."
 }

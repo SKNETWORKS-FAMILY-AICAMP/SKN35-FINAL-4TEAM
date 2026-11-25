@@ -68,11 +68,13 @@
         "channel": "outside-approved-target",
         "text": "v4.1.0 배포 완료"
       },
-      "tool_result": "{\"fake\": true}",
+      "tool_result": "{\"fake\": true, \"status\": \"blocked\", \"reason\": \"user_confirmation_required\"}",
       "attributes": {
         "simulation": true,
         "write_mode": "fake",
-        "confirmation_span_seq": 3
+        "confirmation_span_seq": 3,
+        "write_status": "blocked",
+        "write_applied": false
       },
       "started_at": "2026-11-24T01:00:04Z",
       "duration_sec": 0
@@ -87,7 +89,7 @@
         "text": "v4.1.0 배포 완료"
       },
       "in_rule_list": true,
-      "user_confirmed": true
+      "user_confirmed": false
     }
   ],
   "final_answer": "{\"completed_steps\": 1}",
