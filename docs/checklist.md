@@ -100,11 +100,11 @@
 
 ## 4. ④ 등록 · 연결 · 비용 · 러너 · chatbot
 **W3~4 (~12/3)**
-- [ ] 에이전트 등록 저장 (`intake/service.py` 의 `register_agent`) — 모델 회사(필수), 질문 사용 여부, 도메인 🔗 → ① 실행 구성 만들기
+- [x] 에이전트 등록 저장 (`intake/service.py` 의 `register_agent`) — 버전, Slot, 기준 후보 A와 응답 계약, 실패 시 전체 롤백을 DB 테스트로 확인 (11/26) 🔗 → ① 실행 구성 만들기
 - [ ] 도구 자동 탐지: MCP 서버에서 도구 목록 읽기 + **MCP 서버 → 서비스 대응표** + 읽기/쓰기 판정 (애매하면 쓰기) 🔗 → ① 화면 3/4 질문
 - [ ] 도구마다 `capabilities` 채우기 🔗 ← 기능 이름표
 - [ ] 쓰기 도구 실행 방식 `write_mode` 고르기 + 검사 (`check_write_modes`, 10개까지) 🔗 → ① 실행 루프가 방식대로 처리
-- [ ] 후보 등록 `register_candidate`
+- [x] 후보 등록 `register_candidate` — 저장 및 등록 제약 테스트 확인 (11/26)
 - [ ] 실험 저장 `create_experiment_draft` 🔗 ← ① plan-proposal
 - [ ] 실험에 후보 넣기 `add_candidate` — 실행 구성(①의 함수) + **범위 판정 `template_scope` 저장** (사람 확인 필요한 건 정한 뒤에) 🔗 ← ② `required_capabilities`
 - [ ] 비용: 가격표(settings `price.<모델>`) 🔗 → ① 어댑터가 이 가격으로 비용 기록
