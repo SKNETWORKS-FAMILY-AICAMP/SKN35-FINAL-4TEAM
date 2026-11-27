@@ -14,6 +14,7 @@ from slotagent.api import eng_plan_proposal
 from slotagent.api.eng_app import create_app
 from slotagent.common import contracts, proposal
 from slotagent.common.checks import CheckError
+from slotagent.packs.select import select_tasks
 
 SEEDS = pathlib.Path(__file__).resolve().parents[1] / "db" / "seeds" / "0001_settings_defaults.sql"
 OLD = datetime(2000, 1, 1, tzinfo=UTC)
@@ -52,6 +53,7 @@ def test_proposal_from_settings_and_selection(setup):
     conn, req, task = setup
     out = contracts.validate("api", eng_plan_proposal.handle(conn, req), part="plan_proposal_response")
     assert CALLS == [(5, 0.05, 0.8, 0.7)]
+    assert not out.get("warnings")
     assert out["plan"] == {"schema_version": 1, "tasks": [{"task_id": task, "batch_no": 1}]}
     assert (out["reps"], out["n_templates"], out["n_tasks"], out["trials"]) == (3, 1, 1, 6)
     p = out["prereg"]
@@ -99,14 +101,98 @@ def test_refused_requests(setup, change, code):
     assert e.value.code == code
 
 
-def test_missing_setting_and_unbuilt_stats(setup, monkeypatch):
+def test_missing_setting(setup):
     conn, req, _ = setup
     with pytest.raises(CheckError) as e:
         proposal.propose(conn, req, as_of=OLD - timedelta(days=1))
     assert e.value.code == "invalid_plan" and "settings" in e.value.errors[0]
-    monkeypatch.undo()
-    with pytest.raises(NotImplementedError):
-        proposal.propose(conn, req)
+
+
+def test_sample_size_other_error_propagates(setup):
+    conn, req, _ = setup
+    failure = RuntimeError("sample size calculation failed")
+
+    def broken_sample_size(*args):
+        raise failure
+
+    with pytest.raises(RuntimeError) as exc:
+        proposal.propose(conn, req, sample_size=broken_sample_size)
+    assert exc.value is failure
+
+
+@pytest.mark.parametrize(("fresh_count", "expected"), [(16, 15), (14, 14), (0, 0)])
+def test_pilot_template_limit(setup, fresh_count, expected):
+    conn, req, _ = setup
+    source_pack = req["pack_version_id"]
+    pack_id = conn.execute(
+        """INSERT INTO sa_pack_versions (domain_code, pack_code, version)
+           SELECT domain_code, pack_code, 'pilot-limit' FROM sa_pack_versions WHERE pack_version_id = %s
+           RETURNING pack_version_id""",
+        (source_pack,),
+    ).fetchone()[0]
+    conn.execute(
+        """INSERT INTO sa_data_snapshots (pack_version_id, source_kind, location, content_hash, frozen_at)
+           VALUES (%s, 'repo', 'fake://pilot-limit', 'frozen', now())""",
+        (pack_id,),
+    )
+    conn.execute(
+        """WITH templates AS (
+               INSERT INTO sa_templates (pack_version_id, code, question_pattern, split)
+               SELECT %s, 'T' || n, 'Pilot question', 'held' FROM generate_series(0, %s) AS n
+               RETURNING template_id, code
+           )
+           INSERT INTO sa_tasks (template_id, code, prompt, seed)
+           SELECT template_id, code, 'Pilot question', 1 FROM templates
+           UNION ALL SELECT template_id, 'T0-sibling', 'Pilot question', 2 FROM templates WHERE code='T0'""",
+        (pack_id, fresh_count),
+    )
+    conn.execute(
+        """WITH template AS (
+               INSERT INTO sa_templates (pack_version_id, code, question_pattern, split)
+               VALUES (%s, 'DEV', 'Development question', 'dev') RETURNING template_id
+           )
+           INSERT INTO sa_tasks (template_id, code, prompt, seed)
+           SELECT template_id, 'DEV-1', 'Development question', 1 FROM template""",
+        (pack_id,),
+    )
+    conn.execute(
+        "UPDATE sa_pack_versions SET status='locked', locked_at=now() WHERE pack_version_id=%s",
+        (pack_id,),
+    )
+    conn.execute(
+        """INSERT INTO sa_task_exposures (task_id, seen_by, reason, seen_at)
+           SELECT k.task_id, (SELECT min(user_id) FROM sa_users), 'pilot limit test', %s
+           FROM sa_tasks k JOIN sa_templates t USING (template_id)
+           WHERE t.pack_version_id=%s AND k.code='T0'""",
+        (OLD, pack_id),
+    )
+
+    def unavailable_sample_size(*args):
+        raise NotImplementedError
+
+    request = {**req, "pack_version_id": pack_id, "split": "dev"}
+    if expected == 0:
+        with pytest.raises(CheckError) as exc:
+            proposal.propose(conn, request, sample_size=unavailable_sample_size)
+        assert exc.value.code == "invalid_plan"
+        return
+
+    result = proposal.propose(conn, request, sample_size=unavailable_sample_size)
+    assert (result["n_templates"], result["n_tasks"]) == (expected, expected)
+    assert len(result["plan"]["tasks"]) == expected
+    selected_ids = [task["task_id"] for task in result["plan"]["tasks"]]
+    assert conn.execute(
+        """SELECT count(*) FROM sa_tasks k JOIN sa_templates t USING (template_id)
+           WHERE task_id = ANY(%s) AND (t.code = 'T0' OR t.split <> 'held')""",
+        (selected_ids,),
+    ).fetchone()[0] == 0
+    assert result["warnings"]
+    as_of = datetime.fromisoformat(result["as_of"])
+    assert proposal.propose(conn, request, as_of=as_of, sample_size=unavailable_sample_size) == result
+    options = {"as_of": as_of, "seed": "pilot-replay", "looks": 2}
+    plan = select_tasks(conn, pack_id, 2, **options)
+    assert [task["batch_no"] for task in plan] == [1, 2]
+    assert select_tasks(conn, pack_id, 2, **options) == plan
 
 
 def test_http_route(setup, engine_db, monkeypatch):
@@ -121,7 +207,13 @@ def test_http_route(setup, engine_db, monkeypatch):
     for bad in ({**req, "extra": 1}, [req]):
         r = client.post(url, json=bad)
         assert (r.status_code, r.json()["code"]) == (422, "invalid_spec")
-    # ③ sample_size 가 아직 없으면 501
-    monkeypatch.setattr("slotagent.stats.analyze.sample_size", lambda *a: (_ for _ in ()).throw(NotImplementedError()))
+    def unavailable_sample_size(*args):
+        raise NotImplementedError
+
+    monkeypatch.setattr("slotagent.stats.analyze.sample_size", unavailable_sample_size)
     r = client.post(url, json=req)
-    assert (r.status_code, r.json()["code"]) == (501, "internal")
+    assert r.status_code == 200, r.text
+    pilot = contracts.validate("api", r.json(), part="plan_proposal_response")
+    assert pilot["warnings"]
+    assert pilot["plan"]["tasks"] == [{"task_id": task, "batch_no": 1}]
+    assert (pilot["reps"], pilot["n_templates"], pilot["n_tasks"], pilot["trials"]) == (3, 1, 1, 6)

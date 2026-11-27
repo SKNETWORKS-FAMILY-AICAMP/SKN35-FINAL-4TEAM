@@ -20,6 +20,7 @@ from .hashing import canonical_hash
 
 MAX_AGE = timedelta(hours=24)
 CLOCK_SKEW = timedelta(minutes=5)
+PILOT_TEMPLATE_LIMIT = 15
 EXPERIMENT_FIELDS = ("reps", "budget_krw", "candidates")
 
 
@@ -37,10 +38,8 @@ def setting_at(conn, key: str, as_of: datetime, scope: str = "global", scope_ref
 
 def propose(conn, req: Mapping[str, Any], *, as_of: datetime | None = None, sample_size=None) -> dict:
     """api.plan_proposal_request → api.plan_proposal_response (as_of 포함, plan 에 proposal 칸 없음).
-    값: settings(setting_at) + stats.sample_size(③) + 문항 고르기(② packs.select.plan_rows).
-    ② select_tasks 는 as_of 를 받지 않아 노출(seen_at <= as_of)만 여기서 읽고 고르는 규칙은 ②의 plan_rows 를 그대로 씀.
-    plan_rows 는 정렬 순서대로 고르므로 seed 가 필요 없음. sample_size 는 시험에서만 바꿔 넣음."""
-    from slotagent.packs.select import plan_rows
+    ③ sample_size 가 구현 전이면 미열람 held 유형으로 파일럿 계획을 만들고 warnings 에 표시함."""
+    from slotagent.packs.select import select_tasks
     from slotagent.stats import analyze
 
     as_of = as_of or datetime.now(UTC)
@@ -61,22 +60,33 @@ def propose(conn, req: Mapping[str, Any], *, as_of: datetime | None = None, samp
                           "env_error_reasons": setting("env_error_reasons")},
         "max_env_retries": setting("max_env_retries"),
     }
-    n_templates = (sample_size or analyze.sample_size)(margin, alpha, setting("power"), setting("p_base"))["n_templates"]
-    rows = conn.execute(
-        """SELECT t.template_id, k.task_id,
-                  EXISTS(SELECT 1 FROM sa_task_exposures e WHERE e.task_id=k.task_id AND e.seen_at <= %s)
-           FROM sa_templates t JOIN sa_tasks k USING(template_id)
-           WHERE t.pack_version_id=%s AND t.split=%s ORDER BY t.template_id, k.task_id""",
-        (as_of, req["pack_version_id"], req.get("split", "held")),
-    ).fetchall()
+    power, p_base = setting("power"), setting("p_base")
     try:
-        tasks = plan_rows(rows, n_templates)
+        size = (sample_size or analyze.sample_size)(margin, alpha, power, p_base)
+    except NotImplementedError:
+        pilot = True
+    else:
+        pilot = False
+    n_templates = PILOT_TEMPLATE_LIMIT if pilot else size["n_templates"]
+    try:
+        tasks = select_tasks(
+            conn, req["pack_version_id"], n_templates, split="held" if pilot else req.get("split", "held"),
+            as_of=as_of, seed=canonical_hash(req), allow_shortfall=pilot,
+        )
     except ValueError as exc:
         raise CheckError("invalid_plan", [f"문항을 고를 수 없습니다: {exc}"]) from None
+    if pilot:
+        n_templates = conn.execute(
+            "SELECT count(DISTINCT template_id) FROM sa_tasks WHERE task_id = ANY(%s)",
+            ([task["task_id"] for task in tasks],),
+        ).fetchone()[0]
     reps = req.get("reps") or setting("reps")
-    return {"prereg": prereg, "plan": {"schema_version": 1, "tasks": tasks}, "reps": reps,
-            "n_templates": n_templates, "n_tasks": len(tasks), "trials": len(req["candidate_ids"]) * len(tasks) * reps,
-            "as_of": as_of.isoformat()}
+    response = {"prereg": prereg, "plan": {"schema_version": 1, "tasks": tasks}, "reps": reps,
+                "n_templates": n_templates, "n_tasks": len(tasks), "trials": len(req["candidate_ids"]) * len(tasks) * reps,
+                "as_of": as_of.isoformat()}
+    if pilot:
+        response["warnings"] = ["검정력 계산을 적용하지 않은 파일럿 계획입니다. 미열람 held 문항 유형을 최대 15개 사용합니다."]
+    return response
 
 
 def _check_request(conn, req: Mapping[str, Any]) -> None:

@@ -2,7 +2,7 @@
 
 값을 만드는 본체는 common.proposal.propose (④ 저장 함수도 같은 함수로 다시 만들어 비교하므로 common 에 둠, 3차 5).
 응답에는 as_of(제안 시각)가 있고 plan 에는 proposal 칸이 없음. ④는 create 요청에 proposal = {request, as_of} 를 넣음.
-③ sample_size 가 아직 없으면 NotImplementedError → 앱이 501 로 돌려줌.
+③ sample_size 가 구현 전이면 파일럿 계획과 warnings 를 돌려줌.
 """
 from typing import Annotated
 

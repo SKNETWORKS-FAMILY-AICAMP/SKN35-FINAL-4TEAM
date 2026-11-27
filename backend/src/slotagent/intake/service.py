@@ -2,7 +2,7 @@
 
 from psycopg.types.json import Jsonb
 
-from slotagent.common import checks, contracts
+from slotagent.common import checks, contracts, proposal
 from slotagent.common.hashing import agent_spec_hash, canonical_hash
 from slotagent.common.snapshot import build_config_snapshot
 
@@ -229,6 +229,35 @@ def register_candidate(conn, slot_id: int, req: dict) -> int:
     return result[0]
 
 
+def _pack_templates(conn, pack_id: int) -> list[dict]:
+    return [
+        {"code": code, "required_capabilities": capabilities}
+        for code, capabilities in conn.execute(
+            "SELECT code, required_capabilities FROM sa_templates WHERE pack_version_id = %s",
+            (pack_id,),
+        )
+    ]
+
+
+def _save_experiment_candidate(conn, experiment_id: int, candidate_id: int,
+                               label: str, is_baseline: bool, templates: list[dict]) -> int:
+    snapshot, config_hash = build_config_snapshot(conn, candidate_id)
+    scope = checks.template_scope(snapshot["tools"], templates)
+    unresolved = sorted(code for code, status in scope.items() if status == "needs_review")
+    if unresolved:
+        raise checks.CheckError("invalid_spec", [f"후보 {label} 범위 확인이 필요합니다: {', '.join(unresolved)}"])
+    return conn.execute(
+        """INSERT INTO sa_experiment_candidates (
+               experiment_id, candidate_id, label, role, config_snapshot, config_hash, template_scope
+           ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+           RETURNING experiment_candidate_id""",
+        (
+            experiment_id, candidate_id, label, "baseline" if is_baseline else "candidate",
+            Jsonb(snapshot), config_hash, Jsonb(scope),
+        ),
+    ).fetchone()[0]
+
+
 def create_experiment_draft(conn, req: dict, user_id: int) -> int:
     """api.create_experiment_request → experiments(draft) + experiment_candidates.
     prereg·plan 은 plan-proposal 이 준 값(고쳤으면 고친 값). checks.check_plan(plan, template_of, prereg), checks.check_experiment_candidates(rows).
@@ -236,12 +265,108 @@ def create_experiment_draft(conn, req: dict, user_id: int) -> int:
     저장 전 contracts.validate("plan", plan, part="stored").
     role = 'baseline' if candidates.is_baseline else 'candidate', label = candidates.label. 돌려주는 값: experiment_id"""
     contracts.validate("api", req, part="create_experiment_request")
-    raise NotImplementedError
+    slot_id = req["slot_id"]
+    pack_id = req["pack_version_id"]
+    prereg = req["prereg"]
+    plan = dict(req["plan"])
+    kind = req.get("kind", "compare")
+
+    with conn.transaction():
+        slot = conn.execute(
+            "SELECT agent_version_id, comparable FROM sa_slots WHERE slot_id = %s",
+            (slot_id,),
+        ).fetchone()
+        if slot is None:
+            raise checks.CheckError("not_found", ["존재하지 않는 Slot입니다."])
+        if slot[0] != req["agent_version_id"] or (kind == "compare" and not slot[1]):
+            raise checks.CheckError("wrong_slot", ["이 에이전트 버전에서 해당 Slot을 실험에 사용할 수 없습니다."])
+
+        candidates = conn.execute(
+            """SELECT candidate_id, slot_id, label, is_baseline
+               FROM sa_candidates WHERE candidate_id = ANY(%s) ORDER BY candidate_id""",
+            (req["candidates"],),
+        ).fetchall()
+        if len(candidates) != len(req["candidates"]):
+            raise checks.CheckError("not_found", ["존재하지 않는 후보가 있습니다."])
+        if any(candidate[1] != slot_id for candidate in candidates):
+            raise checks.CheckError("wrong_slot", ["실험의 Slot과 다른 Slot의 후보가 있습니다."])
+        checks.check_experiment_candidates(
+            {"slot_id": candidate[1], "is_baseline": candidate[3]} for candidate in candidates
+        )
+
+        template_of = dict(conn.execute(
+            """SELECT task.task_id, template.code
+               FROM sa_tasks AS task JOIN sa_templates AS template USING (template_id)
+               WHERE template.pack_version_id = %s AND task.task_id = ANY(%s)""",
+            (pack_id, [task["task_id"] for task in plan["tasks"]]),
+        ).fetchall())
+        checks.check_plan(plan, template_of, prereg)
+        plan["proposal"] = proposal.verify(conn, req["proposal"], req)
+        contracts.validate("plan", plan, part="stored")
+
+        templates = _pack_templates(conn, pack_id)
+        experiment_id = conn.execute(
+            """INSERT INTO sa_experiments (
+                   kind, agent_version_id, slot_id, pack_version_id, reps,
+                   prereg, prereg_schema_version, plan, budget_krw, created_by
+               ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+               RETURNING experiment_id""",
+            (
+                kind, req["agent_version_id"], slot_id, pack_id, req["reps"], Jsonb(prereg),
+                prereg["schema_version"], Jsonb(plan), req.get("budget_krw"), user_id,
+            ),
+        ).fetchone()[0]
+        for candidate_id, _, label, is_baseline in candidates:
+            _save_experiment_candidate(conn, experiment_id, candidate_id, label, is_baseline, templates)
+        return experiment_id
 
 
 def add_candidate(conn, experiment_id: int, candidate_id: int) -> int:
-    """experiment_candidates 한 행. config_snapshot 은 반드시 ①의 함수로.
-    template_scope = checks.template_scope(snap["tools"], 평가팩 templates) 를 같이 저장 (기획서 1.3 5.4).
-    needs_review 가 있으면 사람이 정한 뒤에만 저장 (DB 가 막음)"""
-    snap, h = build_config_snapshot(conn, candidate_id)
-    raise NotImplementedError
+    """초안에 후보와 실행 설정, 문항 범위를 저장하고 실험 후보 ID를 반환한다."""
+    with conn.transaction():
+        experiment = conn.execute(
+            """SELECT status, kind, agent_version_id, slot_id, pack_version_id, plan
+               FROM sa_experiments WHERE experiment_id = %s FOR NO KEY UPDATE""",
+            (experiment_id,),
+        ).fetchone()
+        if experiment is None:
+            raise checks.CheckError("not_found", ["존재하지 않는 실험입니다."])
+        status, kind, agent_version_id, slot_id, pack_id, plan = experiment
+        if status != "draft":
+            raise checks.CheckError("experiment_locked", ["초안 상태에서만 후보를 추가할 수 있습니다."])
+
+        candidate = conn.execute(
+            """SELECT candidate.slot_id, slot.agent_version_id, candidate.label, candidate.is_baseline
+               FROM sa_candidates AS candidate JOIN sa_slots AS slot USING (slot_id)
+               WHERE candidate.candidate_id = %s""",
+            (candidate_id,),
+        ).fetchone()
+        if candidate is None:
+            raise checks.CheckError("not_found", ["존재하지 않는 후보입니다."])
+        candidate_slot, candidate_version, label, is_baseline = candidate
+        if candidate_version != agent_version_id or (slot_id is not None and candidate_slot != slot_id):
+            raise checks.CheckError("wrong_slot", ["실험의 Slot에 속한 후보만 추가할 수 있습니다."])
+
+        existing = conn.execute(
+            "SELECT candidate_id, label, role FROM sa_experiment_candidates WHERE experiment_id = %s",
+            (experiment_id,),
+        ).fetchall()
+        if any(existing_id == candidate_id or existing_label == label for existing_id, existing_label, _ in existing):
+            raise checks.CheckError("label_taken", [f"실험에 후보 {label}이 이미 있습니다."])
+        if is_baseline and any(role == "baseline" for _, _, role in existing):
+            raise checks.CheckError("baseline_exists", ["실험에 기준 후보가 이미 있습니다."])
+        if kind == "compare" and len(existing) >= 3:
+            raise checks.CheckError("limit_exceeded", ["한 비교 실험에는 후보를 3개까지 넣을 수 있습니다."])
+
+        experiment_candidate_id = _save_experiment_candidate(
+            conn, experiment_id, candidate_id, label, is_baseline, _pack_templates(conn, pack_id),
+        )
+        if "proposal" in plan:
+            tracking = plan["proposal"]
+            candidate_ids = [existing_id for existing_id, _, _ in existing] + [candidate_id]
+            fields = [field for field in tracking["edited_fields"] if field != "candidates"]
+            if sorted(candidate_ids) != sorted(tracking["request"]["candidate_ids"]):
+                fields.append("candidates")
+            tracking.update(edited_fields=fields, edited=bool(fields))
+            conn.execute("UPDATE sa_experiments SET plan = %s WHERE experiment_id = %s", (Jsonb(plan), experiment_id))
+        return experiment_candidate_id
