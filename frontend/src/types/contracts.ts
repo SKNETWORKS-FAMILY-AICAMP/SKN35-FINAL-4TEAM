@@ -105,6 +105,35 @@ export type ReportsContent = {
       out_of_scope?: number;
     }[];
     /**
+     * 기획서 1.3 5.4: 후보별 범위 밖 비율 + 모든 후보가 풀 수 있는 공통 문항 유형만으로 센 범위 안 성공률 (1차 판정은 범위 밖을 실패로 센 by_template 쪽)
+     */
+    in_scope: {
+      /**
+       * 모든 후보가 범위 안인 문항 유형 수
+       */
+      common_templates: number;
+      by_candidate: {
+        [k: string]: {
+          /**
+           * 범위 밖으로 센 단위 수
+           */
+          out_of_scope: number;
+          /**
+           * 전체 단위 수
+           */
+          n_all: number;
+          /**
+           * 공통 문항 유형에서 성공한 단위 수
+           */
+          k_common: number;
+          /**
+           * 공통 문항 유형 단위 수
+           */
+          n_common: number;
+        };
+      };
+    };
+    /**
      * 후보 label → 첫 실패 유형(trial_grades.first_fail_type) → 건수
      */
     fail_types: {
@@ -756,6 +785,10 @@ export interface RegisterAgentRequest {
   expected_monthly_calls?: number;
   version: {
     connection_type: "spec_upload" | "runner" | "api";
+    /**
+     * 모델 회사 (기획서 1.3: Claude·GPT·Gemini·DeepSeek 4종)
+     */
+    model_provider: "anthropic" | "openai" | "google" | "deepseek";
     control_level: "C0" | "C1" | "C2";
     model: string;
     temperature: number;
@@ -800,10 +833,9 @@ export interface AgentVersionsSpec {
     | [McpServer, McpServer, McpServer, McpServer]
     | [McpServer, McpServer, McpServer, McpServer, McpServer];
   /**
-   * 지금 켜져 있는 도구 전부 (MCP 가 꺼내 준 것 포함). 등록 한도 50개
+   * 지금 켜져 있는 도구 전부 (MCP 가 꺼내 준 것 포함). 개수 제한 없음 — 도구·Skill 설명 토큰 합계 상한은 따로 둠(P-11, 기획서 1.3 8.2). 쓰기 도구는 10개까지(checks.check_write_modes)
    *
    * @minItems 1
-   * @maxItems 50
    */
   tools: [ToolDef, ...ToolDef[]];
   /**
@@ -1258,6 +1290,2512 @@ export interface ToolDef {
    */
   origin: string;
   /**
+   * 이 도구가 하는 일 (선택). 비어 있으면 범위 밖 판정에서 '사람 확인'으로 돌림 (common.checks.template_scope)
+   *
+   * @maxItems 20
+   */
+  capabilities?:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+  /**
+   * 범용 도구(예: REST 호출 하나로 여러 일을 하는 도구)의 호출별 기능 (선택, 과정 채점). 인자 arg 의 문자열 값이 pattern 에 통째로 맞는 줄의 capability 가 그 호출의 기능. 맞는 줄이 없으면 기능 불명(판정 불가), 서로 다른 기능이 둘 이상 맞아도 판정 불가. 있으면 capabilities 대신 이것만 씀. capability 는 capabilities 안에 있어야 함 (common.checks.check_registration)
+   *
+   * @minItems 1
+   * @maxItems 20
+   */
+  call_capabilities?:
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ]
+    | [
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        },
+        {
+          arg: string;
+          /**
+           * Python re 정규식 (fullmatch)
+           */
+          pattern: string;
+          /**
+           * 도구가 하는 일의 이름표 (기획서 1.3 5.4). <서비스>.<대상>.<read|write> 처럼 점으로 나눔. 문항 유형의 required_capabilities 와 맞춰 도구 범위 밖을 실행 전에 정함
+           */
+          capability: string;
+        }
+      ];
+  /**
+   * 이 도구 호출이 가리키는 대상을 담은 인자 이름 (선택, 과정 정책 read_before_write). 서비스·대상 종류는 호출의 기능 이름표(<서비스>.<대상>.*)에서, 저장소·대상 ID 는 여기 적은 인자 값에서 읽음
+   */
+  target_args?: {
+    repo?: string;
+    target_id?: string;
+  };
+  /**
+   * access = write 인 도구만. 비면 fake (API 연결은 dry_run 필수). 검사: common.checks.check_write_modes
+   */
+  write_mode?: "fake" | "exclude_tasks" | "test_space" | "dry_run";
+  /**
    * 직접 만든 도구(custom)만. 8주 안에는 정해 둔 가짜 응답으로 실행. 인자가 맞는 첫 항목을 돌려줌
    */
   fixed_responses?: {
@@ -1346,7 +3884,6 @@ export interface ToolBundle {
    * 켜는 도구 전부. 모두 이 묶음의 service·access 와 같아야 함 (검사: common.checks.check_component). 무료 평가는 20개까지 — 한도 검사는 ④ 저장 함수
    *
    * @minItems 1
-   * @maxItems 50
    */
   tools: [ToolDef, ...ToolDef[]];
 }
@@ -1642,7 +4179,6 @@ export interface ToolSearch {
    * 검색 대상 도구 전부. 모두 이 후보의 service·access 와 같아야 함 (common.checks.check_component)
    *
    * @minItems 1
-   * @maxItems 50
    */
   tools: [ToolDef, ...ToolDef[]];
   search: {
@@ -1843,9 +4379,9 @@ export interface ExperimentsPrereg {
     grader_error: "exclude";
     undecidable: "exclude";
     /**
-     * ⚠ 팀 확정 전 (기획서 1.2 '세지 않음' = exclude / 수정 요청서 '셈' = fail)
+     * P-01 확정 (11/23, 기획서 1.3 5.4): 도구 범위 밖은 1차 성공률에서 실패로 셈. 범위 밖 비율과 공통 문항의 범위 안 성공률은 리포트 detail.in_scope 에 따로
      */
-    out_of_scope: "fail" | "exclude";
+    out_of_scope: "fail";
     /**
      * env_error 로 볼 outcome_reason 목록 (필수 — 비면 ①이 환경 탓과 후보 탓을 가를 수 없음). 기본값 settings env_error_reasons. env_ 로 시작하는 값 + 팀이 정하면 llm_api_429
      *
@@ -1895,6 +4431,51 @@ export interface ExperimentsPrereg {
     ];
   };
   max_env_retries: number;
+  /**
+   * 과정 정책 (선택, 2026-11-26 과정 채점). 실행 전에 고정되며 잠근 뒤 바꾸면 다른 실험. 판정은 grading.eng_policy, 결과는 sa_policy_results. 칸이 없으면 정책 검사 안 함
+   */
+  process_policy?: {
+    /**
+     * 승인 목록. 칸이 없으면 승인 검사 안 함, [] 이면 외부 도구 호출을 모두 금지. 엔진 내장 도구는 항상 허용. 기능 이름표와 별개 (무엇을 하나 ≠ 어느 도구를 허용하나)
+     *
+     * @maxItems 100
+     */
+    approved_tools?: (
+      | {
+          source: "mcp";
+          server: string;
+          /**
+           * 도구 이름 또는 * (그 서버 전부)
+           */
+          tool: string;
+          /**
+           * 있으면 config_snapshot.mcp_servers[].version 과 정확히 같아야 함
+           */
+          version?: string;
+        }
+      | {
+          source: "custom";
+          tool: string;
+          /**
+           * common.hashing.canonical_hash() 결과
+           */
+          def_hash: string;
+        }
+    )[];
+    /**
+     * 쓰기 전에 같은 대상(서비스·대상 종류·저장소·대상 ID)을 정상 조회했어야 함. 대상 인자는 tool_def.target_args
+     */
+    read_before_write?: {
+      /**
+       * 대상 ID 가 없는 생성 쓰기: skip 건너뜀(기본) / undecided 판정 불가
+       */
+      create_writes?: "skip" | "undecided";
+    };
+    /**
+     * true 면 위반한 풀이는 성공일 수 없음. 기본 false (보고만)
+     */
+    gate?: boolean;
+  };
 }
 /**
  * 문항 고르기 ②(평가팩) · 문항 수·묶음 ③ · 저장 ④ · 읽기 ①(lock_experiment 가 tasks 로 풀이 행을 만듦). ④는 POST /api/experiments/plan-proposal 이 돌려준 plan 을 보냄 (proposal 칸 없이). proposal 칸은 저장할 때 서버(common.proposal)가 채움 — 저장된 행은 part='stored' 로 검사. 잠근 뒤 바꿀 수 없음. 저장 전 검사: common.checks.check_plan

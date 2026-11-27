@@ -20,6 +20,7 @@ from .hashing import canonical_hash
 
 MAX_AGE = timedelta(hours=24)
 CLOCK_SKEW = timedelta(minutes=5)
+PILOT_TEMPLATE_LIMIT = 15
 EXPERIMENT_FIELDS = ("reps", "budget_krw", "candidates")
 
 
@@ -35,10 +36,73 @@ def setting_at(conn, key: str, as_of: datetime, scope: str = "global", scope_ref
     return None if r is None else r[0]
 
 
-def propose(conn, req: Mapping[str, Any], *, as_of: datetime | None = None) -> dict:
+def propose(conn, req: Mapping[str, Any], *, as_of: datetime | None = None, sample_size=None) -> dict:
     """api.plan_proposal_request → api.plan_proposal_response (as_of 포함, plan 에 proposal 칸 없음).
-    값: settings(setting_at) + stats.sample_size(③) + packs.select.select_tasks(②, seed = canonical_hash(req))."""
-    raise NotImplementedError
+    ③ sample_size 가 구현 전이면 미열람 held 유형으로 파일럿 계획을 만들고 warnings 에 표시함."""
+    from slotagent.packs.select import select_tasks
+    from slotagent.stats import analyze
+
+    as_of = as_of or datetime.now(UTC)
+    _check_request(conn, req)
+
+    def setting(key):
+        value = setting_at(conn, key, as_of)
+        if value is None:
+            raise CheckError("invalid_plan", [f"기본값 settings '{key}' 가 없습니다 (as_of {as_of.isoformat()})"])
+        return value
+
+    margin, alpha = setting("ni_margin_pp"), setting("alpha")
+    prereg = {
+        "schema_version": 1, "primary_metric": "success_rate", "test": "ni_then_sup",
+        "margin_pp": margin, "alpha": alpha, "regression_limit": setting("regression_limit"),
+        "outcome_rules": {"agent_error": "fail", "timeout": "fail", "env_error": "retry_then_exclude",
+                          "grader_error": "exclude", "undecidable": "exclude", "out_of_scope": setting("out_of_scope_rule"),
+                          "env_error_reasons": setting("env_error_reasons")},
+        "max_env_retries": setting("max_env_retries"),
+    }
+    power, p_base = setting("power"), setting("p_base")
+    try:
+        size = (sample_size or analyze.sample_size)(margin, alpha, power, p_base)
+    except NotImplementedError:
+        pilot = True
+    else:
+        pilot = False
+    n_templates = PILOT_TEMPLATE_LIMIT if pilot else size["n_templates"]
+    try:
+        tasks = select_tasks(
+            conn, req["pack_version_id"], n_templates, split="held" if pilot else req.get("split", "held"),
+            as_of=as_of, seed=canonical_hash(req), allow_shortfall=pilot,
+        )
+    except ValueError as exc:
+        raise CheckError("invalid_plan", [f"문항을 고를 수 없습니다: {exc}"]) from None
+    if pilot:
+        n_templates = conn.execute(
+            "SELECT count(DISTINCT template_id) FROM sa_tasks WHERE task_id = ANY(%s)",
+            ([task["task_id"] for task in tasks],),
+        ).fetchone()[0]
+    reps = req.get("reps") or setting("reps")
+    response = {"prereg": prereg, "plan": {"schema_version": 1, "tasks": tasks}, "reps": reps,
+                "n_templates": n_templates, "n_tasks": len(tasks), "trials": len(req["candidate_ids"]) * len(tasks) * reps,
+                "as_of": as_of.isoformat()}
+    if pilot:
+        response["warnings"] = ["검정력 계산을 적용하지 않은 파일럿 계획입니다. 미열람 held 문항 유형을 최대 15개 사용합니다."]
+    return response
+
+
+def _check_request(conn, req: Mapping[str, Any]) -> None:
+    """평가팩은 잠긴 것만, 자리는 그 에이전트 버전의 것, 후보는 그 자리의 것만."""
+    pack = conn.execute("SELECT status FROM sa_pack_versions WHERE pack_version_id=%s", (req["pack_version_id"],)).fetchone()
+    if pack is None:
+        raise CheckError("not_found", ["평가팩 버전이 없습니다."])
+    if pack[0] != "locked":
+        raise CheckError("invalid_plan", ["잠긴 평가팩만 실험에 쓸 수 있습니다."])
+    slot = conn.execute("SELECT agent_version_id FROM sa_slots WHERE slot_id=%s", (req["slot_id"],)).fetchone()
+    if slot is None or slot[0] != req["agent_version_id"]:
+        raise CheckError("not_found", ["이 에이전트 버전의 자리가 아닙니다."])
+    found = conn.execute("SELECT count(*) FROM sa_candidates WHERE slot_id=%s AND candidate_id = ANY(%s)",
+                         (req["slot_id"], list(req["candidate_ids"]))).fetchone()[0]
+    if found != len(req["candidate_ids"]):
+        raise CheckError("wrong_slot", ["이 자리의 후보가 아닌 것이 있습니다."])
 
 
 def check_as_of(as_of: datetime, now: datetime) -> None:

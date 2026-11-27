@@ -7,6 +7,9 @@
     "ni_margin_pp": { "description": "③ 비열등성 마진 %p → prereg.margin_pp", "type": "number", "exclusiveMinimum": 0, "maximum": 50 },
     "alpha": { "description": "③ 유의수준 → prereg.alpha", "type": "number", "exclusiveMinimum": 0, "maximum": 0.2 },
     "regression_limit": { "description": "③ 회귀율 한도 → prereg.regression_limit", "type": "number", "minimum": 0, "maximum": 1 },
+    "power": { "description": "③ 검정력 → stats.sample_size (plan-proposal). 기획서: 80%", "type": "number", "exclusiveMinimum": 0.5, "exclusiveMaximum": 1 },
+    "p_base": { "description": "③ 기준 후보의 예상 성공률 → stats.sample_size (plan-proposal)", "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+    "reps": { "description": "③ 요청에 reps 가 없을 때 plan-proposal 이 쓰는 문항당 반복 수", "type": "integer", "minimum": 1, "maximum": 10 },
     "max_env_retries": { "description": "① 환경 오류 다시 실행 횟수 → prereg.max_env_retries", "type": "integer", "minimum": 0, "maximum": 3 },
     "env_error_reasons": {
       "description": "① 환경 탓으로 볼 outcome_reason → prereg.outcome_rules.env_error_reasons",

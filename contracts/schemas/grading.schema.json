@@ -102,7 +102,8 @@
           ],
           "properties": {
             "schema_version": {
-              "const": 1
+              "description": "1 = 처음 판, 2 = error_calls 추가 (2026-11-26). 옛 행은 1 그대로",
+              "enum": [1, 2]
             },
             "tool_calls": {
               "type": "integer",
@@ -131,6 +132,18 @@
               "additionalProperties": {
                 "type": "number",
                 "minimum": 0
+              }
+            },
+            "error_calls": {
+              "description": "오류 호출 원인별 수 (v2). agent = 에이전트가 만든 오류(agent_ 코드), tool = 도구가 돌려준 실패 응답(tool_error, 인자 탓인지 도구 탓인지 모름), env = 환경(env_·timeout_), unclassified = 옛 원문 등 코드가 아닌 값. env 는 후보 비교에서 에이전트 탓으로 세지 않음",
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["agent", "tool", "env", "unclassified"],
+              "properties": {
+                "agent": { "type": "integer", "minimum": 0 },
+                "tool": { "type": "integer", "minimum": 0 },
+                "env": { "type": "integer", "minimum": 0 },
+                "unclassified": { "type": "integer", "minimum": 0 }
               }
             }
           }

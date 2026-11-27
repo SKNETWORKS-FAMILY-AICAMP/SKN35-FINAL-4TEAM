@@ -19,6 +19,7 @@
 """
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable, Mapping
 from typing import Any
 
@@ -94,7 +95,29 @@ def check_registration(connection_type: str, agent_spec: Mapping[str, Any]) -> N
             errs.append(f"{t['name']} 은(는) 엔진이 쓰는 도구 이름이라 쓸 수 없습니다")
         if t["access"] == "write" and not t.get("capabilities"):
             errs.append(f"쓰기 도구 {t['name']} 에 이름표(capabilities)가 필요합니다")
+        errs.extend(_call_capability_errors(t))
     _raise("invalid_spec", errs)
+
+
+def _call_capability_errors(tool: Mapping[str, Any]) -> list[str]:
+    """과정 채점용 호출별 기능·대상 인자 (선택). 인자는 도구 인자 스키마에 있어야 하고, 정규식은 컴파일돼야 함."""
+    errs = []
+    params = tool["parameters"]
+    props = params.get("properties", {}) if isinstance(params, Mapping) else {}
+    caps = set(tool.get("capabilities", []))
+    for rule in tool.get("call_capabilities", []):
+        if rule["capability"] not in caps:
+            errs.append(f"{tool['name']} 의 call_capabilities 기능 {rule['capability']} 이(가) capabilities 에 없습니다")
+        if rule["arg"] not in props:
+            errs.append(f"{tool['name']} 의 call_capabilities 인자 {rule['arg']} 이(가) 도구 인자에 없습니다")
+        try:
+            re.compile(rule["pattern"])
+        except (re.error, OverflowError, RecursionError):
+            errs.append(f"{tool['name']} 의 call_capabilities 정규식을 읽을 수 없습니다")
+    for role, arg in tool.get("target_args", {}).items():
+        if arg not in props:
+            errs.append(f"{tool['name']} 의 target_args.{role} 인자 {arg} 이(가) 도구 인자에 없습니다")
+    return errs
 
 
 def build_slots(connection_type: str, control_level: str, agent_spec: Mapping[str, Any]) -> list[dict]:
@@ -193,7 +216,7 @@ def check_baseline(comp: Mapping[str, Any], agent_spec: Mapping[str, Any], slot:
 
 
 # ---- 정답 조건 ------------------------------------------------------------
-GATE_DEFAULT = {"info": True, "order": True, "end_state": True, "exact_writes": True, "link": False}
+GATE_DEFAULT = {"info": True, "order": True, "end_state": True, "exact_writes": True, "link": False, "uses": False}
 
 
 def condition_gate(kind: str, spec: Mapping[str, Any]) -> bool:

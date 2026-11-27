@@ -3,11 +3,11 @@
 다른 역할은 상태를 직접 바꾸지 않는다. ③은 판정만 남기고(analyses.method.sequential.stop), ①이 그걸 읽고 실행한다.
 
 실험 상태 (experiments.status)
-    draft ──lock_experiment()──▶ locked ──mark_running()──▶ running ──on_reports_done()──▶ done
+    draft ──lock_experiment()──▶ locked ──mark_running()──▶ running ──on_reports_done()──▶ done (종료 게이트: completion_blockers 가 빌 때만)
                                                             ├─ check_budget() 예산 도달 ───▶ stopped (stop_reason='budget')
                                                             ├─ 중간 분석 stop=true ───────▶ stopped (stop_reason='interim')
                                                             ├─ 사용자 멈춤 (POST .../stop) ─▶ stopped (stop_reason='user')
-                                                            └─ 채점·분석 작업이 끝내 실패 ──▶ failed  (stop_reason='job_failed')
+                                                            └─ 작업이 끝내 실패 + 사람이 포기 ─▶ failed (job_failed, abandon_failed_experiment)
     stop_reason 값 목록 = contracts $defs/stop_reason = DB CHECK experiments_stop_reason_known
     stopped/failed 가 되면 대기(pending) 풀이는 cancelled, 그 풀이의 run_trial 작업도 cancelled.
 
@@ -174,7 +174,7 @@ def _stop_experiment(conn, experiment_id: int, reason: str) -> int:
         "UPDATE sa_trials SET status='cancelled' WHERE experiment_id=%s AND status='pending' RETURNING trial_id", (experiment_id,))]
     if ids:
         conn.execute("""UPDATE sa_jobs SET status='cancelled', updated_at=now()
-                        WHERE kind='run_trial' AND status='queued' AND (payload->>'trial_id')::bigint = ANY(%s)""", (ids,))
+                        WHERE kind='run_trial' AND status='queued' AND payload->>'trial_id' = ANY(%s)""", ([str(i) for i in ids],))
     return len(ids)
 
 
@@ -275,8 +275,116 @@ def on_analysis_done(conn, analysis_id: int) -> None:
             return
         if interim and stop:
             stop_experiment(conn, exp_id, "interim")
-        enqueue(conn, {"schema_version": 1, "kind": "report", "analysis_id": analysis_id, "report_kinds": ["one_pager", "detail"]})
+        enqueue(conn, {"schema_version": 1, "kind": "report", "analysis_id": analysis_id, "report_kinds": list(REPORT_KINDS)})
 
 
-def on_reports_done(conn, experiment_id: int) -> None:
-    conn.execute("UPDATE sa_experiments SET status='done' WHERE experiment_id=%s AND status='running'", (experiment_id,))
+REPORT_KINDS = ("one_pager", "detail")
+
+
+def completion_blockers(conn, experiment_id: int) -> list[str]:
+    """정상 완료(done)를 막는 이유. 비면 끝내도 됨. 호출자가 실험 행을 잠근 뒤 부르면 결과가 바뀌지 않습니다.
+
+    trials_unfinished  대기·실행 중 풀이가 있음 (작업이 끝내 실패해 pending 으로 남은 것 포함)
+    trials_cancelled   멈추지 않은 실험에 취소된 풀이가 있음
+    analysis_missing   전체를 채점한 최종 분석이 없음 (일부만 채점한 이른 분석은 세지 않음)
+    reports_missing    그 분석의 리포트 두 종류가 다 있지 않음
+    """
+    blockers = []
+    unfinished, cancelled = conn.execute(
+        """SELECT count(*) FILTER (WHERE status IN ('pending','running')),
+                  count(*) FILTER (WHERE status='cancelled') FROM sa_trials WHERE experiment_id=%s""",
+        (experiment_id,),
+    ).fetchone()
+    if unfinished:
+        blockers.append("trials_unfinished")
+    if cancelled:
+        blockers.append("trials_cancelled")
+    # 채점 범위가 전체이고, 지금 유효한 풀이가 그 채점에 하나도 빠지지 않은 최종 분석
+    analyses = [
+        r[0]
+        for r in conn.execute(
+            """SELECT a.analysis_id FROM sa_analyses a JOIN sa_grading_runs g USING (grading_run_id)
+               WHERE a.experiment_id=%s AND NOT a.is_interim AND g.finished_at IS NOT NULL
+                 AND (g.upto_batch_no IS NULL OR g.upto_batch_no >=
+                      (SELECT max(batch_no) FROM sa_trials m WHERE m.experiment_id=a.experiment_id))
+                 AND NOT EXISTS (
+                   SELECT 1 FROM sa_effective_trials t WHERE t.experiment_id=a.experiment_id AND t.run_outcome<>'env_error'
+                     AND NOT EXISTS (SELECT 1 FROM sa_trial_grades tg
+                                     WHERE tg.grading_run_id=g.grading_run_id AND tg.trial_id=t.trial_id))
+               ORDER BY a.analysis_id""",
+            (experiment_id,),
+        )
+    ]
+    if not analyses:
+        blockers.append("analysis_missing")
+    elif not conn.execute(
+        """SELECT 1 FROM sa_reports WHERE experiment_id=%s AND analysis_id=ANY(%s) AND kind=ANY(%s)
+           GROUP BY analysis_id HAVING count(DISTINCT kind)=%s LIMIT 1""",
+        (experiment_id, analyses, list(REPORT_KINDS), len(REPORT_KINDS)),
+    ).fetchone():
+        blockers.append("reports_missing")
+    return blockers
+
+
+def on_reports_done(conn, experiment_id: int) -> list[str]:
+    """종료 게이트: 막는 이유가 없을 때만 running → done. 돌려주는 값은 막은 이유(끝냈거나 할 일이 없으면 []).
+
+    막혀도 오류로 올리지 않습니다. 남은 풀이가 끝나면 채점·분석·리포트가 다시 이어져 여기로 돌아옵니다.
+    리포트 저장과 같은 트랜잭션에서 불러도 됩니다. 실험을 가리키는 행을 넣을 때의 외래키 잠금과 부딪히지 않게
+    FOR NO KEY UPDATE 로 잠급니다. 상태를 바꾸는 쪽끼리는 그대로 서로 기다립니다.
+    """
+    with queue.transaction(conn):
+        status = _one(conn, "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR NO KEY UPDATE", experiment_id)
+        if status is None:
+            raise ValueError("실험이 없습니다.")
+        if status != "running":
+            return []
+        blockers = completion_blockers(conn, experiment_id)
+        if not blockers:
+            conn.execute("UPDATE sa_experiments SET status='done' WHERE experiment_id=%s", (experiment_id,))
+        return blockers
+
+
+# 이 실험에서 아직 안 끝난 일(풀이·채점·분석·리포트)마다 가장 최근 작업만 봅니다. 앞 작업이 실패했어도
+# 뒤 작업이 이어받았거나 결과가 이미 있으면 회복한 것입니다. 같은 행을 다시 넣는 재개는 그 행의 상태가 바뀝니다.
+# payload 는 글자로 견줍니다. 숫자로 바꾸면 다른 실험의 잘못된 payload 하나가 전체를 막습니다.
+_LAST_FAILED_JOB = """
+WITH events(kind, event) AS (
+    SELECT 'run_trial', trial_id::text FROM sa_trials WHERE experiment_id=%(e)s AND status='pending'
+    UNION ALL
+    SELECT 'grade', grading_run_id::text FROM sa_grading_runs WHERE experiment_id=%(e)s AND finished_at IS NULL
+    UNION ALL
+    SELECT 'analyze', grading_run_id::text FROM sa_grading_runs g WHERE experiment_id=%(e)s
+      AND NOT EXISTS (SELECT 1 FROM sa_analyses a WHERE a.grading_run_id=g.grading_run_id AND a.experiment_id=%(e)s)
+    UNION ALL
+    SELECT 'report', analysis_id::text FROM sa_analyses a WHERE experiment_id=%(e)s
+      AND (SELECT count(DISTINCT r.kind) FROM sa_reports r WHERE r.analysis_id=a.analysis_id
+             AND r.experiment_id=%(e)s AND r.kind=ANY(%(kinds)s)) < cardinality(%(kinds)s)
+), latest AS (
+    SELECT DISTINCT ON (kind, event) j.status FROM (
+        SELECT job_id, kind, status, payload->>(CASE kind WHEN 'run_trial' THEN 'trial_id'
+                 WHEN 'report' THEN 'analysis_id' ELSE 'grading_run_id' END) AS event
+        FROM sa_jobs WHERE kind IN ('run_trial','grade','analyze','report')) j
+    JOIN events USING (kind, event) ORDER BY kind, event, j.job_id DESC
+)
+SELECT 1 FROM latest WHERE status='failed' LIMIT 1"""
+
+
+def abandon_failed_experiment(conn, experiment_id: int) -> int:
+    """사람이 재개를 포기할 때만 부릅니다. 끝내 실패한 작업이 있는 실험을 failed 로 끝내고 남은 풀이·작업을 취소합니다.
+
+    기록·비용·이미 끝난 풀이는 남깁니다. 실패한 작업이 없으면 거절합니다(일반 멈춤은 stop_experiment).
+    이미 failed 면 아무것도 하지 않고 0. 돌려주는 값: 취소한 풀이 수.
+    """
+    with queue.transaction(conn):
+        status = _one(conn, "SELECT status FROM sa_experiments WHERE experiment_id=%s FOR NO KEY UPDATE", experiment_id)
+        if status is None:
+            raise ValueError("실험이 없습니다.")
+        if status == "failed":
+            return 0
+        if status not in {"locked", "running"}:
+            raise ValueError("진행 중인 실험만 실패로 끝낼 수 있습니다.")
+        failed = conn.execute(_LAST_FAILED_JOB, {"e": experiment_id, "kinds": list(REPORT_KINDS)}).fetchone()
+        if failed is None:
+            raise ValueError("끝내 실패한 작업이 없습니다. 멈추려면 stop_experiment 를 쓰세요.")
+        return _stop_experiment(conn, experiment_id, "job_failed")

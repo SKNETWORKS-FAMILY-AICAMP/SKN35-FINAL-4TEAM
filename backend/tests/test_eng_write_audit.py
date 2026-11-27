@@ -361,7 +361,7 @@ def test_audit_practice_permissions():
 
 def test_audit_golden_counts():
     counts, differences, undecided = audit()
-    assert counts == {"일치": 185, "불일치": 3}, (counts, differences, undecided)
+    assert counts == {"일치": 200}, (counts, differences, undecided)
     assert undecided == []
 
 

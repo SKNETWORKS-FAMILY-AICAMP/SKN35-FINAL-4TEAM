@@ -174,6 +174,90 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 3
+    },
+    "process_policy": {
+      "description": "과정 정책 (선택, 2026-11-26 과정 채점). 실행 전에 고정되며 잠근 뒤 바꾸면 다른 실험. 판정은 grading.eng_policy, 결과는 sa_policy_results. 칸이 없으면 정책 검사 안 함",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "approved_tools": {
+          "description": "승인 목록. 칸이 없으면 승인 검사 안 함, [] 이면 외부 도구 호출을 모두 금지. 엔진 내장 도구는 항상 허용. 기능 이름표와 별개 (무엇을 하나 ≠ 어느 도구를 허용하나)",
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "source",
+                  "server",
+                  "tool"
+                ],
+                "properties": {
+                  "source": {
+                    "const": "mcp"
+                  },
+                  "server": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]*$"
+                  },
+                  "tool": {
+                    "description": "도구 이름 또는 * (그 서버 전부)",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "description": "있으면 config_snapshot.mcp_servers[].version 과 정확히 같아야 함",
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "source",
+                  "tool",
+                  "def_hash"
+                ],
+                "properties": {
+                  "source": {
+                    "const": "custom"
+                  },
+                  "tool": {
+                    "$ref": "common.schema.json#/$defs/tool_name"
+                  },
+                  "def_hash": {
+                    "description": "서버 없는 자체 도구 정의(tool_def 전체)의 canonical_hash",
+                    "$ref": "common.schema.json#/$defs/hash"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "read_before_write": {
+          "description": "쓰기 전에 같은 대상(서비스·대상 종류·저장소·대상 ID)을 정상 조회했어야 함. 대상 인자는 tool_def.target_args",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "create_writes": {
+              "description": "대상 ID 가 없는 생성 쓰기: skip 건너뜀(기본) / undecided 판정 불가",
+              "enum": [
+                "skip",
+                "undecided"
+              ]
+            }
+          }
+        },
+        "gate": {
+          "description": "true 면 위반한 풀이는 성공일 수 없음. 기본 false (보고만)",
+          "type": "boolean"
+        }
+      }
     }
   }
 }

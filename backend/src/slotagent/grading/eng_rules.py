@@ -8,14 +8,14 @@ import math
 import re
 import unicodedata
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal, InvalidOperation
 
 from slotagent.common import contracts
 from slotagent.common.confirmation import approved_write
 
-KINDS = {"info", "link", "order", "forbidden", "end_state", "exact_writes"}
+KINDS = {"info", "link", "order", "forbidden", "uses", "end_state", "exact_writes"}
 MAX_ANSWER_DEPTH = 64
 MAX_NUMBER_CHARS = 1024
 
@@ -306,20 +306,101 @@ def _access(span, writes, tool_access=None, complete=False):
     return declared
 
 
-def _matches(span, selector, writes, tool_access=None, complete=False):
+def _rule_capabilities(span, rules):
+    """범용 도구의 호출별 기능. 인자 값이 pattern 에 통째로 맞는 줄의 기능들."""
+    found = set()
+    for rule in rules:
+        value = span.get("tool_args", {}).get(rule["arg"])
+        if not isinstance(value, str):
+            continue
+        try:
+            hit = re.fullmatch(rule["pattern"], value)
+        except (re.error, OverflowError, RecursionError):
+            # 등록 검사를 거치지 않은 잘못된 정규식. 채점을 멈추지 않고 이 호출만 판정 불가로 둡니다.
+            raise RulePolicyRequired("call_capability_pattern_invalid") from None
+        if hit:
+            found.add(rule["capability"])
+    return found
+
+
+def is_unexecuted(span, tool_access, complete):
+    """엔진 내장 도구이거나, 실행 전에 거절된 호출(없는 이름·인자 오류 = agent_invalid_tool_call).
+
+    둘 다 업무 도구를 쓴 것이 아니라 기능·승인·정책 검사에서 뺍니다. 완전한 문맥에서만 단정합니다.
+    """
+    if tool_access is None or not complete:
+        return False
+    if tool_access.get(span["name"]) == "builtin":
+        return True
+    return span.get("error") == "agent_invalid_tool_call"
+
+
+def _call_found(span, context):
+    """이 호출이 할 수 있는 기능 집합 (비어 있지 않음). 정할 수 없으면 RulePolicyRequired.
+
+    호출별 매핑이 있으면 그 결과만 씁니다. 매핑상 둘 이상이면 찾는 기능이 밖에 있어도 단정하지 않습니다.
+    매핑이 없으면 도구의 capabilities 전체이며, 둘 이상인지는 부르는 쪽이 봅니다.
+    """
+    if context is None or span["name"] not in context.tool_capabilities:
+        raise RulePolicyRequired("tool_capabilities_missing")
+    rules = context.call_capabilities.get(span["name"])
+    if not rules:
+        found = set(context.tool_capabilities[span["name"]])
+        if not found:
+            raise RulePolicyRequired("tool_capabilities_missing")
+        return found
+    found = _rule_capabilities(span, rules)
+    if not found:
+        raise RulePolicyRequired("call_capability_unknown")
+    if len(found) > 1:
+        raise RulePolicyRequired("call_capability_ambiguous")
+    return found
+
+
+def call_capability(span, context, tool_access=None, complete=False):
+    """호출 하나의 기능 이름표 하나. 업무 기능이 없는 호출(내장 도구·거절된 호출)은 None.
+
+    config_snapshot 의 도구 정의(ConfirmationContext)에서만 정하고 trace 값은 쓰지 않습니다.
+    정할 수 없으면 RulePolicyRequired 입니다.
+    """
+    if is_unexecuted(span, tool_access, complete):
+        return None
+    found = _call_found(span, context)
+    if len(found) > 1:
+        raise RulePolicyRequired("call_capability_ambiguous")
+    return found.pop()
+
+
+def _capability_matches(span, capability, context, tool_access=None, complete=False):
+    if is_unexecuted(span, tool_access, complete):
+        return False
+    found = _call_found(span, context)
+    if capability not in found:
+        return False
+    if len(found) > 1:
+        # 여러 일을 하는 도구인데 호출별 매핑이 없으면 이 호출이 그 일인지 모릅니다.
+        raise RulePolicyRequired("call_capability_ambiguous")
+    return True
+
+
+def _matches(span, selector, writes, tool_access=None, complete=False, context=None):
     if "tool" in selector and span.get("name") != selector["tool"]:
         return False
     if not _includes(span.get("tool_args", {}), selector.get("args_include", {})):
         return False
     access = _access(span, writes, tool_access, complete) if "access" in selector else None
-    return "access" not in selector or access == selector["access"]
+    if "access" in selector and access != selector["access"]:
+        return False
+    return "capability" not in selector or _capability_matches(
+        span, selector["capability"], context, tool_access, complete
+    )
 
 
-def _calls(spans, selector, writes, tool_access=None, complete=False):
+def _calls(spans, selector, writes, tool_access=None, complete=False, context=None):
     matches, unknown = [], []
     for span in spans:
         try:
-            if _matches(span, selector, writes, tool_access, complete):
+            if _matches(span, selector, writes, tool_access, complete, context):
                 matches.append(span)
         except RulePolicyRequired as exc:
             unknown.append(exc)
@@ -385,6 +466,8 @@ class ConfirmationContext:
     policy: dict | None
     write_tools: frozenset[str]
     tool_capabilities: Mapping[str, list[str]]
+    # 범용 도구의 호출별 기능 (tool_def.call_capabilities). 없는 도구는 capabilities 로 정합니다.
+    call_capabilities: Mapping[str, list[dict]] = field(default_factory=dict)
 
 
 def _approved(span, trace, context):
@@ -468,8 +551,8 @@ def _check(kind: str, spec: dict, trace: dict, tool_access=None, complete=False,
         _raise_pending(pending)
         return False, _evidence([], [])
     if kind == "order":
-        before, unknown_before = _calls(tools, spec["before"], writes, tool_access, complete)
-        after, unknown_after = _calls(tools, spec["after"], writes, tool_access, complete)
+        before, unknown_before = _calls(tools, spec["before"], writes, tool_access, complete, confirmation)
+        after, unknown_after = _calls(tools, spec["after"], writes, tool_access, complete, confirmation)
         if unknown_before or unknown_after:
             raise (unknown_before + unknown_after)[0]
         _no_error(before + after)
@@ -477,8 +560,16 @@ def _check(kind: str, spec: dict, trace: dict, tool_access=None, complete=False,
             raise RulePolicyRequired("repeated_order_policy_missing")
         passed = bool(before and after and before[0]["seq"] < after[0]["seq"])
         return passed, _evidence([s["seq"] for s in before + after], [s["seq"] for s in before + after])
+    if kind == "uses":
+        # 호출했다는 것까지만 증명합니다. 결과를 근거로 답했는지는 link 가 봅니다.
+        matched, unknown = _calls(tools, spec["call"], writes, tool_access, complete, confirmation)
+        normal = [span for span in matched if "error" not in span]
+        if normal:
+            return True, _evidence([s["seq"] for s in normal], [s["name"] for s in normal])
+        _raise_pending(_pending(matched, unknown))
+        return False, _evidence([], [])
     if kind == "forbidden":
-        matched, unknown = _calls(tools, spec["call"], writes, tool_access, complete)
+        matched, unknown = _calls(tools, spec["call"], writes, tool_access, complete, confirmation)
         normal = [span for span in matched if "error" not in span]
         if normal and spec.get("unless_user_confirmed"):
             normal = [span for span in normal if not _approved(span, trace, confirmation)]
@@ -496,7 +587,7 @@ def _check(kind: str, spec: dict, trace: dict, tool_access=None, complete=False,
         return not intents, _evidence(list(writes), [s["name"] for s in intents])
     used, pending, missing = [], [], False
     for selector in spec["write_intents"]:
-        matched, unknown = _calls(intents, selector, writes, tool_access, complete)
+        matched, unknown = _calls(intents, selector, writes, tool_access, complete, confirmation)
         normal = [span for span in matched if "error" not in span]
         if normal:
             used.extend(normal)

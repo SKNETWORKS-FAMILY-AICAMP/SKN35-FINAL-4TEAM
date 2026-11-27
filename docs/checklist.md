@@ -32,13 +32,14 @@
 - [ ] 작업 큐 워커 (`sa_jobs` 임대·재시도·취소)
   - [x] DB 큐 임대·연장·만료 회수·토큰 검사, 풀이 복구와 큐 반환 원자화, 명시적 deps의 `workers/eng_main.run_once` (별도 연결의 20초 연장)
   - [x] Docker 의존성 연결: `run_once(stdio=...)` 로 풀이별 컨테이너 생성·정리, 만료 임대 회수 때 남은 컨테이너 먼저 제거
-  - [ ] 배포용 반복 실행 진입점·재시도 운영 정책 (기본 registry는 아직 deps 없이 실제 모델을 실행하지 않음)
+  - [x] 배포용 반복 실행 진입점 `workers/eng_serve.py` (servers.json → local/Docker stdio, ProviderModel, 멈춤 신호, `--drain`) (11/27)
+  - [ ] 분석·리포트 워커 (③ `analyze`·`build` 대기), 채점은 ② 판정 함수가 오면 `serve(classify=)` 로
   - [x] `run_trial` 읽기 경로: 시작 전 예산·스냅샷 검사, attempt 확인, 결과 원자적 저장, `advance` 채점 작업 생성 (임시 DB)
   - [x] 잡을 수 있는 예외 후 현재 attempt만 pending 반환·번호 증가·재실행 확인, 중단된 실험 취소, `sa_spans.error` 저장
   - [x] 중간 비용 보존: 응답별 커밋, 임대 상실 뒤 비용 기록, (trial·attempt·span seq) 중복/값 충돌 검사, 최종 저장 중복 방지·기존 작업 재시도 상한 연결 (임시 DB·가짜 모델)
   - [x] 워커 로컬 stdio 연결: 풀이별 세션 생성·정리, 임대 상실 시 대기 중단, 같은 failed job의 누적 3회 내 수동 재개, 알려진 원인의 소진 풀이는 error 종결
   - [x] 잠금에 막힌 최종 저장은 모델 재호출 없이 저장만 재시도, SQL 잠금·실행 상한, 비용 영수증 재시도
-  - [ ] 원인을 모르는 소진 풀이 처리 (지금은 사람이 확인할 때까지 pending)
+  - [x] 원인을 모르는 소진 풀이 처리: 자동 종결하지 않고 사람이 `abandon_failed_experiment` 로 실험을 실패 처리
 - [ ] 실행 루프 7단계 (모델 → 도구 → 결과 반복, 단계마다 기록) 🔗 ← ② 평가팩 문항 · → ② 채점이 이 기록을 읽음
   - [x] DB 없는 읽기 루프 + trace 계약 검사: 모델/도구 합산 단계 상한·시간·단계 사이 취소·잘못된 도구 호출 피드백
   - [x] 도구가 실패 응답(isError)을 주면 모델에 전달하고 대화 계속, MCP 무응답은 환경 오류로 분류
@@ -54,19 +55,25 @@
   - [x] A1 완료 통지 멱등: grading_run/analysis 행 잠금 + 같은 트랜잭션의 기존 작업 조회, 동시 20회·중간 stop·외부 롤백·서로 다른 실행 검증 (11/24)
   - [x] `lock_and_enqueue`: 잠금·풀이·작업 생성 원자화 및 중복 요청 방지, 동시 풀이 완료 시 채점 작업 하나 생성 확인
   - [x] 수동 재개 `resume_failed_trial` (동시 재개 중복 방지, 3회 상한 유지)
-  - [ ] 실험 종료 게이트: 남은 pending 풀이가 있으면 정상 완료를 막음
+  - [x] 실험 종료 게이트: 남은 pending 풀이가 있으면 정상 완료를 막음
 - [ ] 예시 실험 한 건이 진짜로 돌아 채점까지 감
+  - [x] 가짜 모델: ② 연습 서버 8유형·파일럿 15유형을 잠금 → 실행 → 규칙 채점 → 재채점까지 (`test_eng_pilot.py`, 11/25)
+  - [ ] 실제 모델 + ② 판정 + ④ 등록으로 한 건
 - [x] 규칙 채점기 1단계 `grading/eng_rules.py` — **① 담당(11/24 사용자 결정)**. info·link·order·forbidden·end_state 순수 함수·7종 비교·골든 168개 독립 대조. 계약 부족/LLM 판정 필요는 통과·실패로 숨기지 않음. `eng_pipeline`·DB·계약 변경은 별도.
   - [x] 1단계 보완: 신뢰 권한 문맥·확정 근거 우선·모델 비정상 값 분류·jsonb 14종·골든 출처/197조건 변화 기록. 승인 18건 및 재채점 파이프라인은 미연결. 상세: `docs/eng_rules_followup_1124.md`.
   - [x] 잔여 보완: 이름/결과 조건의 권한 요구 제거·완전 문맥 명시(기본 불완전)·문맥 밖 invalid 호출의 access 제외. 골든 변화 20건 개별 기록, 기존 불일치 1건 재노출 (11/24, `docs/eng_review_fix_1124.md`)
 
 **W5 (12/4~12/10) — 게이트**
-- [ ] 기록·재생 (키 없이 다시 채점, 재생 10건이 원래와 같음)
+- [x] 기록·재생 (키 없이 다시 채점, 재생 10건이 원래와 같음) `engine/replay.py` — 파일럿 30풀이 재생 일치 (11/27)
 - [x] 도구 검색 후보 실행 `engine/tool_search.py` (BM25)
 - [ ] SlotAgent MCP 서버 (조회 함수부터) 🔗 ← ④ chatbot 함수 5개 모양
+  - [x] stdio 서버·도구 5개, `get_results`·`write_report` 저장값 조회, `start_run` 확인 뒤 실행 (`docs/eng_mcp_server.md`). `calc_sample_size`·`create_experiment` 는 ③④ 뒤쪽 구현 대기, Claude Desktop 실제 연결 확인 전
 - [ ] API (FastAPI) + plan-proposal 🔗 → ④ 등록·실험 저장 함수가 여기 붙음
+  - [x] plan-proposal 본체 `common/proposal.propose` (settings + ② 문항 고르기, as_of 재현). ③ `sample_size` 대기 (11/27)
+  - [x] HTTP `POST /api/experiments/plan-proposal` 등록 (계약 밖 요청 422, `sample_size` 없으면 501) (11/27)
 - [ ] 화면 1차 (Next.js) — 등록 질문 4개, 실험 설계, 진행 상태, 결과 🔗 ← ④ 등록 API
-- [ ] 화면 타입 생성 (스키마 → `frontend/src/types/contracts.ts`)
+  - [x] 진행 상태를 실제 API 로: `?experiment=번호` 면 시험 단계가 run → status 2초 조회 → stop (`components/live-run.tsx`, `/api` 프록시) (11/27)
+- [x] 화면 타입 생성 (스키마 → `frontend/src/types/contracts.ts`) — 11/27 최신 계약으로 재생성, 계약 바뀌면 `npm run generate:types` 다시
 
 **W6~W8 — 고도화**
 - [ ] 오케스트레이터 (LangGraph: 후보 찾기 → 설계 → 승인 → 감시 → 추천)
@@ -98,11 +105,11 @@
 
 ## 4. ④ 등록 · 연결 · 비용 · 러너 · chatbot
 **W3~4 (~12/3)**
-- [ ] 에이전트 등록 저장 (`intake/service.py` 의 `register_agent`) — 모델 회사(필수), 질문 사용 여부, 도메인 🔗 → ① 실행 구성 만들기
+- [x] 에이전트 등록 저장 (`intake/service.py` 의 `register_agent`) — 버전, Slot, 기준 후보 A와 응답 계약, 실패 시 전체 롤백을 DB 테스트로 확인 (11/26) 🔗 → ① 실행 구성 만들기
 - [ ] 도구 자동 탐지: MCP 서버에서 도구 목록 읽기 + **MCP 서버 → 서비스 대응표** + 읽기/쓰기 판정 (애매하면 쓰기) 🔗 → ① 화면 3/4 질문
 - [ ] 도구마다 `capabilities` 채우기 🔗 ← 기능 이름표
 - [ ] 쓰기 도구 실행 방식 `write_mode` 고르기 + 검사 (`check_write_modes`, 10개까지) 🔗 → ① 실행 루프가 방식대로 처리
-- [ ] 후보 등록 `register_candidate`
+- [x] 후보 등록 `register_candidate` — 저장 및 등록 제약 테스트 확인 (11/26)
 - [ ] 실험 저장 `create_experiment_draft` 🔗 ← ① plan-proposal
 - [ ] 실험에 후보 넣기 `add_candidate` — 실행 구성(①의 함수) + **범위 판정 `template_scope` 저장** (사람 확인 필요한 건 정한 뒤에) 🔗 ← ② `required_capabilities`
 - [ ] 비용: 가격표(settings `price.<모델>`) 🔗 → ① 어댑터가 이 가격으로 비용 기록

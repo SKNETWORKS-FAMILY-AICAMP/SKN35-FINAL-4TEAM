@@ -75,7 +75,7 @@ def test_connect_reads_existing_product_tables(pg, monkeypatch):
         assert conn.execute(
             "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' "
             "AND table_type = 'BASE TABLE' AND table_name LIKE 'sa_%'"
-        ).fetchone() == (33,)
+        ).fetchone() == (34,)
     assert conn.closed
 
 

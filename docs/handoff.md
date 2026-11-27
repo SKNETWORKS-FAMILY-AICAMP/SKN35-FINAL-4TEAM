@@ -11,6 +11,101 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-27 · Claude · taemin (화면 타입 재생성 · README)
+- 한 일: `npm run generate:types` 로 `frontend/src/types/contracts.ts` 를 지금 계약으로 다시 만듦(그동안 밀린 call_capabilities·target_args·process_policy·in_scope 등 반영), `npm run typecheck` 통과. README 진행 상황을 11/27 기준으로 고침(테이블 34개, 시험 1466, 반복 워커·재생·과정 채점·API·MCP 서버, 실제 OpenAI 실행 범위)과 "API · 워커 · 화면 연결" 실행법 추가.
+- 남은 일: 계약 내용은 그대로라 생성물만 바뀜. 계약이 바뀌면 다시 생성해야 함(자동 검사 없음).
+
+## 2026-11-27 · Claude · taemin (화면 진행 상태를 실제 API 에 연결)
+- 한 일: 주소에 `?experiment=번호` 가 있으면 시험 단계(3)가 모의 재생 대신 `LiveRun`(새 `components/live-run.tsx`)을 보여 줌 — `POST run`(같은 요청 반복해도 한 번만 잠김) → `GET status` 2초마다(locked/running 동안) → `POST stop`. 호출은 `features/slotagent/api.ts`, 타입은 기존 `contracts.ts` 의 RunResponse·StatusResponse. `next.config.ts` 에 `/api/*` → FastAPI(`SLOTAGENT_API`, 기본 127.0.0.1:8000) 프록시(CORS 불필요). 번호가 없으면 기존 예시 화면 그대로.
+- 확인: 저장소 밖 `D:\final_test\live_demo\serve_demo.py`(임시 DB + SQL 로 만든 초안 실험 + uvicorn + eng_serve, 실제 OpenAI)로 띄우고 브라우저에서 시작 → 0/6 → 6/6 끝남, 비용 9.7원(시험 가격), 채점 시작까지 화면에 나옴. `npm run typecheck` 통과.
+- 남은 일: 실험 상태는 채점·분석(②③) 전이라 계속 running 이고 화면도 계속 조회함. 결과·요약 화면은 여전히 모의 데이터(③ results API 대기). 등록·설계 화면도 ④ API 대기. `contracts.ts` 재생성은 안 함(새 칸은 이번 화면에서 안 씀). 화면 시험(playwright) 없음.
+
+## 2026-11-27 · Claude · taemin (반복 워커 실제 실행 확인)
+- 한 일: `eng_serve` CLI 를 별도 프로세스로 띄워(`--drain`, local stdio = ② 연습 서버) 실제 OpenAI `gpt-4.1-mini` 로 3유형 × A·B = 6풀이를 돌림. 실험 등록은 ④ 함수가 없어 `test_eng_pilot.create_experiment`(SQL)로 대신, DB 는 pgserver 임시 DB. 스크립트는 저장소 밖 `D:\final_test\real_pilot\test_real_serve.py`, 결과 `result_serve.json`. 제품 코드 변경 없음.
+- 결과: 6풀이 모두 finished/completed, 워커가 6건 처리 후 스스로 끝남, 작업 run_trial done 6 · grade done 1 · analyze queued 1(③ 대기). 규칙 채점(가짜 판정 by_rules) 성공 2(ISSUES_UNASSIGNED_OPEN A·B), 나머지 4는 11/26 과 같은 이유(DEPLOY_LATEST_SUCCESS 오답, DEPLOY_RECOVERY 답 102 는 맞지만 형식). 풀이당 입력 약 1.3~1.7k·출력 37~150 토큰.
+- 남은 일: Docker stdio(`kind: docker`)로는 안 돌림(② 이미지 대기). 답 형식 문제는 11/26 기록의 ② 결정 대기 그대로.
+
+## 2026-11-27 · Claude · taemin (배포용 반복 워커)
+- 한 일: `workers/eng_serve.py`(새). `serve` 가 `run_once`(+ classify 를 주면 `grade_once`)를 반복하고, 할 일이 없거나 실패하면 `idle_sec` 쉼, `stop` Event 로 끝냄(`drain` 이면 할 일이 없을 때 끝). 실패한 작업은 run_once 가 이미 돌려줬으므로 오류 종류만 남기고 계속. CLI `python -m slotagent.workers.eng_serve --stdio servers.json` — servers.json(`kind` local/docker)을 `LocalStdioConfig`·`DockerStdioConfig` 로 바꾸고 모델은 `ProviderModel`, SIGINT/SIGTERM 은 진행 중 풀이를 끝낸 뒤 멈춤. 기존 엔진·큐 코드 변경 없음.
+- 검증: `tests/test_eng_serve.py` 7건(반복 수·실패 뒤 계속·채점 같이·멈춤·local/docker 읽기·제어 소켓 거절). DB 가 안 닿을 때 CLI 가 오류 종류만 찍고 다시 시도하는 것 확인. 전체 1466 passed / 1 skipped (plan-proposal HTTP 시험 포함), Ruff 0건. 커밋 없음.
+- 남은 일: CLI 는 풀이만 돌림(채점은 ② 판정 함수 대기, 분석·리포트 워커는 ③ 대기). 실제 모델·Docker 로 CLI 를 끝까지 돌려 보지는 않음. `registry.HANDLERS` 는 여전히 deps 없이 부르므로 쓰지 않음.
+
+## 2026-11-27 · Claude · taemin (plan-proposal HTTP 경로)
+- 한 일: `api/eng_plan_proposal.py` 에 라우터 `POST /api/experiments/plan-proposal` 을 만들고 `eng_app` 에 등록. 전에는 handle 함수만 있어 HTTP 는 404 였음(아래 기록의 "API 501"은 틀린 표현). 요청이 계약에 안 맞으면 ContractError(500) 대신 `CheckError("invalid_spec")` → 422 (MCP 도 같은 invalid_spec).
+- 검증: `tests/test_eng_proposal.py` HTTP 시험 1건(200 · 계약 밖 칸/배열 본문 422 · sample_size 없으면 501). 관련 시험 44 passed, Ruff 0건. 전체 시험은 이 시험 추가 전 1458 passed / 1 skipped. 계약·DB 변경 없음. 커밋 없음.
+- 남은 일: ③ `sample_size` 가 들어오면 501 이 사라짐. 화면 연결 전.
+
+## 2026-11-27 · Claude · taemin (plan-proposal 본체 propose)
+- 한 일: `common/proposal.py` `propose` — settings(as_of 시점) → prereg, ③ `stats.sample_size(margin_pp, alpha, power, p_base)["n_templates"]` → ② `packs.select.plan_rows` 로 문항 고르기, reps 는 요청 값 또는 settings `reps`, trials = 후보 × 문항 × 반복. 요청 검사(잠긴 평가팩·그 에이전트 버전의 자리·그 자리의 후보). ② `select_tasks` 는 as_of 를 안 받아 노출(`seen_at <= as_of`)만 ① 쪽 SQL 로 읽고 고르는 규칙은 `plan_rows` 그대로(② 파일 안 고침). 같은 as_of 면 뒤에 생긴 노출·기본값 변경과 상관없이 같은 제안 → `verify` 가 edited=false.
+- **계약 변경 (사용자 결정, 4명 확인 전)**: settings 새 key `power`·`p_base`·`reps` + 시드 `db/seeds/0003_settings_proposal.sql` (power 0.8 = 기획서, **p_base 0.7·reps 3 은 ③ 확인 전 임시값**). CHANGELOG 11/27 줄.
+- 검증: `tests/test_eng_proposal.py` 8건, 전체 1458 passed · 1 skipped · 실패 0, Ruff 0건. `test_mcp_server` 의 not_ready 시험은 propose 가 요청을 먼저 검사하게 되어 propose 를 막아 두는 방식으로 바꿈. 커밋 없음.
+- 남은 일: ③ `sample_size` 본체가 없어 API·MCP `calc_sample_size` 는 여전히 not_ready(501). ④ `create_experiment_draft` 가 `verify` 를 부르면 저장 흐름이 이어짐.
+- 의문점: ③ — `sample_size` 반환 dict 에 `n_templates`(정수) 키가 있어야 함, p_base·reps 기본값, `min_detectable_pp`·`estimate` 를 응답에 넣을지. ② — select_tasks 에 as_of 인자를 둘지(그러면 ① SQL 을 지움). 순차 검정(`sequential`)은 기본값이 없어 넣지 않음(method none 과 같음).
+
+## 2026-11-27 · Claude · taemin (SlotAgent MCP 서버 — 조회 함수부터)
+- 한 일: `mcp_server/server.py` — stdio MCP 서버(이미 있는 `mcp` SDK, 연습 서버와 같은 lowlevel `Server`). 도구 = `chat.schema.json` 5개, 인자는 `validate('chat', args, part=이름)`, 목록에는 `$ref` 를 펼친 스키마. `get_results`(status + 최신 분석 비교 + 그 분석 리포트, `cited_experiment_ids`)·`write_report`(저장된 content 그대로)는 DB 값만 돌려줌. `start_run` 은 요약·`confirm_token` → 같은 인자+토큰일 때만 `lock_and_enqueue`. `calc_sample_size`·`create_experiment` 는 뒤쪽 미구현이라 `not_ready`. 붙이는 법 `docs/eng_mcp_server.md`.
+- 검증: `tests/test_mcp_server.py` 11건(stdio 왕복 포함), 전체 1451건 수집·실패 0·skip 1, Ruff 0건. 계약·DB·engine 변경 없음. 커밋 없음.
+- 안 한 일 / 남은 일: Claude Desktop 에서 실제로 붙여 보기(사용자), `sa_chat_messages` 기록(MCP 에는 user_id·conversation_id 가 없음), 오케스트레이터 시작·승인 도구.
+- 의문점 (④): ① MCP 호출도 `sa_chat_messages` 에 남길지, 남기면 user_id 를 어디서 받을지 ② `confirm_token` 두 번 부르기를 `user_confirmed` 의 근거로 봐도 되는지 ③ `write_report` 의 다시 쓰기는 붙인 쪽 에이전트가 함 — ④ chatbot 도 같은 방식인지 ④ `create_experiment` 의 만든 사람은 지금 `SLOTAGENT_USER_ID` 환경 변수로 받음.
+
+## 2026-11-27 · Claude · taemin (기록·재생)
+- 한 일: W5 게이트 "기록·재생". `engine/replay.py`(새) — 저장된 trace 의 llm span(응답·토큰·비용·tool_calls)과 외부 조회 span(결과·오류)을 그대로 돌려주는 가짜 모델·도구로 `run_agent` 를 다시 돌림. 모델 API 키·MCP 서버·가격표 없이 돌고 비용 0. 쓰기·확인·검색·고정 응답은 실제 엔진 코드가 다시 계산. `compare_traces` 는 시각·걸린 시간·usage·trial_id/attempt 만 빼고 견줌. `replay_trial(conn, trial_id, grading_run_id=)` 은 재생 trace 로 규칙 채점을 다시 해 저장 trace 의 결과·그 채점 실행에 저장된 조건 결과와 견줌. DB 에는 안 씀. 기존 엔진 파일 변경 없음.
+- 어긋남은 숨기지 않음: 엔진이 기록과 다른 도구·인자로 부르려 함 / 모델 호출이 기록보다 많음 → 재생 멈춤(trace None) / 남은 도구 기록 / trace 값 차이 / 저장된 조건 결과와 차이.
+- 시험: `tests/test_eng_replay.py` 7건 — 파일럿 15유형 × A·B = 30풀이 재생 일치·재채점 일치·DB 행 수 그대로, 변조(조회 인자·최종 답·승인 뒤집기·llm 응답 삭제·답과 응답을 같이 바꾼 위조) 5종 검출, 시간 변경은 무시.
+- 검증: 전체 1449 passed / 1 skipped / 1 failed — 실패는 다른 세션이 작업 중인 새 `tests/test_mcp_server.py`(DATABASE_URL 없음) 하나이고 이 작업과 무관. Ruff 는 `mcp_server/` 빼고 0건. 커밋 없음.
+- 안 한 일 / 남은 일: 시계를 멈춰 두므로 도구 호출 밖에서 난 시간 초과는 재현 못 하고 어긋남으로 나옴. 조회 결과만 고친 기록은 재생해도 같으므로(기록이 원본) 저장된 채점 결과와 견줄 때만 드러남 — 기록 자체의 변조 방지는 서명·해시 몫. 재생을 부르는 API·화면 없음. 러너·고객 기록은 시험 안 함.
+- 의문점: 다른 세션의 `mcp_server/server.py` 에 Ruff B008 1건(그 세션 작업 중이라 손대지 않음).
+
+## 2026-11-27 · Claude · taemin (과정 채점 코드 정리)
+- 한 일: 동작은 그대로 두고 정리만 함. `eng_rules` 에서 `call_capability`·`_capability_matches` 가 똑같이 하던 기능 찾기를 `_call_found` 하나로 합침. `_is_unexecuted` → `is_unexecuted`(공개)로 바꾸고 `eng_policy._check_approved` 가 같은 판단을 직접 쓰던 곳을 이 함수로 바꿈. `eng_pipeline` 의 재개 결과 비교 두 군데를 `_ensure_unchanged` 로 합침(오류 문구 같음). `db/NAMES.md` 에 빠져 있던 `sa_policy_results` 를 더함.
+- 검증: 전체 1432 passed / 1 skipped / 실패 0, Ruff 0건. 시험·계약·DB 파일 변경 없음. 커밋 없음.
+- 남은 일: 11/26 기록의 위험(사용자 정규식 ReDoS — 시간 제한에는 새 의존성이 필요해 손대지 않음)은 그대로.
+
+## 2026-11-26 · Claude · taemin (과정 채점: 기능 선택자·uses·과정 정책)
+- 한 일: 중간발표 Q1·Q4 대응. 설계는 `D:\final_test\SlotAgent 과정 채점 설계.html` 3판(Codex 검토 3회 반영). **사용자(①)가 먼저 정해 적용**, 4명 확인 전. CHANGELOG 11/26 줄 참고.
+  - `grading/eng_rules.py`: `call_match.capability`(호출별 기능은 `call_capability`·`ConfirmationContext.call_capabilities`, trace 값 불신), 새 kind `uses`.
+  - `grading/eng_policy.py`(새): `prereg.process_policy` 의 `approved_tools`·`read_before_write` 판정. 위반 > 판정 불가 > 통과, 적용 대상 없으면 결과 없음.
+  - `grading/eng_pipeline.py`: 정책 결과를 `sa_policy_results` 에 저장, `gate=true` 면 정책 위반 풀이는 성공 불가. `trial_metrics` v2 `error_calls`.
+  - `grading/eng_states.py`(새): 답·과정 상태(violation/undecided/passed/none), 참조 대비 추가 호출 수. 리포트 집계는 ③과 정할 것이라 아직 부르는 곳 없음.
+  - `common/checks.py`: 등록 때 `call_capabilities`·`target_args` 검사. DB `0006_process_grading.sql`.
+  - 시험: `tests/test_eng_process.py` 32건, `test_eng_pipeline.py` 정책 3건·재개 1건, 테이블 수 33→34(`test_handoff_e2e`·`test_eng_db`).
+  - Codex 검증(`tests/test_eng_process_audit.py` 67건, 상황표 16줄 중 4줄 틀림 + 추가 3건)을 고침: 매핑상 기능이 둘 이상이면 찾는 기능이 밖에 있어도 판정 불가 / 등록된 도구의 인자 오류로 거절된 호출도 기능·승인 검사에서 뺌 / 재개 때 저장된 확정 결과가 판정 불가·결과 없음으로 바뀌어도 멈춤(정책·조건 둘 다, 조건 쪽은 원래 있던 빈틈) / 정규식 OverflowError 를 등록에서 거절, 채점 중 잘못된 정규식은 판정 불가 / ID 인자가 있는 쓰기에 값이 없으면 생성이 아니라 판정 불가(생성 = target_args 에 target_id 가 없는 도구) / 저장소 값이 없으면 같은 대상 증명 불가 / 승인 항목 중 하나라도 승인하면 다른 항목의 버전 불명과 상관없이 통과.
+  - 검증: 전체 1432 passed / 1 skipped / 실패 0, Ruff 0건. Codex 재검증: 재현 67건 + 조건 재개 1건 통과. 커밋 없음.
+  - 알려 둘 위험: `call_capabilities.pattern` 은 사용자 입력 정규식이라 시간 제한 없이 실행됨(ReDoS). 러너 기록이 `agent_invalid_tool_call` 로 표시한 호출은 승인 검사에서 빠짐. 러너 서명(NFR-SEC-03)은 보낸 쪽과 전송 중 변조 여부만 확인하고 기록 내용이 참인지는 보장하지 않으므로, 이 판정은 서명 검증 + 기록을 만드는 러너 자체를 신뢰한다는 전제 위에 있음.
+- 안 한 일 / 남은 일: 1단계 공정 데모(연습 서버 도구 두 벌 문제 먼저 — 아래 11/26 실제 실행 기록 1번), 리포트 화면·집계(③④), 등록 화면 입력(④), 골든 trace 위치(참조 대비 추가 호출).
+- 의문점: ② — 쓰기 대상 식별자 출처(`target_args` vs `write_scenario`), 생성 쓰기에 조회를 요구할지, 상세 조회 이름표. ③ — 상태 순서·분모를 report_content 에 어떻게 넣을지. ④ — 러너·API 오류 코드를 agent_/env_/tool_error 체계로 맞출지.
+
+## 2026-11-26 · Claude · taemin (실제 OpenAI 모델로 첫 실행)
+- 한 일: `gpt-4.1-mini` + ②의 연습 MCP 서버(stdio)로 서버 지원 8유형(유형마다 -001 한 문항) × 후보 A·B = 16풀이를 엔진 → DB → 규칙 채점(가짜 판정 `by_rules`)까지 돌림. 일회용 스크립트는 저장소 밖(`D:\final_test\real_pilot`). 제품 코드·계약·DB·packs 변경 없음.
+- 결과: 16풀이 모두 completed, 도구 오류·시간 초과 0, 도구 없이 답한 풀이 0. A·B 답이 거의 같음(temperature 0). 정답 2(ISSUES_UNASSIGNED_OPEN). DEPLOY_RECOVERY 2는 답(102)이 맞지만 형식 때문에 판정 불가. DEPLOY_LATEST_SUCCESS 2는 모델 오답(24:05·v1.8.5, 정답 18:20·v1.8.3). 나머지 5유형 10풀이는 아래 1번 때문에 빈 결과를 받고 오답.
+- 비용: 풀이당 입력 약 1.1~1.7k·출력 20~150 토큰. 공개 가격으로 16풀이 합 약 0.01달러. 기록된 cost_krw 는 시험 가격(1·2원/1k) 기준.
+- 의문점 (②에게, packs 는 고치지 않음):
+  1. **연습 서버에 같은 기능의 도구가 두 벌**: `list_deployments`↔`list_operation_runs`(github.actions.read), `list_issues`↔`list_operation_issues`(github.issues.read). 설명 문장이 다섯 도구 모두 똑같고, payment-service 데이터는 operation 쪽에만 있음. 모델은 이름이 자연스러운 `list_deployments`·`list_issues`를 골라 `[]`를 받고 "기록 없음"으로 답함(5유형 10풀이). 지금은 "데이터가 든 도구를 맞히는지"를 재게 됨 → 데이터를 한 도구로 합치거나 설명에 범위를 적어야 할 듯.
+  2. **답 형식**: 16풀이 중 12풀이에서 info 가 판정 불가(JSON 앞뒤 설명, ```json 울타리, 최상위 `[]`). 1단계 info 규칙(eng_rules_1124)대로면 대부분 ② 판정기로 넘어감. 판정기로 넘길지·형식 위반을 실패로 셀지·지시문을 고칠지 정해야 함.
+
+## 2026-11-25 · Claude · taemin (dev·galaxy 합치기)
+- 한 일: origin/dev(② 팩 152문항·골든 200개)와 origin/galaxy(④ 등록)를 합침. ②가 협의하던 골든 3건을 고쳐 `test_audit_golden_counts` 를 일치 200·불일치 0 으로, `test_eng_pilot.py` 의 허용 목록 3건을 지움
+- 검증: 전체 1329 passed / 1 skipped / 실패 0, Ruff 0건.
+- 남은 일: ④ `register_agent` 는 슬롯 생성 전에 NotImplementedError 라 저장되지 않음. ④ 예약 도구 이름이 엔진 `BUILTIN_NAMES` 와 따로 적혀 있음.
+
+## 2026-11-25 · Claude · taemin (종료 게이트 감사 결과 수정)
+- 한 일: Codex 감사에서 재현된 것만 고침. ① 게이트·포기가 실험 행을 `FOR NO KEY UPDATE` 로 잠금(리포트 저장과 같은 트랜잭션에서 병렬로 불러도 잠금 오류 없음) ② 포기는 아직 안 끝난 단계의 **가장 최근 작업**이 failed 일 때만 허용 ③ 다른 실험의 리포트는 세지 않음 ④ 작업 payload 를 글자로 견줌(포기할 때의 작업 취소도 같이) ⑤ `test_eng_pilot.py` 가 mcp 를 실제로 불러 본 뒤 인터프리터를 고름
+- 시험: `test_eng_completion.py` 38건(채점 누락 변이도 이제 검출). 포기 시험의 grade 는 이미 끝난 채점을 쓰고 있어 안 끝난 채점으로 바꿈
+- 검증: 전체 1295 passed / 1 skipped / 실패 0, Ruff 0건. 감사 재현 시험 15건 모두 통과. 계약·DB·packs 변경 없음.
+- 남은 일: DB 는 리포트의 실험과 분석의 실험이 달라도 받아 줌(게이트에서만 거름). 처음 채점이 실패하고 새 재채점 실행이 성공한 경우는 여전히 포기할 수 있음. ② 자료의 150/254 는 alternate 궤적·추가 link 기준이라 성공 궤적 값(95, 전체 관문 90)과 함께 적음.
+
+## 2026-11-25 · Claude · taemin (실험 종료 게이트)
+- 한 일: `advance.completion_blockers`·`on_reports_done`(막는 이유가 없을 때만 done, 이유 목록을 돌려줌)·`abandon_failed_experiment`(사람이 포기할 때만, 실패한 작업이 있어야 함 → failed/job_failed). 테스트 `test_eng_completion.py` 24건
+- 정한 것: done 조건 = 대기·실행 중·취소 풀이 없음 + 전체 묶음을 채점한 최종 분석 + 그 분석의 리포트 두 종류. 막혀도 오류로 올리지 않고 running 유지. 환경 오류로 끝난 풀이는 막지 않음. 자동으로 failed 로 바꾸지 않음(P-08 그대로)
+- 검증: 전체 1281 passed / 1 skipped / 실패 0, Ruff 0건. 계약·DB·packs 변경 없음. 커밋 없음.
+- 안 한 일 / 남은 일: ③ 리포트 저장 뒤 on_reports_done 호출, 포기 함수를 부를 화면·API(계약에 없음), 환경 오류 비율이 높을 때 failed 로 볼지(P-08).
+
+## 2026-11-25 · Claude · taemin (평가팩 ↔ 엔진 전체 흐름 시험)
+- 한 일: `tests/test_eng_pilot.py` — ① ②의 실제 연습 MCP 서버 8유형 ② 파일럿 15유형을 가짜 모델로 등록 대신 DB 저장 → 잠금 → 워커 → 기록 → 규칙 채점 → 가짜 판정 → analyze 작업 → 저장 기록 재채점(46풀이 결과 동일)까지 ③ 골든 188개를 엔진에서 다시 실행: 협의 중인 3건만 다르고 판정 불가 0
+- 검증: 전체 1257 passed / 1 skipped(이후 이 시험 파일만 다듬고 3건 다시 통과), Ruff 0건. 틀린 답·승인 무시·서버 데이터 변조를 넣으면 실패하는 것 확인. 제품 코드·계약·DB·packs 변경 없음. 커밋 없음.
+- 안 한 일 / 남은 일: 실제 모델(비용), ② 서버 Docker 이미지(이 컴퓨터에 없음)·`sa_env_checks`, 나머지 유형의 서버, ④ 등록 함수·② 판정·③ 분석 연결.
+- 의문점: **도구를 하나도 안 부르고 정답만 말해도 47유형 중 36유형(파일럿 15 중 11)의 관문 조건을 통과함.** 기획서 1.3 5.3 "도구 결과에 나온 적 없으면 인정하지 않음(출처 추적)"과 다름. link 조건을 더할지, 채점기 규칙으로 볼지 ②와 정해야 함 (role2_discuss_later 26번).
+
 ## 2026-11-25 · Claude · taemin (Codex 감사 22건 수정)
 - 한 일: ① gate=false 조건은 성공을 막지 않음, `ConditionResult.gate` 추가 ② 임대마다 `leased_by`에 고유값(워커#난수) → 재개 뒤 옛 임대 거절 ③ 조건·코드 결함은 채점을 멈추고, 기록 오류(`load_trace` 실패, `eng_rules.TraceError`)만 grader_error ④ 이어서 채점할 때 저장된 규칙 결과와 다르면 멈춤 ⑤ 같은 실행 동시 호출 ⑥ 트랜잭션 끝에서 임대 재확인 ⑦ 풀이 워커는 run_trial만 회수 ⑧ plan.tasks가 배열이 아니면 invalid_plan ⑨ DB 원문 대신 코드별 문구 ⑩ 처리 못 한 예외는 로그에 종류·위치만
 - 검증: 전체 1254 passed / 1 skipped / 실패 0, Ruff 0건. 감사 테스트는 고치지 않음. `test_db_trace_gives_same_rule_results_as_engine_trace`는 시간의 부동소수 끝자리 때문에 가끔 실패해 근사 비교로 바꿈.
