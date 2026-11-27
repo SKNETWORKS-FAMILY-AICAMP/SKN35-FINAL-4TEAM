@@ -158,9 +158,49 @@ def agent_db_context(pg):
             yield db_conn, user_id
 
 
+def test_register_agent_saves_slots_and_baselines(agent_db_context, agent_request):
+    db_conn, user_id = agent_db_context
+    response = register_agent(db_conn, agent_request, owner_id=user_id)
+    contracts.validate("api", response, part="register_agent_response")
+    assert len(response["slots"]) == 3
+    assert {(slot["service"], slot["access"]): slot["comparable"] for slot in response["slots"]} == {
+        ("github", "read"): True,
+        ("github", "write"): False,
+        ("slack", "write"): False,
+    }
+    version = db_conn.execute(
+        "SELECT agent_id, questions_used FROM sa_agent_versions WHERE agent_version_id = %s",
+        (response["agent_version_id"],),
+    ).fetchone()
+    assert version == (response["agent_id"], False)
+
+    spec = agent_request["version"]["spec"]
+    for slot in response["slots"]:
+        saved = db_conn.execute(
+            """
+            SELECT s.service, s.access, s.comparable, s.not_comparable_reason,
+                   c.label, c.component_kind, c.is_baseline, c.component_spec
+            FROM sa_slots s JOIN sa_candidates c ON c.slot_id = s.slot_id
+            WHERE s.agent_version_id = %s AND s.slot_id = %s AND c.candidate_id = %s
+            """,
+            (response["agent_version_id"], slot["slot_id"], slot["baseline_candidate_id"]),
+        ).fetchone()
+        assert saved == (
+            slot["service"],
+            slot["access"],
+            slot["comparable"],
+            slot["not_comparable_reason"],
+            "A",
+            "tool_bundle",
+            True,
+            checks.baseline_component(spec, slot),
+        )
+
+
 def test_register_agent_rollback(
     agent_db_context,
     agent_request,
+    monkeypatch,
 ):
     db_conn, user_id = agent_db_context
 
@@ -170,9 +210,18 @@ def test_register_agent_rollback(
     # 2. 등록 전 Agent Version 개수 확인
     before_versions = db_conn.execute("SELECT COUNT(*) FROM sa_agent_versions").fetchone()[0]
 
-    # 3. Agent 등록 시도
-    # 현재 미구현 부분에서 오류 발생
-    with pytest.raises(NotImplementedError):
+    before_slots = db_conn.execute("SELECT COUNT(*) FROM sa_slots").fetchone()[0]
+    before_candidates = db_conn.execute("SELECT COUNT(*) FROM sa_candidates").fetchone()[0]
+
+    baseline_component = checks.baseline_component
+
+    def fail_on_write(spec, slot):
+        if slot["access"] == "write":
+            raise RuntimeError("baseline creation failed")
+        return baseline_component(spec, slot)
+
+    monkeypatch.setattr(checks, "baseline_component", fail_on_write)
+    with pytest.raises(RuntimeError, match="baseline creation failed"):
         register_agent(
             db_conn,
             agent_request,
@@ -188,6 +237,8 @@ def test_register_agent_rollback(
     # 6. 내부 트랜잭션 롤백 확인
     assert before_agents == after_agents
     assert before_versions == after_versions
+    assert db_conn.execute("SELECT COUNT(*) FROM sa_slots").fetchone()[0] == before_slots
+    assert db_conn.execute("SELECT COUNT(*) FROM sa_candidates").fetchone()[0] == before_candidates
 
     # 7. 외부 트랜잭션 유지 확인
     user = db_conn.execute(

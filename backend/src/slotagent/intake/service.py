@@ -2,15 +2,9 @@
 
 from psycopg.types.json import Jsonb
 
-from slotagent.common import checks, contracts  # noqa: F401  checks 는 ④ 구현 때 씀
+from slotagent.common import checks, contracts
 from slotagent.common.hashing import agent_spec_hash, canonical_hash
 from slotagent.common.snapshot import build_config_snapshot
-
-RESERVED_TOOL_NAMES = {
-    "request_user_confirmation",
-    "get_write_result",
-    "get_work_state",
-}
 
 
 def _check_registration_tools(
@@ -21,10 +15,9 @@ def _check_registration_tools(
     """등록 시 예약 도구 이름과 쓰기 도구의 capabilities를 검사한다."""
     errors = []
 
-    reserved = RESERVED_TOOL_NAMES.copy()
-
-    if is_tool_search:
-        reserved.add("search_tools")
+    reserved = checks.RESERVED_TOOL_NAMES
+    if not is_tool_search:
+        reserved = reserved - {"search_tools"}
 
     for tool in tools:
         name = tool["name"]
@@ -51,14 +44,7 @@ def register_agent(conn, req: dict, owner_id: int) -> dict:
     version = req["version"]
     spec = version["spec"]
 
-    # ③ 도구 등록 제약 검사
-    _check_registration_tools(spec["tools"])
-
-    # ④ 연결 방식별 쓰기 도구 검사
-    checks.check_write_modes(
-        version["connection_type"],
-        spec,
-    )
+    checks.check_registration(version["connection_type"], spec)
 
     # ⑤ API 연결의 제어 수준 검사
     if version["connection_type"] == "api" and version["control_level"] == "C2":
@@ -108,7 +94,6 @@ def register_agent(conn, req: dict, owner_id: int) -> dict:
                 agent_id,
                 version_no,
                 connection_type,
-                questions_used,
                 model_provider,
                 control_level,
                 model,
@@ -119,14 +104,13 @@ def register_agent(conn, req: dict, owner_id: int) -> dict:
                 spec_hash
             )
             VALUES (%s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s)
+                    %s, %s, %s, %s, %s)
             RETURNING agent_version_id
             """,
             (
                 agent_id,
                 1,
                 version["connection_type"],
-                version.get("questions_used", False),
                 version["model_provider"],
                 version["control_level"],
                 version["model"],
@@ -138,13 +122,52 @@ def register_agent(conn, req: dict, owner_id: int) -> dict:
             ),
         ).fetchone()
 
-        # TODO: Slot 자동 생성 시 사용
-        agent_version_id = version_row[0]  # noqa: F841
+        agent_version_id = version_row[0]
+        slots = []
+        for slot in checks.build_slots(version["connection_type"], version["control_level"], spec):
+            slot_id = conn.execute(
+                """
+                INSERT INTO sa_slots (
+                    agent_version_id, name, service, access, comparable, not_comparable_reason
+                )
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING slot_id
+                """,
+                (
+                    agent_version_id,
+                    slot["name"],
+                    slot["service"],
+                    slot["access"],
+                    slot["comparable"],
+                    slot["not_comparable_reason"],
+                ),
+            ).fetchone()[0]
+            comp = checks.baseline_component(spec, slot)
+            candidate_id = conn.execute(
+                """
+                INSERT INTO sa_candidates (
+                    slot_id, label, name, component_kind, component_spec,
+                    spec_schema_version, spec_hash, is_baseline
+                )
+                VALUES (%s, 'A', %s, %s, %s, %s, %s, TRUE)
+                RETURNING candidate_id
+                """,
+                (
+                    slot_id,
+                    slot["name"],
+                    comp["kind"],
+                    Jsonb(comp),
+                    comp["schema_version"],
+                    canonical_hash(comp),
+                ),
+            ).fetchone()[0]
+            slots.append({"slot_id": slot_id, **slot, "baseline_candidate_id": candidate_id})
 
-        raise NotImplementedError
+        return {"agent_id": agent_id, "agent_version_id": agent_version_id, "slots": slots}
 
 
 def register_candidate(conn, slot_id: int, req: dict) -> int:
+    """후보 등록 요청과 Slot 적합성을 검사하고 저장된 후보 ID를 반환한다."""
     # ① 요청 JSON 검증
     contracts.validate("api", req, part="register_candidate_request")
     comp = req["component_spec"]
@@ -189,7 +212,7 @@ def register_candidate(conn, slot_id: int, req: dict) -> int:
             component_spec, spec_schema_version,
             spec_hash, is_baseline
         )
-        VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s, FALSE)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, FALSE)
         RETURNING candidate_id
         """,
         (
@@ -197,7 +220,7 @@ def register_candidate(conn, slot_id: int, req: dict) -> int:
             req["label"],
             req["name"],
             comp["kind"],
-            __import__("json").dumps(comp, ensure_ascii=False),
+            Jsonb(comp),
             comp["schema_version"],
             canonical_hash(comp),
         ),
