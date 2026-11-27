@@ -17,7 +17,10 @@ result_class: 최종 결과 분류를 평가한다. 진단용 gate=false 조건�
 정답은 correct, 틀린 사실 주장/잘못된 완료는 wrong_assertion, 추가 질문/포기/미완료는 ask_or_giveup.
 실패하면 인과상 처음 잘못된 단계를 intent, plan_missing, tool_choice, argument, tool_error,
 info_missing, order, forbidden, final_answer 중 고른다. 추측하지 말고 증거 부족은 undecidable.
-JSON 객체만 출력: {"answer":"yes|no|undecidable (result_class 질문은 결과 분류 또는 undecidable)",
+question이 result_class이면 answer에 correct, wrong_assertion, ask_or_giveup, undecidable 중 하나만 출력한다.
+판정할 수 있으면 answer를 result_class와 같은 값으로 쓴다. 예: 정답이면 두 필드 모두 "correct".
+다른 종류의 질문에서만 answer에 yes, no, undecidable을 사용한다.
+JSON 객체만 출력: {"answer":"질문 종류에 맞는 위 값",
 "result_class":"correct|wrong_assertion|ask_or_giveup", "first_fail_type":null,
 "judge_status":"ok|undecidable", "quote":"근거 및 span seq"}.
 실패에는 first_fail_type을 채우고 성공에는 null. 판정 불가는 ask_or_giveup과 final_answer를 사용한다."""

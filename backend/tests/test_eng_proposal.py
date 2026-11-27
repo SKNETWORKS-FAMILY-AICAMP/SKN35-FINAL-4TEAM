@@ -189,6 +189,13 @@ def test_pilot_template_limit(setup, fresh_count, expected):
     assert result["warnings"]
     as_of = datetime.fromisoformat(result["as_of"])
     assert proposal.propose(conn, request, as_of=as_of, sample_size=unavailable_sample_size) == result
+    assert result["plan"]["tasks"] == select_tasks(
+        conn, pack_id, expected, as_of=as_of, seed=proposal.canonical_hash(request),
+    )
+    regular = proposal.propose(
+        conn, {**request, "split": "held"}, as_of=as_of, sample_size=lambda *_: {"n_templates": 2},
+    )
+    assert regular["plan"]["tasks"] == select_tasks(conn, pack_id, 2, as_of=as_of)
     options = {"as_of": as_of, "seed": "pilot-replay", "looks": 2}
     plan = select_tasks(conn, pack_id, 2, **options)
     assert [task["batch_no"] for task in plan] == [1, 2]

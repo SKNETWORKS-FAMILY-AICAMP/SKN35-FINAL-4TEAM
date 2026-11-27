@@ -6,7 +6,7 @@
 
 같은 (request, as_of) 면 같은 제안이 나와야 함:
 - settings 는 valid_from <= as_of 인 행만 (setting_at)
-- task_exposures 는 seen_at <= as_of 인 행만, 문항 고르기 seed 는 canonical_hash(request) 에서
+- task_exposures 는 seen_at <= as_of 인 행만, 파일럿 문항 선택 seed 는 canonical_hash(request) 에서
 - as_of 는 지금부터 MAX_AGE 안이어야 함 (아주 옛 기본값으로 "제안 그대로"를 만들지 못하게) → 넘으면 proposal_stale
 """
 from __future__ import annotations
@@ -71,7 +71,7 @@ def propose(conn, req: Mapping[str, Any], *, as_of: datetime | None = None, samp
     try:
         tasks = select_tasks(
             conn, req["pack_version_id"], n_templates, split="held" if pilot else req.get("split", "held"),
-            as_of=as_of, seed=canonical_hash(req), allow_shortfall=pilot,
+            as_of=as_of, seed=canonical_hash(req) if pilot else None, allow_shortfall=pilot,
         )
     except ValueError as exc:
         raise CheckError("invalid_plan", [f"문항을 고를 수 없습니다: {exc}"]) from None
