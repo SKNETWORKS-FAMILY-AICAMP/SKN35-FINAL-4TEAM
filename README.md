@@ -140,30 +140,31 @@ flowchart TB
 
 ## 진행 상황
 
-> 2026-11-25 기준 · 8주 계획에서 **실행 엔진과 IT 운영 평가팩을 먼저** 만들고 있습니다. 평가팩 상세는 [50유형 표](packs/README.md)와 [전체 문항 목록](packs/QUESTIONS.md)을 봅니다.
+> 2026-11-27 기준 · 8주 계획에서 **실행 엔진과 IT 운영 평가팩을 먼저** 만들고 있습니다. 평가팩 상세는 [50유형 표](packs/README.md)와 [전체 문항 목록](packs/QUESTIONS.md)을 봅니다.
 
 | 영역 | 상태 | 내용 |
 |---|:---:|---|
-| DB · 데이터 계약 | ✅ | 테이블 33개, JSON Schema 18개, 역할 간 전달 테스트 |
-| 실행 엔진 | 🔄 | 작업 큐 임대·복구, MCP stdio·Docker 격리, 승인·가짜 쓰기·결과/상태 조회 / test_space·dry_run·채점 전체 흐름 통합 남음 |
-| 모델 어댑터 | 🔄 | 4개 회사 어댑터와 모의 응답 테스트 / 실제 API 확인 남음 |
+| DB · 데이터 계약 | ✅ | 테이블 34개, JSON Schema 18개, 역할 간 전달 테스트 |
+| 실행 엔진 | 🔄 | 작업 큐 임대·복구, 반복 워커(`eng_serve`), MCP stdio·Docker 격리, 승인·가짜 쓰기, 기록·재생 / test_space·dry_run 남음 |
+| 모델 어댑터 | 🔄 | 4개 회사 어댑터 / OpenAI 실제 호출 확인(6·16풀이), 나머지 3개 회사 실제 확인 남음 |
 | IT 운영 평가팩 | 🔄 | 문항 유형 **50개** · 문항 **152개** · 골든 궤적 **200개** (모두 dev) / 독립 검수·held 분리·파일럿 실측 남음 |
-| 규칙 채점기 | 🔄 | 6종 조건(exact_writes 포함), 승인 재검증·200골든 규칙 함수 대조 일치 / 반복 조회 정책·채점 파이프라인 연결 남음 |
+| 규칙 채점기 | 🔄 | 6종 조건 + `uses`·기능 선택자, 과정 정책(승인 도구·쓰기 전 조회), 승인 재검증 / LLM 판정기 연결 남음 |
 | 오답 위험 예측 | 🔄 | 11/18 사전 실험 기록 전처리·3개 모델 교차검증·LightGBM 선정·최종 평가 1회 완료 / 오답50·정답50 사람 검수 남음. [결과서](backend/ml_failure_risk/reports/학습결과서.md). 채택·기각 판정에는 사용하지 않음 |
-| 웹 화면 | 🔄 | 전체 흐름 UI 데모 / 실제 API 연결 남음 |
+| 웹 화면 | 🔄 | 전체 흐름 UI 데모, 진행 상태는 실제 API 연결 / 등록·결과 화면 연결 남음 |
+| API · MCP 서버 | 🔄 | run·stop·status·plan-proposal, MCP 도구 5개 / 표본 수·등록·결과 경로는 다른 역할 구현 대기 |
 | 통계 판정 · LLM 판정기 | ⏳ | 설계·계약 완료, 구현 예정 |
-| 에이전트 등록 · API · 챗봇 · 러너 | ⏳ | 설계·계약 완료, 구현 예정 |
-| 추천 오케스트레이터 · 도구 검색 · MCP 서버 | ⏳ | 고도화 단계 |
+| 에이전트 등록 · 챗봇 · 러너 | ⏳ | 설계·계약 완료, 구현 예정 |
+| 추천 오케스트레이터 · 도구 검색 | ⏳ | 고도화 단계 |
 
 <sub>✅ 완료 · 🔄 진행 중 · ⏳ 예정</sub>
 
-**자동 테스트: 958 passed** (2026-11-25, Windows, 로컬 DB opt-in 포함). 작업 큐 경합, 강제 종료 후 복구, 컨테이너 격리, 비용 중복 방지, 규칙 채점, 평가팩 저장 후 롤백을 확인했습니다. 제품 규칙 함수 대조는 200골든 일치·판정 불가0개, 개발 시뮬레이션은 882건 기대 결과 일치입니다. 이 결과는 전체 채점 파이프라인·독립 사람 검수 완료를 뜻하지 않습니다. 실제 모델 API 호출과 Linux 호스트의 실제 Docker는 아직 검증 범위에 없습니다.
+**자동 테스트: 1466 passed · 1 skipped** (2026-11-27, Windows). 작업 큐 경합, 강제 종료 후 복구, 컨테이너 격리, 비용 중복 방지, 규칙·과정 채점, 기록 재생, 평가팩 저장 후 롤백을 확인했습니다. 제품 규칙 함수 대조는 200골든 일치·판정 불가 0개입니다. 실제 OpenAI 모델로 반복 워커 → 규칙 채점까지 돌렸지만(판정은 가짜), 등록·LLM 판정·통계 분석까지 이어진 실험은 아직 없습니다. Linux 호스트의 실제 Docker도 검증 범위에 없습니다.
 
 ## 실행 방법
 
 ### 화면 데모
 
-Node.js 20.9 이상이 필요합니다. 백엔드나 API 키 없이 볼 수 있습니다.
+Node.js 20.9 이상이 필요합니다. 백엔드나 API 키 없이 예시 화면을 볼 수 있습니다.
 
 ```bash
 cd frontend
@@ -182,6 +183,18 @@ cd backend
 uv sync
 uv run pytest
 ```
+
+### API · 워커 · 화면 연결
+
+`DATABASE_URL` 과 모델 API 키는 저장소 루트 `.env` 에 둡니다. 로그인이 아직 없어 127.0.0.1 에서만 띄웁니다.
+
+```powershell
+cd backend; $env:PYTHONPATH = "src"
+uv run uvicorn --factory slotagent.api.eng_app:create_app --port 8000                  # API
+uv run python -m slotagent.workers.eng_serve --stdio servers.json                     # 반복 워커
+```
+
+`servers.json` 은 운영자가 정한 MCP 서버 설정입니다 (`{"kind": "local", "servers": {"github": ["python", "-u", "server.py"]}}`, Docker 는 [`eng_serve.py`](backend/src/slotagent/workers/eng_serve.py) 설명 참고). 화면(`npm run dev`)은 `/api` 요청을 FastAPI 로 넘기고 (`SLOTAGENT_API`, 기본 `http://127.0.0.1:8000`), `http://127.0.0.1:3000/?experiment=<번호>` 로 열면 시험 단계가 그 실험을 실제로 시작하고 진행 상태를 보여 줍니다. MCP 서버로 붙이는 법은 [docs/eng_mcp_server.md](docs/eng_mcp_server.md) 를 봅니다.
 
 ### 로컬 개발 DB
 

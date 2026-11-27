@@ -73,7 +73,7 @@
   - [x] HTTP `POST /api/experiments/plan-proposal` 등록 (계약 밖 요청 422, `sample_size` 없으면 501) (11/27)
 - [ ] 화면 1차 (Next.js) — 등록 질문 4개, 실험 설계, 진행 상태, 결과 🔗 ← ④ 등록 API
   - [x] 진행 상태를 실제 API 로: `?experiment=번호` 면 시험 단계가 run → status 2초 조회 → stop (`components/live-run.tsx`, `/api` 프록시) (11/27)
-- [ ] 화면 타입 생성 (스키마 → `frontend/src/types/contracts.ts`)
+- [x] 화면 타입 생성 (스키마 → `frontend/src/types/contracts.ts`) — 11/27 최신 계약으로 재생성, 계약 바뀌면 `npm run generate:types` 다시
 
 **W6~W8 — 고도화**
 - [ ] 오케스트레이터 (LangGraph: 후보 찾기 → 설계 → 승인 → 감시 → 추천)

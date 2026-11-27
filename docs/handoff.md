@@ -11,6 +11,10 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-27 · Claude · taemin (화면 타입 재생성 · README)
+- 한 일: `npm run generate:types` 로 `frontend/src/types/contracts.ts` 를 지금 계약으로 다시 만듦(그동안 밀린 call_capabilities·target_args·process_policy·in_scope 등 반영), `npm run typecheck` 통과. README 진행 상황을 11/27 기준으로 고침(테이블 34개, 시험 1466, 반복 워커·재생·과정 채점·API·MCP 서버, 실제 OpenAI 실행 범위)과 "API · 워커 · 화면 연결" 실행법 추가.
+- 남은 일: 계약 내용은 그대로라 생성물만 바뀜. 계약이 바뀌면 다시 생성해야 함(자동 검사 없음).
+
 ## 2026-11-27 · Claude · taemin (화면 진행 상태를 실제 API 에 연결)
 - 한 일: 주소에 `?experiment=번호` 가 있으면 시험 단계(3)가 모의 재생 대신 `LiveRun`(새 `components/live-run.tsx`)을 보여 줌 — `POST run`(같은 요청 반복해도 한 번만 잠김) → `GET status` 2초마다(locked/running 동안) → `POST stop`. 호출은 `features/slotagent/api.ts`, 타입은 기존 `contracts.ts` 의 RunResponse·StatusResponse. `next.config.ts` 에 `/api/*` → FastAPI(`SLOTAGENT_API`, 기본 127.0.0.1:8000) 프록시(CORS 불필요). 번호가 없으면 기존 예시 화면 그대로.
 - 확인: 저장소 밖 `D:\final_test\live_demo\serve_demo.py`(임시 DB + SQL 로 만든 초안 실험 + uvicorn + eng_serve, 실제 OpenAI)로 띄우고 브라우저에서 시작 → 0/6 → 6/6 끝남, 비용 9.7원(시험 가격), 채점 시작까지 화면에 나옴. `npm run typecheck` 통과.
