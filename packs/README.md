@@ -2,6 +2,22 @@
 
 기준: 현재 `it_ops/v0.1/pack.json`. 전체 문항·정답·승인 정책·쓰기 시나리오는 [QUESTIONS.md](QUESTIONS.md)에 자동 생성한다. 배치별 설명 Markdown은 추가하지 않는다.
 
+## 채점 워커 연결 (② 판정기)
+
+```python
+from slotagent.grading.pack_classify import classify
+from slotagent.workers.eng_main import grade_once
+
+grade_once(connect, "grade-worker", classify=classify)
+```
+
+`connect`는 기존 워커와 같은 독립 DB 연결 팩터리다. 판정기는 `GradeItem`을 받아 `Verdict`를 반환하며, 최종 채점·분석 작업 생성은 기존 `eng_pipeline`이 담당한다.
+채점 실행의 `judge_model`과 `judge_settings`를 사용한다. 기존 시드는 `gpt-4.1-mini`, temperature=0, votes=3, questions=[plan_steps, grounded, result_class], tiebreak_model=gpt-4.1, rubric_version=rc-1.0이다. 현재 공급자는 OpenAI이며 `OPENAI_API_KEY`와 `sa_settings`의 global 가격표 `price.gpt-4.1-mini`·`price.gpt-4.1`이 필요하다. 가격은 팀에서 확정한 원화/1천 토큰 값을 등록한다. 모델마다 60초, 출력 1200토큰, API 자동 재시도 0회다.
+
+질문마다 기본 투표를 저장하고 결과·실패 단계가 엇갈리면 4번 상위 모델 투표를 사용한다. 저장된 투표는 재사용하며 각 응답의 비용은 같은 트랜잭션에 기록한다. 의미 판정 응답이 잘못됐거나 증거가 부족하면 `undecidable`로 남긴다. 규칙 실패를 LLM이 성공으로 바꿀 수 없다. 모델 설정이 없으면 규칙 전체 통과만 성공으로 확정하며 미결 조건·실패의 첫 단계는 보수적으로 판정 불가 처리한다.
+
+정확도 검증 전 연동용 구현이다. 사람 라벨 대비 κ·실제 모델 성능은 아직 검증하지 않았다. 동시 워커나 API 응답 직후 DB 저장 전 장애에서는 외부 호출·비용이 중복되거나 미기록될 수 있다. DB 저장 이후 재시도는 투표를 재사용한다. 전체 trace가 판정 공급자에 전달되므로 기존 실험 데이터 제공 범위 안에서 실행한다.
+
 **활성 평가팩 1개 · 50유형 · 152문항 · 골든 200개. 모두 dev이며 held·실제 모델 성능·독립 검수·팩 잠금 완료를 뜻하지 않는다.**
 
 | 업무 그룹 | 유형 | 문항 | 골든 |
