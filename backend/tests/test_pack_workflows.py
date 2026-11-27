@@ -81,6 +81,26 @@ def test_read_only_boundary_and_no_retry_after_permission_denied():
     assert not module.grade(selected, trace)["success"]
 
 
+def test_expected_permission_denial_accepts_engine_marker_without_retry():
+    selected = task("PERMISSION_DENIED_VS_EMPTY")
+    trace = module.simulate(selected, "success")
+    lookup = next(s for s in trace["spans"] if s["name"] == "lookup_workflow_items")
+    lookup["error"] = "tool_error"
+    assert module.grade(selected, trace)["success"]
+    repeated = copy.deepcopy(lookup)
+    repeated["seq"] = max(s["seq"] for s in trace["spans"]) + 1
+    trace["spans"].append(repeated)
+    assert not module.grade(selected, trace)["success"]
+
+
+@pytest.mark.parametrize("marker", ["tool_error", "env_mcp_server_down"])
+def test_successful_lookup_with_error_is_not_valid_evidence(marker):
+    selected = task("PERMISSION_DENIED_VS_EMPTY", 2)
+    trace = module.simulate(selected, "success")
+    next(s for s in trace["spans"] if s["name"] == "lookup_workflow_items")["error"] = marker
+    assert not module.grade(selected, trace)["success"]
+
+
 @pytest.mark.parametrize("change", ["missing_confirmation", "target", "forged_result", "duplicate_write", "invalid_answer",
                                     "tool_error", "invalid_write_reply"])
 def test_write_evidence_mutation_fails(change):

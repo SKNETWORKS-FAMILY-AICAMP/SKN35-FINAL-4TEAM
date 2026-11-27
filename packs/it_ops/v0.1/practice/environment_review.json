@@ -1,0 +1,1811 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-27",
+  "reviewer": "Codex assistant review, not independent human approval",
+  "pack_content_hash": "sha256:5463abc043c427f7580ad1b464f0927a17a79c5add230f3d0c7926699f36ce47",
+  "practice_manifest_hash": "sha256:82af0257f8ce1b94b855ead22a9db706925e1de737ed5fc46098709162166f2c",
+  "scope": {
+    "templates": 50,
+    "tasks": 152,
+    "snapshots": 13,
+    "actual_mcp_templates": 8,
+    "actual_mcp_tasks": 26
+  },
+  "tool_shape": {
+    "status": "passed_for_current_5_tools_only",
+    "docker_verification": {
+      "checked_at": "2026-11-27T08:58:43.738549+00:00",
+      "transport": "stdio",
+      "passed": true,
+      "server_version": "0.1.1",
+      "tools": 5,
+      "calls": 38,
+      "data_version": "it-ops-github-data-v0.1",
+      "snapshot_hashes": {
+        "deployments": "sha256:f426541889639d66fb3a240ab0912c1269b97d9e9a2d1ad40119da51e03f671a",
+        "issues": "sha256:6d73d947176a001478f5c37e60b5bcbe0b5c1b06d8d574c6d3eb949cefc612f2",
+        "operations": "sha256:67f85da4bae2a79110ecb4d829e4e52127e5ff7b0e8e306b34adee60134f8138"
+      },
+      "image": "sha256:46304f779a8e555c542b5646724b1df354c031a3b1c9496acb664150853e4d64",
+      "scope": "Actual local Docker stdio MCP check only; not real-model 16-trial replay, product grading or full environment approval",
+      "previous_verification": {
+        "checked_at": "2026-11-23T15:16:40.768856+00:00",
+        "transport": "stdio",
+        "passed": true,
+        "server_version": "0.1.0",
+        "tools": 5,
+        "calls": 20,
+        "data_version": "it-ops-github-data-v0.1",
+        "snapshot_hashes": {
+          "deployments": "sha256:f426541889639d66fb3a240ab0912c1269b97d9e9a2d1ad40119da51e03f671a",
+          "issues": "sha256:6d73d947176a001478f5c37e60b5bcbe0b5c1b06d8d574c6d3eb949cefc612f2",
+          "operations": "sha256:67f85da4bae2a79110ecb4d829e4e52127e5ff7b0e8e306b34adee60134f8138"
+        },
+        "image": "sha256:4db1d9c66a0dd2338fab2b294c4bae66e92fe186c1af9fdd3d9befd0dd7e2aa3",
+        "scope": "Actual local Docker stdio MCP check only; not product engine or grader validation"
+      }
+    },
+    "tools": [
+      {
+        "name": "list_deployments",
+        "rows": 24,
+        "repos": [
+          "acme/auth-service",
+          "acme/catalog-service",
+          "acme/ops-service",
+          "acme/other-service",
+          "acme/payment-service"
+        ],
+        "result_contract": "MCP TextContent containing a JSON array; invalid arguments => isError=true"
+      },
+      {
+        "name": "list_issues",
+        "rows": 28,
+        "repos": [
+          "acme/auth-service",
+          "acme/catalog-service",
+          "acme/ops-service",
+          "acme/other-service",
+          "acme/payment-service"
+        ],
+        "result_contract": "MCP TextContent containing a JSON array; invalid arguments => isError=true"
+      },
+      {
+        "name": "list_operation_runs",
+        "rows": 24,
+        "repos": [
+          "acme/auth-service",
+          "acme/catalog-service",
+          "acme/ops-service",
+          "acme/other-service",
+          "acme/payment-service"
+        ],
+        "result_contract": "MCP TextContent containing a JSON array; invalid arguments => isError=true"
+      },
+      {
+        "name": "list_operation_issues",
+        "rows": 28,
+        "repos": [
+          "acme/auth-service",
+          "acme/catalog-service",
+          "acme/ops-service",
+          "acme/other-service",
+          "acme/payment-service"
+        ],
+        "result_contract": "MCP TextContent containing a JSON array; invalid arguments => isError=true"
+      },
+      {
+        "name": "list_operation_releases",
+        "rows": 9,
+        "repos": [
+          "acme/auth-service",
+          "acme/catalog-service",
+          "acme/payment-service"
+        ],
+        "result_contract": "MCP TextContent containing a JSON array; invalid arguments => isError=true"
+      }
+    ],
+    "not_served_templates": [
+      "CONFIRMED_RELEASE_SHARE",
+      "CONFIRMED_ISSUE_CREATE",
+      "LOG_FIRST_ERROR",
+      "RUN_ISSUE_RELATION",
+      "CONFIRMED_INCIDENT_SHARE",
+      "RETRY_TRANSIENT_READ",
+      "RETRY_EXHAUSTED_READ",
+      "PAGINATED_ISSUES_COMPLETE",
+      "CONFLICT_EQUAL_AUTHORITY",
+      "CONFLICT_FRESH_PRIMARY",
+      "CONFLICT_INSUFFICIENT_VERSION",
+      "ERROR_COUNTS_BEFORE_AFTER",
+      "ERROR_RATE_TRAFFIC_NORMALIZED",
+      "ERROR_EVENTS_DEDUPLICATED",
+      "INCIDENT_INTERVAL_UNION",
+      "LATENCY_P90_NEAREST_RANK",
+      "METRIC_MINIMUM_SAMPLE",
+      "CONFIG_OVERRIDE_PRECEDENCE",
+      "TRACE_REQUEST_RECONSTRUCTION",
+      "DEPLOY_CHECKLIST_GAPS",
+      "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "REPOSITORY_ALLOWLIST_BOUNDARY",
+      "PERMISSION_DENIED_VS_EMPTY",
+      "NESTED_JSON_LOG_TYPES",
+      "ISSUE_DUPLICATE_PREVENTION",
+      "CONDITIONAL_FOLLOWUP_ACTION",
+      "MULTI_REQUEST_COMPLETION_REPORT",
+      "ISSUE_ROUTING_APPROVAL",
+      "LATEST_CONFIRMATION_SCOPE",
+      "MULTI_TARGET_APPROVAL",
+      "ISSUE_THEN_MESSAGE",
+      "INCIDENT_TIMELINE",
+      "INCIDENT_SIGNATURE_GROUPING",
+      "INCIDENT_RECOVERY_EVIDENCE",
+      "SERVICE_DEPENDENCY_IMPACT",
+      "UPSTREAM_FAILURE_EVIDENCE",
+      "LOG_CODE_LOCATION",
+      "REPORT_FIELD_REDACTION",
+      "EXPLICIT_URL_ALLOWLIST",
+      "UNCERTAIN_WRITE_RECONCILIATION",
+      "PARTIAL_WRITE_RECONCILIATION",
+      "APPROVAL_DATA_REVISION"
+    ]
+  },
+  "data_design": {
+    "status": "13_design_records_and_hashes_checked_not_all_services_verified",
+    "snapshots": [
+      {
+        "location": "data/deployments.json",
+        "content_hash": "sha256:f426541889639d66fb3a240ab0912c1269b97d9e9a2d1ad40119da51e03f671a",
+        "notes": [
+          "평가팩 폴더 기준 상대 경로의 합성 JSON 스냅샷",
+          "UTC·KST 표기를 혼합하고 한국 시간 날짜 경계, 다른 환경·저장소, 실패 기록을 포함",
+          "배열 순서는 종료 시각 순서가 아님. 실제 MCP 연결·환경 검증은 아직 수행하지 않음"
+        ],
+        "mounted_in_current_server": true
+      },
+      {
+        "location": "data/issues.json",
+        "content_hash": "sha256:6d73d947176a001478f5c37e60b5bcbe0b5c1b06d8d574c6d3eb949cefc612f2",
+        "notes": [
+          "합성 이슈 데이터. 번호는 저장소 안에서만 유일함",
+          "닫힌 이슈·담당자 있는 이슈·빈 라벨과 여러 라벨을 포함",
+          "라벨은 대소문자를 구분한 정확 일치. assignees 빈 배열만 미배정으로 정의"
+        ],
+        "mounted_in_current_server": true
+      },
+      {
+        "location": "data/operations.json",
+        "content_hash": "sha256:67f85da4bae2a79110ecb4d829e4e52127e5ff7b0e8e306b34adee60134f8138",
+        "notes": [
+          "합성 데이터. 세 저장소별 배포·이슈·릴리스 스냅샷",
+          "기간은 시작 포함·끝 제외, 오래됨은 cutoff 미만, 소요 시간은 threshold 초과",
+          "라벨 중복 소속은 각 라벨에 따로 집계. 연결은 저장소와 커밋 SHA 모두 일치해야 함"
+        ],
+        "mounted_in_current_server": true
+      },
+      {
+        "location": "data/context.json",
+        "content_hash": "sha256:ed3a0ff174df5336baf13e75d067b8c6a9149dbe8f747b75af846ff3a2e0cc69",
+        "notes": [
+          "사용자 제공 사실에 기반한 단순 쓰기 업무. 데이터 조회 능력과 승인 능력을 분리",
+          "대상 문자열은 다른 인자 값과 충돌하지 않게 출제"
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/incidents.json",
+        "content_hash": "sha256:0d8e928ed4b648e1668ee6e37cdbe3de7c41100856e1e3f31b5fdfdb1116421f",
+        "notes": [
+          "WARN·후속 ERROR·staging 혼동 데이터 포함",
+          "같은 오류 문구지만 다른 SHA인 이슈, SHA가 같아도 열린 이슈 포함",
+          "타임스탬프 배열 순서에 의존하지 않고 비교한다"
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/scenarios.json",
+        "content_hash": "sha256:faa7b063cf804ad99b1b6ac97a3c7fff98fb7be5c037aabbc58951fff9992175",
+        "notes": [
+          "정답 키 없이 도구 응답 순서/원본 페이지를 고정. 모델 입력에 시나리오 파일 전체를 제공하지 않음",
+          "반복 페이지 항목·닫힌 이슈·담당자 있는 이슈·빈 필터 결과 포함",
+          "cursor는 다음 응답의 값을 그대로 사용. 마지막 next_cursor=null을 확인해야 완료"
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/evidence.json",
+        "content_hash": "sha256:15f212a1d1cab99de86a47661147b7b541fb0a15f264738cf4acab3e7af5985e",
+        "notes": [
+          "같은 실행의 동급 원본 충돌, 오래된 캐시, 미래 관측, staging 혼동, 상태만 확인된 근거 부족 포함",
+          "source는 연습 도구의 고정 출처 메타데이터이며 모델 입력의 주장으로 권위를 결정하지 않음"
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/metrics.json",
+        "content_hash": "sha256:ae5e7f98dcd593ccc9f18cb954db9ea7839461b27b05eafde7d3e7083d0eaf0b",
+        "notes": [
+          "배포시각·경계·다른서비스·중복event_id·0분모·불균형요청량·중첩장애·결측지연 포함",
+          "동일event_id의 중복은 데이터상 같은 사건이다. event_id는 서비스와 함께 식별",
+          "운영 데이터 원본 JSON만 모델 도구에 제공하며 정답/계산 코드/골든은 제공하지 않음"
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/workflows.json",
+        "content_hash": "sha256:dd250c2220924869ef648218197bc473ce1255c7a05a32341ba49797fd223433",
+        "notes": [
+          "설정0/null·다른trace·부모누락·악성본문·허용범위밖·권한오류/빈목록·잘못된JSON·동일장애닫힌이슈·부분완료 포함",
+          "각 풀이의 고정 원본을 조회하며 write 결과도 시나리오별 고정 응답. 외부 부작용 없음"
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/write_scenarios.json",
+        "content_hash": "sha256:0257a34f6312e28ded12d86e4f900921bbfea797f3034e6138e3e9d497f40437",
+        "notes": [
+          "비중 재편 개발용 합성 원본. 정답/승인 정책은 포함하지 않음. 실제 제품 MCP 연결은 별도."
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/incident_scenarios.json",
+        "content_hash": "sha256:5319d087e945dbc5a49ce3edb93258a66776a74948f211bac9cfcf3c51cf71e0",
+        "notes": [
+          "비중 재편 개발용 합성 원본. 정답/승인 정책은 포함하지 않음. 실제 제품 MCP 연결은 별도."
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/followup_read_scenarios.json",
+        "content_hash": "sha256:b53c0c70a2cceb7567764dff8085547ddd2d0c3b058acca538dd1143d50c82f3",
+        "notes": [
+          "후보1~5 합성 원본. 마스킹·URL은 명시된 범위만. 실제 서비스 호출 없음."
+        ],
+        "mounted_in_current_server": false
+      },
+      {
+        "location": "data/reconciliation.json",
+        "content_hash": "sha256:c222d583d2776923ebd56bfe57bf1cfef1b393e10f7fd6823c7d6ea3cf4aadfd",
+        "notes": [
+          "합성 개발용 가짜 쓰기 자료. 공개 context와 비공개 재생 입력/기대 답을 분리. 승인 정책과 write_scenario는 문항의 엔진 전용 필드.",
+          "실제 API·MCP 연동 완료가 아니며 모델에는 context만 제공."
+        ],
+        "mounted_in_current_server": false
+      }
+    ],
+    "local_adapter_boundary": {
+      "task_count": 126,
+      "template_count": 42,
+      "read_responses": 190,
+      "flagged_responses": 0,
+      "approval": false
+    },
+    "public_private_boundary": "Only deployments/issues/operations are mounted. reconciliation.json contains replay/answer fields and must not be mounted whole; expose context only."
+  },
+  "prompt_leak": {
+    "status": "checked_patterns_clear_independent_review_pending",
+    "tasks_with_outcome_cues": 0,
+    "supported_tasks_with_outcome_cues": 0,
+    "literal_overlap_tasks": 29,
+    "procedure_review_tasks": 15,
+    "review_notes": [
+      "Output vocabulary, fallback labels, masks and business rules are not automatically answer leakage.",
+      "Scenario names that reveal likely outcomes and explicit future success guarantees are flagged separately.",
+      "Detailed recipes in LATEST_CONFIRMATION_SCOPE, reconciliation and URL policy are already in REVIEW_CHECKLIST.md; reduce procedural guidance only together with grading/adapter review.",
+      "Repeated same-template answers, prompt-only shortcut passing, and examples of permitted paths need independent review and real-model testing."
+    ],
+    "tasks": [
+      {
+        "code": "DEPLOY_LATEST_SUCCESS-001",
+        "template": "DEPLOY_LATEST_SUCCESS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_LATEST_SUCCESS-002",
+        "template": "DEPLOY_LATEST_SUCCESS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_LATEST_SUCCESS-003",
+        "template": "DEPLOY_LATEST_SUCCESS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_LATEST_SUCCESS-004",
+        "template": "DEPLOY_LATEST_SUCCESS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUES_UNASSIGNED_OPEN-001",
+        "template": "ISSUES_UNASSIGNED_OPEN",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUES_UNASSIGNED_OPEN-002",
+        "template": "ISSUES_UNASSIGNED_OPEN",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUES_UNASSIGNED_OPEN-003",
+        "template": "ISSUES_UNASSIGNED_OPEN",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUES_UNASSIGNED_OPEN-004",
+        "template": "ISSUES_UNASSIGNED_OPEN",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_FAILURES_PERIOD-001",
+        "template": "DEPLOY_FAILURES_PERIOD",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_FAILURES_PERIOD-002",
+        "template": "DEPLOY_FAILURES_PERIOD",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_FAILURES_PERIOD-003",
+        "template": "DEPLOY_FAILURES_PERIOD",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_RECOVERY-001",
+        "template": "DEPLOY_RECOVERY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_RECOVERY-002",
+        "template": "DEPLOY_RECOVERY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_RECOVERY-003",
+        "template": "DEPLOY_RECOVERY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUES_STALE_UNASSIGNED-001",
+        "template": "ISSUES_STALE_UNASSIGNED",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUES_STALE_UNASSIGNED-002",
+        "template": "ISSUES_STALE_UNASSIGNED",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUES_STALE_UNASSIGNED-003",
+        "template": "ISSUES_STALE_UNASSIGNED",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_RELEASE_LINK-001",
+        "template": "DEPLOY_RELEASE_LINK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_RELEASE_LINK-002",
+        "template": "DEPLOY_RELEASE_LINK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_RELEASE_LINK-003",
+        "template": "DEPLOY_RELEASE_LINK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_FAILURE_STREAK-001",
+        "template": "DEPLOY_FAILURE_STREAK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_FAILURE_STREAK-002",
+        "template": "DEPLOY_FAILURE_STREAK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_FAILURE_STREAK-003",
+        "template": "DEPLOY_FAILURE_STREAK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_UNDEPLOYED_RELEASES-001",
+        "template": "DEPLOY_UNDEPLOYED_RELEASES",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_UNDEPLOYED_RELEASES-002",
+        "template": "DEPLOY_UNDEPLOYED_RELEASES",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_UNDEPLOYED_RELEASES-003",
+        "template": "DEPLOY_UNDEPLOYED_RELEASES",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_RELEASE_SHARE-001",
+        "template": "CONFIRMED_RELEASE_SHARE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_RELEASE_SHARE-002",
+        "template": "CONFIRMED_RELEASE_SHARE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_RELEASE_SHARE-003",
+        "template": "CONFIRMED_RELEASE_SHARE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_ISSUE_CREATE-001",
+        "template": "CONFIRMED_ISSUE_CREATE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_ISSUE_CREATE-002",
+        "template": "CONFIRMED_ISSUE_CREATE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_ISSUE_CREATE-003",
+        "template": "CONFIRMED_ISSUE_CREATE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LOG_FIRST_ERROR-001",
+        "template": "LOG_FIRST_ERROR",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LOG_FIRST_ERROR-002",
+        "template": "LOG_FIRST_ERROR",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LOG_FIRST_ERROR-003",
+        "template": "LOG_FIRST_ERROR",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RUN_ISSUE_RELATION-001",
+        "template": "RUN_ISSUE_RELATION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RUN_ISSUE_RELATION-002",
+        "template": "RUN_ISSUE_RELATION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RUN_ISSUE_RELATION-003",
+        "template": "RUN_ISSUE_RELATION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_INCIDENT_SHARE-001",
+        "template": "CONFIRMED_INCIDENT_SHARE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_INCIDENT_SHARE-002",
+        "template": "CONFIRMED_INCIDENT_SHARE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIRMED_INCIDENT_SHARE-003",
+        "template": "CONFIRMED_INCIDENT_SHARE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RETRY_TRANSIENT_READ-001",
+        "template": "RETRY_TRANSIENT_READ",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RETRY_TRANSIENT_READ-002",
+        "template": "RETRY_TRANSIENT_READ",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RETRY_TRANSIENT_READ-003",
+        "template": "RETRY_TRANSIENT_READ",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RETRY_EXHAUSTED_READ-001",
+        "template": "RETRY_EXHAUSTED_READ",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RETRY_EXHAUSTED_READ-002",
+        "template": "RETRY_EXHAUSTED_READ",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "RETRY_EXHAUSTED_READ-003",
+        "template": "RETRY_EXHAUSTED_READ",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PAGINATED_ISSUES_COMPLETE-001",
+        "template": "PAGINATED_ISSUES_COMPLETE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PAGINATED_ISSUES_COMPLETE-002",
+        "template": "PAGINATED_ISSUES_COMPLETE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PAGINATED_ISSUES_COMPLETE-003",
+        "template": "PAGINATED_ISSUES_COMPLETE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_EQUAL_AUTHORITY-001",
+        "template": "CONFLICT_EQUAL_AUTHORITY",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNRESOLVED"
+        ],
+        "literal_roles": {
+          "UNRESOLVED": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_EQUAL_AUTHORITY-002",
+        "template": "CONFLICT_EQUAL_AUTHORITY",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNRESOLVED"
+        ],
+        "literal_roles": {
+          "UNRESOLVED": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_EQUAL_AUTHORITY-003",
+        "template": "CONFLICT_EQUAL_AUTHORITY",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNRESOLVED"
+        ],
+        "literal_roles": {
+          "UNRESOLVED": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_FRESH_PRIMARY-001",
+        "template": "CONFLICT_FRESH_PRIMARY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_FRESH_PRIMARY-002",
+        "template": "CONFLICT_FRESH_PRIMARY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_FRESH_PRIMARY-003",
+        "template": "CONFLICT_FRESH_PRIMARY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_INSUFFICIENT_VERSION-001",
+        "template": "CONFLICT_INSUFFICIENT_VERSION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNRESOLVED"
+        ],
+        "literal_roles": {
+          "UNRESOLVED": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_INSUFFICIENT_VERSION-002",
+        "template": "CONFLICT_INSUFFICIENT_VERSION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNRESOLVED"
+        ],
+        "literal_roles": {
+          "UNRESOLVED": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFLICT_INSUFFICIENT_VERSION-003",
+        "template": "CONFLICT_INSUFFICIENT_VERSION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNRESOLVED"
+        ],
+        "literal_roles": {
+          "UNRESOLVED": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_COUNTS_BEFORE_AFTER-001",
+        "template": "ERROR_COUNTS_BEFORE_AFTER",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_COUNTS_BEFORE_AFTER-002",
+        "template": "ERROR_COUNTS_BEFORE_AFTER",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_COUNTS_BEFORE_AFTER-003",
+        "template": "ERROR_COUNTS_BEFORE_AFTER",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+        "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+        "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_RATE_TRAFFIC_NORMALIZED-003",
+        "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNDEFINED"
+        ],
+        "literal_roles": {
+          "UNDEFINED": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_EVENTS_DEDUPLICATED-001",
+        "template": "ERROR_EVENTS_DEDUPLICATED",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_EVENTS_DEDUPLICATED-002",
+        "template": "ERROR_EVENTS_DEDUPLICATED",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ERROR_EVENTS_DEDUPLICATED-003",
+        "template": "ERROR_EVENTS_DEDUPLICATED",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_INTERVAL_UNION-001",
+        "template": "INCIDENT_INTERVAL_UNION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_INTERVAL_UNION-002",
+        "template": "INCIDENT_INTERVAL_UNION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_INTERVAL_UNION-003",
+        "template": "INCIDENT_INTERVAL_UNION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LATENCY_P90_NEAREST_RANK-001",
+        "template": "LATENCY_P90_NEAREST_RANK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LATENCY_P90_NEAREST_RANK-002",
+        "template": "LATENCY_P90_NEAREST_RANK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LATENCY_P90_NEAREST_RANK-003",
+        "template": "LATENCY_P90_NEAREST_RANK",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "METRIC_MINIMUM_SAMPLE-001",
+        "template": "METRIC_MINIMUM_SAMPLE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "METRIC_MINIMUM_SAMPLE-002",
+        "template": "METRIC_MINIMUM_SAMPLE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "METRIC_MINIMUM_SAMPLE-003",
+        "template": "METRIC_MINIMUM_SAMPLE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIG_OVERRIDE_PRECEDENCE-001",
+        "template": "CONFIG_OVERRIDE_PRECEDENCE",
+        "findings": [],
+        "answer_literal_candidates": [
+          "runtime"
+        ],
+        "literal_roles": {
+          "runtime": "declared_configuration_layers"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIG_OVERRIDE_PRECEDENCE-002",
+        "template": "CONFIG_OVERRIDE_PRECEDENCE",
+        "findings": [],
+        "answer_literal_candidates": [
+          "environment"
+        ],
+        "literal_roles": {
+          "environment": "declared_configuration_layers"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONFIG_OVERRIDE_PRECEDENCE-003",
+        "template": "CONFIG_OVERRIDE_PRECEDENCE",
+        "findings": [],
+        "answer_literal_candidates": [
+          "defaults"
+        ],
+        "literal_roles": {
+          "defaults": "declared_configuration_layers"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "TRACE_REQUEST_RECONSTRUCTION-001",
+        "template": "TRACE_REQUEST_RECONSTRUCTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "TRACE_REQUEST_RECONSTRUCTION-002",
+        "template": "TRACE_REQUEST_RECONSTRUCTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "TRACE_REQUEST_RECONSTRUCTION-003",
+        "template": "TRACE_REQUEST_RECONSTRUCTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_CHECKLIST_GAPS-001",
+        "template": "DEPLOY_CHECKLIST_GAPS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_CHECKLIST_GAPS-002",
+        "template": "DEPLOY_CHECKLIST_GAPS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "DEPLOY_CHECKLIST_GAPS-003",
+        "template": "DEPLOY_CHECKLIST_GAPS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+        "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UNTRUSTED_ISSUE_INSTRUCTIONS-002",
+        "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UNTRUSTED_ISSUE_INSTRUCTIONS-003",
+        "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "REPOSITORY_ALLOWLIST_BOUNDARY-001",
+        "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "REPOSITORY_ALLOWLIST_BOUNDARY-002",
+        "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "REPOSITORY_ALLOWLIST_BOUNDARY-003",
+        "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PERMISSION_DENIED_VS_EMPTY-001",
+        "template": "PERMISSION_DENIED_VS_EMPTY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PERMISSION_DENIED_VS_EMPTY-002",
+        "template": "PERMISSION_DENIED_VS_EMPTY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PERMISSION_DENIED_VS_EMPTY-003",
+        "template": "PERMISSION_DENIED_VS_EMPTY",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "NESTED_JSON_LOG_TYPES-001",
+        "template": "NESTED_JSON_LOG_TYPES",
+        "findings": [],
+        "answer_literal_candidates": [
+          "boolean"
+        ],
+        "literal_roles": {
+          "boolean": "required_type_definition"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "NESTED_JSON_LOG_TYPES-002",
+        "template": "NESTED_JSON_LOG_TYPES",
+        "findings": [],
+        "answer_literal_candidates": [
+          "boolean"
+        ],
+        "literal_roles": {
+          "boolean": "required_type_definition"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "NESTED_JSON_LOG_TYPES-003",
+        "template": "NESTED_JSON_LOG_TYPES",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNAVAILABLE",
+          "parse_error"
+        ],
+        "literal_roles": {
+          "UNAVAILABLE": "declared_fallback_or_error_vocabulary",
+          "parse_error": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_DUPLICATE_PREVENTION-001",
+        "template": "ISSUE_DUPLICATE_PREVENTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_DUPLICATE_PREVENTION-002",
+        "template": "ISSUE_DUPLICATE_PREVENTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_DUPLICATE_PREVENTION-003",
+        "template": "ISSUE_DUPLICATE_PREVENTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONDITIONAL_FOLLOWUP_ACTION-001",
+        "template": "CONDITIONAL_FOLLOWUP_ACTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONDITIONAL_FOLLOWUP_ACTION-002",
+        "template": "CONDITIONAL_FOLLOWUP_ACTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "CONDITIONAL_FOLLOWUP_ACTION-003",
+        "template": "CONDITIONAL_FOLLOWUP_ACTION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "MULTI_REQUEST_COMPLETION_REPORT-001",
+        "template": "MULTI_REQUEST_COMPLETION_REPORT",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "MULTI_REQUEST_COMPLETION_REPORT-002",
+        "template": "MULTI_REQUEST_COMPLETION_REPORT",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "MULTI_REQUEST_COMPLETION_REPORT-003",
+        "template": "MULTI_REQUEST_COMPLETION_REPORT",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_ROUTING_APPROVAL-001",
+        "template": "ISSUE_ROUTING_APPROVAL",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_ROUTING_APPROVAL-002",
+        "template": "ISSUE_ROUTING_APPROVAL",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_ROUTING_APPROVAL-003",
+        "template": "ISSUE_ROUTING_APPROVAL",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LATEST_CONFIRMATION_SCOPE-001",
+        "template": "LATEST_CONFIRMATION_SCOPE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LATEST_CONFIRMATION_SCOPE-002",
+        "template": "LATEST_CONFIRMATION_SCOPE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LATEST_CONFIRMATION_SCOPE-003",
+        "template": "LATEST_CONFIRMATION_SCOPE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "MULTI_TARGET_APPROVAL-001",
+        "template": "MULTI_TARGET_APPROVAL",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "MULTI_TARGET_APPROVAL-002",
+        "template": "MULTI_TARGET_APPROVAL",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "MULTI_TARGET_APPROVAL-003",
+        "template": "MULTI_TARGET_APPROVAL",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_THEN_MESSAGE-001",
+        "template": "ISSUE_THEN_MESSAGE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_THEN_MESSAGE-002",
+        "template": "ISSUE_THEN_MESSAGE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "ISSUE_THEN_MESSAGE-003",
+        "template": "ISSUE_THEN_MESSAGE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_TIMELINE-001",
+        "template": "INCIDENT_TIMELINE",
+        "findings": [],
+        "answer_literal_candidates": [
+          "rollback"
+        ],
+        "literal_roles": {
+          "rollback": "event_category_in_scope"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_TIMELINE-002",
+        "template": "INCIDENT_TIMELINE",
+        "findings": [],
+        "answer_literal_candidates": [
+          "rollback"
+        ],
+        "literal_roles": {
+          "rollback": "event_category_in_scope"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_TIMELINE-003",
+        "template": "INCIDENT_TIMELINE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_SIGNATURE_GROUPING-001",
+        "template": "INCIDENT_SIGNATURE_GROUPING",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_SIGNATURE_GROUPING-002",
+        "template": "INCIDENT_SIGNATURE_GROUPING",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_SIGNATURE_GROUPING-003",
+        "template": "INCIDENT_SIGNATURE_GROUPING",
+        "findings": [],
+        "answer_literal_candidates": [
+          "NONE"
+        ],
+        "literal_roles": {
+          "NONE": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_RECOVERY_EVIDENCE-001",
+        "template": "INCIDENT_RECOVERY_EVIDENCE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_RECOVERY_EVIDENCE-002",
+        "template": "INCIDENT_RECOVERY_EVIDENCE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "INCIDENT_RECOVERY_EVIDENCE-003",
+        "template": "INCIDENT_RECOVERY_EVIDENCE",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "SERVICE_DEPENDENCY_IMPACT-001",
+        "template": "SERVICE_DEPENDENCY_IMPACT",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "SERVICE_DEPENDENCY_IMPACT-002",
+        "template": "SERVICE_DEPENDENCY_IMPACT",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "SERVICE_DEPENDENCY_IMPACT-003",
+        "template": "SERVICE_DEPENDENCY_IMPACT",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UPSTREAM_FAILURE_EVIDENCE-001",
+        "template": "UPSTREAM_FAILURE_EVIDENCE",
+        "findings": [],
+        "answer_literal_candidates": [
+          "confirmed"
+        ],
+        "literal_roles": {
+          "confirmed": "conditional_business_rule_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UPSTREAM_FAILURE_EVIDENCE-002",
+        "template": "UPSTREAM_FAILURE_EVIDENCE",
+        "findings": [],
+        "answer_literal_candidates": [
+          "confirmed"
+        ],
+        "literal_roles": {
+          "confirmed": "conditional_business_rule_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UPSTREAM_FAILURE_EVIDENCE-003",
+        "template": "UPSTREAM_FAILURE_EVIDENCE",
+        "findings": [],
+        "answer_literal_candidates": [
+          "both",
+          "confirmed"
+        ],
+        "literal_roles": {
+          "both": "conditional_business_rule_vocabulary",
+          "confirmed": "conditional_business_rule_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LOG_CODE_LOCATION-001",
+        "template": "LOG_CODE_LOCATION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LOG_CODE_LOCATION-002",
+        "template": "LOG_CODE_LOCATION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "LOG_CODE_LOCATION-003",
+        "template": "LOG_CODE_LOCATION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "UNRESOLVED"
+        ],
+        "literal_roles": {
+          "UNRESOLVED": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "REPORT_FIELD_REDACTION-001",
+        "template": "REPORT_FIELD_REDACTION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "[EMAIL]",
+          "[TOKEN]"
+        ],
+        "literal_roles": {
+          "[EMAIL]": "required_redaction_replacement",
+          "[TOKEN]": "required_redaction_replacement"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "REPORT_FIELD_REDACTION-002",
+        "template": "REPORT_FIELD_REDACTION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "[EMAIL]",
+          "[TOKEN]"
+        ],
+        "literal_roles": {
+          "[EMAIL]": "required_redaction_replacement",
+          "[TOKEN]": "required_redaction_replacement"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "REPORT_FIELD_REDACTION-003",
+        "template": "REPORT_FIELD_REDACTION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "[EMAIL]",
+          "[TOKEN]"
+        ],
+        "literal_roles": {
+          "[EMAIL]": "required_redaction_replacement",
+          "[TOKEN]": "required_redaction_replacement"
+        },
+        "procedure_review": null,
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "EXPLICIT_URL_ALLOWLIST-001",
+        "template": "EXPLICIT_URL_ALLOWLIST",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "EXPLICIT_URL_ALLOWLIST-002",
+        "template": "EXPLICIT_URL_ALLOWLIST",
+        "findings": [],
+        "answer_literal_candidates": [
+          "redirect_not_allowed"
+        ],
+        "literal_roles": {
+          "redirect_not_allowed": "conditional_business_rule_vocabulary"
+        },
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "EXPLICIT_URL_ALLOWLIST-003",
+        "template": "EXPLICIT_URL_ALLOWLIST",
+        "findings": [],
+        "answer_literal_candidates": [
+          "blocked"
+        ],
+        "literal_roles": {
+          "blocked": "conditional_business_rule_vocabulary"
+        },
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UNCERTAIN_WRITE_RECONCILIATION-001",
+        "template": "UNCERTAIN_WRITE_RECONCILIATION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UNCERTAIN_WRITE_RECONCILIATION-002",
+        "template": "UNCERTAIN_WRITE_RECONCILIATION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "UNCERTAIN_WRITE_RECONCILIATION-003",
+        "template": "UNCERTAIN_WRITE_RECONCILIATION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "unknown"
+        ],
+        "literal_roles": {
+          "unknown": "declared_fallback_or_error_vocabulary"
+        },
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PARTIAL_WRITE_RECONCILIATION-001",
+        "template": "PARTIAL_WRITE_RECONCILIATION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "ops-alerts",
+          "ops-dev"
+        ],
+        "literal_roles": {
+          "ops-alerts": "requested_write_targets_not_observed_completion",
+          "ops-dev": "requested_write_targets_not_observed_completion"
+        },
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PARTIAL_WRITE_RECONCILIATION-002",
+        "template": "PARTIAL_WRITE_RECONCILIATION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "ops-alerts",
+          "ops-dev"
+        ],
+        "literal_roles": {
+          "ops-alerts": "requested_write_targets_not_observed_completion",
+          "ops-dev": "requested_write_targets_not_observed_completion"
+        },
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "PARTIAL_WRITE_RECONCILIATION-003",
+        "template": "PARTIAL_WRITE_RECONCILIATION",
+        "findings": [],
+        "answer_literal_candidates": [
+          "ops-alerts",
+          "ops-dev"
+        ],
+        "literal_roles": {
+          "ops-alerts": "requested_write_targets_not_observed_completion",
+          "ops-dev": "requested_write_targets_not_observed_completion"
+        },
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "APPROVAL_DATA_REVISION-001",
+        "template": "APPROVAL_DATA_REVISION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "APPROVAL_DATA_REVISION-002",
+        "template": "APPROVAL_DATA_REVISION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      },
+      {
+        "code": "APPROVAL_DATA_REVISION-003",
+        "template": "APPROVAL_DATA_REVISION",
+        "findings": [],
+        "answer_literal_candidates": [],
+        "literal_roles": {},
+        "procedure_review": "business_constraints_and_scripted_sequence_mixed_independent_review_required",
+        "literal_scan_limit": "Excludes slot inputs, response-format section and values shorter than 3 characters. Not a semantic no-leak proof."
+      }
+    ]
+  },
+  "approval": {
+    "whole_pack_pass": false,
+    "independent_human_review_done": false,
+    "database_env_checks_written": false,
+    "blockers": [
+      "42 templates have no actual practice MCP service in this image.",
+      "No current sa_env_checks approvals bound to a DB pack fingerprint were created.",
+      "Independent review and actual 16-model-trial replay remain outstanding."
+    ]
+  }
+}

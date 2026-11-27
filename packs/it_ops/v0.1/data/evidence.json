@@ -1,8 +1,8 @@
 {
-  "snapshot_version": "it-ops-conflicts-v0.1",
+  "snapshot_version": "it-ops-conflicts-v0.2",
   "cases": [
     {
-      "id": "conflict-1",
+      "id": "case-49af03a2",
       "kind": "conflict",
       "facts": {
         "repo": "acme/payment-service",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "id": "fresh-1",
+      "id": "case-44ec3989",
       "kind": "fresh",
       "facts": {
         "repo": "acme/payment-service",
@@ -100,7 +100,7 @@
       ]
     },
     {
-      "id": "insufficient-1",
+      "id": "case-152e9771",
       "kind": "insufficient",
       "facts": {
         "repo": "acme/payment-service",
@@ -134,7 +134,7 @@
       ]
     },
     {
-      "id": "conflict-2",
+      "id": "case-66d15ff3",
       "kind": "conflict",
       "facts": {
         "repo": "acme/catalog-service",
@@ -178,7 +178,7 @@
       ]
     },
     {
-      "id": "fresh-2",
+      "id": "case-61f2af83",
       "kind": "fresh",
       "facts": {
         "repo": "acme/catalog-service",
@@ -232,7 +232,7 @@
       ]
     },
     {
-      "id": "insufficient-2",
+      "id": "case-0c6d3908",
       "kind": "insufficient",
       "facts": {
         "repo": "acme/catalog-service",
@@ -266,7 +266,7 @@
       ]
     },
     {
-      "id": "conflict-3",
+      "id": "case-6dc435ff",
       "kind": "conflict",
       "facts": {
         "repo": "acme/auth-service",
@@ -310,7 +310,7 @@
       ]
     },
     {
-      "id": "fresh-3",
+      "id": "case-713676c0",
       "kind": "fresh",
       "facts": {
         "repo": "acme/auth-service",
@@ -364,7 +364,7 @@
       ]
     },
     {
-      "id": "insufficient-3",
+      "id": "case-be1fcaaa",
       "kind": "insufficient",
       "facts": {
         "repo": "acme/auth-service",

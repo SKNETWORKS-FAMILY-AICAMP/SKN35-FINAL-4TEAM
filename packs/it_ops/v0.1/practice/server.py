@@ -16,7 +16,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from slotagent.common.hashing import canonical_hash
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 RESOURCE = "slotagent://practice/manifest"
 
 
@@ -28,6 +28,8 @@ class PracticeData:
             raise ValueError("This implementation only serves github")
         self.data_dir = Path(data_dir).resolve()
         self.tools = {t["name"]: t for t in self.server["tools"]}
+        if self.server["version"] != VERSION:
+            raise ValueError("Practice server version mismatch")
         self.data = {}
         self.hashes = {}
         for snapshot in self.manifest["snapshots"]:
@@ -40,18 +42,38 @@ class PracticeData:
                 raise ValueError(f"Frozen snapshot mismatch: {snapshot['id']}")
             self.data[snapshot["id"]] = data
             self.hashes[snapshot["id"]] = digest
-        for tool in self.tools.values():
+        self.rows = {}
+        for name, tool in self.tools.items():
             Draft202012Validator.check_schema(tool["input_schema"])
             Draft202012Validator.check_schema(tool["output_schema"])
             Draft202012Validator(tool["output_schema"]).validate(
                 self.data[tool["source_snapshot"]][tool["source_key"]])
+            self.rows[name] = self.data[tool["source_snapshot"]][tool["source_key"]]
+        for family in ((("list_deployments", "run_id", int), ("list_operation_runs", "id", str)),
+                       (("list_issues", "number", str), ("list_operation_issues", "id", str))):
+            sources = [(name, key, cast, self.rows[name]) for name, key, cast in family]
+            identities = set()
+            for _, key, _, rows in sources:
+                for row in rows:
+                    identity = (row["repo"], str(row[key]))
+                    if identity in identities:
+                        raise ValueError("Conflicting practice record identity")
+                    identities.add(identity)
+            for name, key, cast, native in sources:
+                combined = list(native)
+                for other, other_key, _, rows in sources:
+                    if other != name:
+                        combined.extend({**{k: v for k, v in row.items() if k != other_key},
+                                         key: cast(row[other_key])} for row in rows)
+                Draft202012Validator(self.tools[name]["output_schema"]).validate(combined)
+                self.rows[name] = combined
 
     def call(self, name, arguments):
         if name not in self.tools:
             raise ValueError("Unknown tool")
         tool = self.tools[name]
         Draft202012Validator(tool["input_schema"]).validate(arguments)
-        rows = self.data[tool["source_snapshot"]][tool["source_key"]]
+        rows = self.rows[name]
         result = [r for r in rows if "repo" not in arguments or r["repo"] == arguments["repo"]]
         Draft202012Validator(tool["output_schema"]).validate(result)
         return result

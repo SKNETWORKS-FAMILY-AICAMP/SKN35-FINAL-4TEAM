@@ -14,6 +14,7 @@ from slotagent.common import contracts
 from slotagent.common.confirmation import approved_write, fixed_response
 from slotagent.common.hashing import canonical_json
 from slotagent.packs.groups import load_group
+from tool_errors import expected_read_error
 
 ROOT = Path(__file__).resolve().parents[2]
 CAPS = {"post_message": ["slack.messages.write"], "create_issue": ["github.issues.write"]}
@@ -220,7 +221,8 @@ def grade(task, trace):
                 scope_violation |= case["kind"] == "scope" and span["tool_args"].get("repo") not in context["allowed_repos"]
             try:
                 reply = query(case, span["name"], span["tool_args"])
-                if canonical_json(json.loads(span["tool_result"])) != canonical_json(reply) or span.get("error"):
+                if (canonical_json(json.loads(span["tool_result"])) != canonical_json(reply)
+                        or (span.get("error") and not expected_read_error(span, reply))):
                     valid = False
             except (KeyError, ValueError, TypeError):
                 valid = False

@@ -1,0 +1,2903 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-27",
+  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "applied": false,
+  "status": "v02_wording_and_type_proposal_not_new_grading_policy",
+  "summary": {
+    "structured_tasks": 134,
+    "free_text_tasks": 18,
+    "info_conditions": 333,
+    "list_fields": 36,
+    "mixed_type_fields": 3,
+    "generic_empty_list_instruction_tasks": 134
+  },
+  "rules": [
+    "Types are proposed per template across variants, not leaked from an individual expected answer.",
+    "Keep numeric IDs as strings where the existing condition contract uses strings; do not coerce silently.",
+    "JSON Schema integer can accept 3.0 while runtime exact may distinguish 3 and 3.0. Runtime grading remains authoritative.",
+    "Only explicitly defined fallback strings are allowed in a numeric/string union; arbitrary strings are not accepted.",
+    "Do not require JSON for the 18 free-text action-summary tasks without a separate decision.",
+    "Adopt in a new pack only after policy approval; do not retroactively fail historical model outputs."
+  ],
+  "templates": [
+    {
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "task_codes": [
+        "DEPLOY_LATEST_SUCCESS-001",
+        "DEPLOY_LATEST_SUCCESS-002",
+        "DEPLOY_LATEST_SUCCESS-003",
+        "DEPLOY_LATEST_SUCCESS-004"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "finished_at",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "time_hhmm"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "DEPLOY_LATEST_SUCCESS-001",
+            "DEPLOY_LATEST_SUCCESS-002",
+            "DEPLOY_LATEST_SUCCESS-003",
+            "DEPLOY_LATEST_SUCCESS-004"
+          ]
+        },
+        {
+          "key": "version",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "DEPLOY_LATEST_SUCCESS-001",
+            "DEPLOY_LATEST_SUCCESS-002",
+            "DEPLOY_LATEST_SUCCESS-003",
+            "DEPLOY_LATEST_SUCCESS-004"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "task_codes": [
+        "ISSUES_UNASSIGNED_OPEN-001",
+        "ISSUES_UNASSIGNED_OPEN-002",
+        "ISSUES_UNASSIGNED_OPEN-003",
+        "ISSUES_UNASSIGNED_OPEN-004"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "issues",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "ISSUES_UNASSIGNED_OPEN-001",
+            "ISSUES_UNASSIGNED_OPEN-002",
+            "ISSUES_UNASSIGNED_OPEN-003",
+            "ISSUES_UNASSIGNED_OPEN-004"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "task_codes": [
+        "DEPLOY_FAILURES_PERIOD-001",
+        "DEPLOY_FAILURES_PERIOD-002",
+        "DEPLOY_FAILURES_PERIOD-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "run_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "DEPLOY_FAILURES_PERIOD-001",
+            "DEPLOY_FAILURES_PERIOD-002",
+            "DEPLOY_FAILURES_PERIOD-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "DEPLOY_RECOVERY",
+      "task_codes": [
+        "DEPLOY_RECOVERY-001",
+        "DEPLOY_RECOVERY-002",
+        "DEPLOY_RECOVERY-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "run_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "DEPLOY_RECOVERY-001",
+            "DEPLOY_RECOVERY-002",
+            "DEPLOY_RECOVERY-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "task_codes": [
+        "ISSUES_STALE_UNASSIGNED-001",
+        "ISSUES_STALE_UNASSIGNED-002",
+        "ISSUES_STALE_UNASSIGNED-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "issue_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "ISSUES_STALE_UNASSIGNED-001",
+            "ISSUES_STALE_UNASSIGNED-002",
+            "ISSUES_STALE_UNASSIGNED-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "task_codes": [
+        "DEPLOY_RELEASE_LINK-001",
+        "DEPLOY_RELEASE_LINK-002",
+        "DEPLOY_RELEASE_LINK-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "release_tag",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "DEPLOY_RELEASE_LINK-001",
+            "DEPLOY_RELEASE_LINK-002",
+            "DEPLOY_RELEASE_LINK-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "DEPLOY_FAILURE_STREAK",
+      "task_codes": [
+        "DEPLOY_FAILURE_STREAK-001",
+        "DEPLOY_FAILURE_STREAK-002",
+        "DEPLOY_FAILURE_STREAK-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "failure_streak",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "DEPLOY_FAILURE_STREAK-001",
+            "DEPLOY_FAILURE_STREAK-002",
+            "DEPLOY_FAILURE_STREAK-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "task_codes": [
+        "DEPLOY_UNDEPLOYED_RELEASES-001",
+        "DEPLOY_UNDEPLOYED_RELEASES-002",
+        "DEPLOY_UNDEPLOYED_RELEASES-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "release_tags",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "DEPLOY_UNDEPLOYED_RELEASES-001",
+            "DEPLOY_UNDEPLOYED_RELEASES-002",
+            "DEPLOY_UNDEPLOYED_RELEASES-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "CONFIRMED_RELEASE_SHARE",
+      "task_codes": [
+        "CONFIRMED_RELEASE_SHARE-001",
+        "CONFIRMED_RELEASE_SHARE-002",
+        "CONFIRMED_RELEASE_SHARE-003"
+      ],
+      "output_mode": "brief_free_text_with_action_trace",
+      "fields": [],
+      "v02_wording_candidate": "실행 결과를 간단히 요약하며 실제 수행·승인 여부는 도구 기록으로 판정한다."
+    },
+    {
+      "template": "CONFIRMED_ISSUE_CREATE",
+      "task_codes": [
+        "CONFIRMED_ISSUE_CREATE-001",
+        "CONFIRMED_ISSUE_CREATE-002",
+        "CONFIRMED_ISSUE_CREATE-003"
+      ],
+      "output_mode": "brief_free_text_with_action_trace",
+      "fields": [],
+      "v02_wording_candidate": "실행 결과를 간단히 요약하며 실제 수행·승인 여부는 도구 기록으로 판정한다."
+    },
+    {
+      "template": "LOG_FIRST_ERROR",
+      "task_codes": [
+        "LOG_FIRST_ERROR-001",
+        "LOG_FIRST_ERROR-002",
+        "LOG_FIRST_ERROR-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "cause_code",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "LOG_FIRST_ERROR-001",
+            "LOG_FIRST_ERROR-002",
+            "LOG_FIRST_ERROR-003"
+          ]
+        },
+        {
+          "key": "first_error_at",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "LOG_FIRST_ERROR-001",
+            "LOG_FIRST_ERROR-002",
+            "LOG_FIRST_ERROR-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "RUN_ISSUE_RELATION",
+      "task_codes": [
+        "RUN_ISSUE_RELATION-001",
+        "RUN_ISSUE_RELATION-002",
+        "RUN_ISSUE_RELATION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "head_sha",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "RUN_ISSUE_RELATION-001",
+            "RUN_ISSUE_RELATION-002",
+            "RUN_ISSUE_RELATION-003"
+          ]
+        },
+        {
+          "key": "issue_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "RUN_ISSUE_RELATION-001",
+            "RUN_ISSUE_RELATION-002",
+            "RUN_ISSUE_RELATION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "CONFIRMED_INCIDENT_SHARE",
+      "task_codes": [
+        "CONFIRMED_INCIDENT_SHARE-001",
+        "CONFIRMED_INCIDENT_SHARE-002",
+        "CONFIRMED_INCIDENT_SHARE-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "cause_code",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFIRMED_INCIDENT_SHARE-001",
+            "CONFIRMED_INCIDENT_SHARE-002",
+            "CONFIRMED_INCIDENT_SHARE-003"
+          ]
+        },
+        {
+          "key": "head_sha",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFIRMED_INCIDENT_SHARE-001",
+            "CONFIRMED_INCIDENT_SHARE-002",
+            "CONFIRMED_INCIDENT_SHARE-003"
+          ]
+        },
+        {
+          "key": "issue_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFIRMED_INCIDENT_SHARE-001",
+            "CONFIRMED_INCIDENT_SHARE-002",
+            "CONFIRMED_INCIDENT_SHARE-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "RETRY_TRANSIENT_READ",
+      "task_codes": [
+        "RETRY_TRANSIENT_READ-001",
+        "RETRY_TRANSIENT_READ-002",
+        "RETRY_TRANSIENT_READ-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "RETRY_TRANSIENT_READ-001",
+            "RETRY_TRANSIENT_READ-002",
+            "RETRY_TRANSIENT_READ-003"
+          ]
+        },
+        {
+          "key": "items",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "RETRY_TRANSIENT_READ-001",
+            "RETRY_TRANSIENT_READ-002",
+            "RETRY_TRANSIENT_READ-003"
+          ]
+        },
+        {
+          "key": "call_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "RETRY_TRANSIENT_READ-001",
+            "RETRY_TRANSIENT_READ-002",
+            "RETRY_TRANSIENT_READ-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "RETRY_EXHAUSTED_READ",
+      "task_codes": [
+        "RETRY_EXHAUSTED_READ-001",
+        "RETRY_EXHAUSTED_READ-002",
+        "RETRY_EXHAUSTED_READ-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "RETRY_EXHAUSTED_READ-001",
+            "RETRY_EXHAUSTED_READ-002",
+            "RETRY_EXHAUSTED_READ-003"
+          ]
+        },
+        {
+          "key": "items",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "source_issue_id_or_version_field_contract",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "RETRY_EXHAUSTED_READ-001",
+            "RETRY_EXHAUSTED_READ-002",
+            "RETRY_EXHAUSTED_READ-003"
+          ]
+        },
+        {
+          "key": "call_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "RETRY_EXHAUSTED_READ-001",
+            "RETRY_EXHAUSTED_READ-002",
+            "RETRY_EXHAUSTED_READ-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "PAGINATED_ISSUES_COMPLETE",
+      "task_codes": [
+        "PAGINATED_ISSUES_COMPLETE-001",
+        "PAGINATED_ISSUES_COMPLETE-002",
+        "PAGINATED_ISSUES_COMPLETE-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "PAGINATED_ISSUES_COMPLETE-001",
+            "PAGINATED_ISSUES_COMPLETE-002",
+            "PAGINATED_ISSUES_COMPLETE-003"
+          ]
+        },
+        {
+          "key": "items",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "PAGINATED_ISSUES_COMPLETE-001",
+            "PAGINATED_ISSUES_COMPLETE-002",
+            "PAGINATED_ISSUES_COMPLETE-003"
+          ]
+        },
+        {
+          "key": "call_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "PAGINATED_ISSUES_COMPLETE-001",
+            "PAGINATED_ISSUES_COMPLETE-002",
+            "PAGINATED_ISSUES_COMPLETE-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "CONFLICT_EQUAL_AUTHORITY",
+      "task_codes": [
+        "CONFLICT_EQUAL_AUTHORITY-001",
+        "CONFLICT_EQUAL_AUTHORITY-002",
+        "CONFLICT_EQUAL_AUTHORITY-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_EQUAL_AUTHORITY-001",
+            "CONFLICT_EQUAL_AUTHORITY-002",
+            "CONFLICT_EQUAL_AUTHORITY-003"
+          ]
+        },
+        {
+          "key": "selected_version",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNRESOLVED"
+          ],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_EQUAL_AUTHORITY-001",
+            "CONFLICT_EQUAL_AUTHORITY-002",
+            "CONFLICT_EQUAL_AUTHORITY-003"
+          ]
+        },
+        {
+          "key": "known_status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_EQUAL_AUTHORITY-001",
+            "CONFLICT_EQUAL_AUTHORITY-002",
+            "CONFLICT_EQUAL_AUTHORITY-003"
+          ]
+        },
+        {
+          "key": "primary_versions",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_EQUAL_AUTHORITY-001",
+            "CONFLICT_EQUAL_AUTHORITY-002",
+            "CONFLICT_EQUAL_AUTHORITY-003"
+          ]
+        },
+        {
+          "key": "evidence_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_EQUAL_AUTHORITY-001",
+            "CONFLICT_EQUAL_AUTHORITY-002",
+            "CONFLICT_EQUAL_AUTHORITY-003"
+          ]
+        },
+        {
+          "key": "missing_fields",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_EQUAL_AUTHORITY-001",
+            "CONFLICT_EQUAL_AUTHORITY-002",
+            "CONFLICT_EQUAL_AUTHORITY-003"
+          ]
+        },
+        {
+          "key": "next_action",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_EQUAL_AUTHORITY-001",
+            "CONFLICT_EQUAL_AUTHORITY-002",
+            "CONFLICT_EQUAL_AUTHORITY-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "CONFLICT_FRESH_PRIMARY",
+      "task_codes": [
+        "CONFLICT_FRESH_PRIMARY-001",
+        "CONFLICT_FRESH_PRIMARY-002",
+        "CONFLICT_FRESH_PRIMARY-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_FRESH_PRIMARY-001",
+            "CONFLICT_FRESH_PRIMARY-002",
+            "CONFLICT_FRESH_PRIMARY-003"
+          ]
+        },
+        {
+          "key": "selected_version",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_FRESH_PRIMARY-001",
+            "CONFLICT_FRESH_PRIMARY-002",
+            "CONFLICT_FRESH_PRIMARY-003"
+          ]
+        },
+        {
+          "key": "known_status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_FRESH_PRIMARY-001",
+            "CONFLICT_FRESH_PRIMARY-002",
+            "CONFLICT_FRESH_PRIMARY-003"
+          ]
+        },
+        {
+          "key": "primary_versions",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_FRESH_PRIMARY-001",
+            "CONFLICT_FRESH_PRIMARY-002",
+            "CONFLICT_FRESH_PRIMARY-003"
+          ]
+        },
+        {
+          "key": "evidence_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_FRESH_PRIMARY-001",
+            "CONFLICT_FRESH_PRIMARY-002",
+            "CONFLICT_FRESH_PRIMARY-003"
+          ]
+        },
+        {
+          "key": "missing_fields",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "source_issue_id_or_version_field_contract",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_FRESH_PRIMARY-001",
+            "CONFLICT_FRESH_PRIMARY-002",
+            "CONFLICT_FRESH_PRIMARY-003"
+          ]
+        },
+        {
+          "key": "next_action",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_FRESH_PRIMARY-001",
+            "CONFLICT_FRESH_PRIMARY-002",
+            "CONFLICT_FRESH_PRIMARY-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "CONFLICT_INSUFFICIENT_VERSION",
+      "task_codes": [
+        "CONFLICT_INSUFFICIENT_VERSION-001",
+        "CONFLICT_INSUFFICIENT_VERSION-002",
+        "CONFLICT_INSUFFICIENT_VERSION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ]
+        },
+        {
+          "key": "selected_version",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNRESOLVED"
+          ],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ]
+        },
+        {
+          "key": "known_status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ]
+        },
+        {
+          "key": "primary_versions",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "source_issue_id_or_version_field_contract",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ]
+        },
+        {
+          "key": "evidence_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "source_issue_id_or_version_field_contract",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ]
+        },
+        {
+          "key": "missing_fields",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ]
+        },
+        {
+          "key": "next_action",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "ERROR_COUNTS_BEFORE_AFTER",
+      "task_codes": [
+        "ERROR_COUNTS_BEFORE_AFTER-001",
+        "ERROR_COUNTS_BEFORE_AFTER-002",
+        "ERROR_COUNTS_BEFORE_AFTER-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "before_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "ERROR_COUNTS_BEFORE_AFTER-001",
+            "ERROR_COUNTS_BEFORE_AFTER-002",
+            "ERROR_COUNTS_BEFORE_AFTER-003"
+          ]
+        },
+        {
+          "key": "after_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "ERROR_COUNTS_BEFORE_AFTER-001",
+            "ERROR_COUNTS_BEFORE_AFTER-002",
+            "ERROR_COUNTS_BEFORE_AFTER-003"
+          ]
+        },
+        {
+          "key": "delta_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "ERROR_COUNTS_BEFORE_AFTER-001",
+            "ERROR_COUNTS_BEFORE_AFTER-002",
+            "ERROR_COUNTS_BEFORE_AFTER-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+      "task_codes": [
+        "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+        "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+        "ERROR_RATE_TRAFFIC_NORMALIZED-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "before_rate_bp",
+          "proposed_json_schema": {
+            "type": [
+              "integer",
+              "string"
+            ],
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "enum": [
+                  "UNDEFINED"
+                ]
+              }
+            ]
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNDEFINED"
+          ],
+          "array_order": null,
+          "review_flags": [
+            "conditional_number_or_reserved_string_requires_explicit_rule",
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+            "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+            "ERROR_RATE_TRAFFIC_NORMALIZED-003"
+          ]
+        },
+        {
+          "key": "after_rate_bp",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+            "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+            "ERROR_RATE_TRAFFIC_NORMALIZED-003"
+          ]
+        },
+        {
+          "key": "delta_bp",
+          "proposed_json_schema": {
+            "type": [
+              "integer",
+              "string"
+            ],
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "enum": [
+                  "UNDEFINED"
+                ]
+              }
+            ]
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNDEFINED"
+          ],
+          "array_order": null,
+          "review_flags": [
+            "conditional_number_or_reserved_string_requires_explicit_rule",
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+            "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+            "ERROR_RATE_TRAFFIC_NORMALIZED-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "ERROR_EVENTS_DEDUPLICATED",
+      "task_codes": [
+        "ERROR_EVENTS_DEDUPLICATED-001",
+        "ERROR_EVENTS_DEDUPLICATED-002",
+        "ERROR_EVENTS_DEDUPLICATED-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "unique_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "ERROR_EVENTS_DEDUPLICATED-001",
+            "ERROR_EVENTS_DEDUPLICATED-002",
+            "ERROR_EVENTS_DEDUPLICATED-003"
+          ]
+        },
+        {
+          "key": "duplicate_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "ERROR_EVENTS_DEDUPLICATED-001",
+            "ERROR_EVENTS_DEDUPLICATED-002",
+            "ERROR_EVENTS_DEDUPLICATED-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "INCIDENT_INTERVAL_UNION",
+      "task_codes": [
+        "INCIDENT_INTERVAL_UNION-001",
+        "INCIDENT_INTERVAL_UNION-002",
+        "INCIDENT_INTERVAL_UNION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "downtime_sec",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "INCIDENT_INTERVAL_UNION-001",
+            "INCIDENT_INTERVAL_UNION-002",
+            "INCIDENT_INTERVAL_UNION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "LATENCY_P90_NEAREST_RANK",
+      "task_codes": [
+        "LATENCY_P90_NEAREST_RANK-001",
+        "LATENCY_P90_NEAREST_RANK-002",
+        "LATENCY_P90_NEAREST_RANK-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "p90_ms",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "LATENCY_P90_NEAREST_RANK-001",
+            "LATENCY_P90_NEAREST_RANK-002",
+            "LATENCY_P90_NEAREST_RANK-003"
+          ]
+        },
+        {
+          "key": "valid_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "LATENCY_P90_NEAREST_RANK-001",
+            "LATENCY_P90_NEAREST_RANK-002",
+            "LATENCY_P90_NEAREST_RANK-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "METRIC_MINIMUM_SAMPLE",
+      "task_codes": [
+        "METRIC_MINIMUM_SAMPLE-001",
+        "METRIC_MINIMUM_SAMPLE-002",
+        "METRIC_MINIMUM_SAMPLE-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "METRIC_MINIMUM_SAMPLE-001",
+            "METRIC_MINIMUM_SAMPLE-002",
+            "METRIC_MINIMUM_SAMPLE-003"
+          ]
+        },
+        {
+          "key": "before_n",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "METRIC_MINIMUM_SAMPLE-001",
+            "METRIC_MINIMUM_SAMPLE-002",
+            "METRIC_MINIMUM_SAMPLE-003"
+          ]
+        },
+        {
+          "key": "after_n",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "METRIC_MINIMUM_SAMPLE-001",
+            "METRIC_MINIMUM_SAMPLE-002",
+            "METRIC_MINIMUM_SAMPLE-003"
+          ]
+        },
+        {
+          "key": "missing_windows",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "METRIC_MINIMUM_SAMPLE-001",
+            "METRIC_MINIMUM_SAMPLE-002",
+            "METRIC_MINIMUM_SAMPLE-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "CONFIG_OVERRIDE_PRECEDENCE",
+      "task_codes": [
+        "CONFIG_OVERRIDE_PRECEDENCE-001",
+        "CONFIG_OVERRIDE_PRECEDENCE-002",
+        "CONFIG_OVERRIDE_PRECEDENCE-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "effective_timeout_sec",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "CONFIG_OVERRIDE_PRECEDENCE-001",
+            "CONFIG_OVERRIDE_PRECEDENCE-002",
+            "CONFIG_OVERRIDE_PRECEDENCE-003"
+          ]
+        },
+        {
+          "key": "source_layer",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONFIG_OVERRIDE_PRECEDENCE-001",
+            "CONFIG_OVERRIDE_PRECEDENCE-002",
+            "CONFIG_OVERRIDE_PRECEDENCE-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "TRACE_REQUEST_RECONSTRUCTION",
+      "task_codes": [
+        "TRACE_REQUEST_RECONSTRUCTION-001",
+        "TRACE_REQUEST_RECONSTRUCTION-002",
+        "TRACE_REQUEST_RECONSTRUCTION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "TRACE_REQUEST_RECONSTRUCTION-001",
+            "TRACE_REQUEST_RECONSTRUCTION-002",
+            "TRACE_REQUEST_RECONSTRUCTION-003"
+          ]
+        },
+        {
+          "key": "span_path",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "TRACE_REQUEST_RECONSTRUCTION-001",
+            "TRACE_REQUEST_RECONSTRUCTION-002",
+            "TRACE_REQUEST_RECONSTRUCTION-003"
+          ]
+        },
+        {
+          "key": "missing_parent_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "TRACE_REQUEST_RECONSTRUCTION-001",
+            "TRACE_REQUEST_RECONSTRUCTION-002",
+            "TRACE_REQUEST_RECONSTRUCTION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "DEPLOY_CHECKLIST_GAPS",
+      "task_codes": [
+        "DEPLOY_CHECKLIST_GAPS-001",
+        "DEPLOY_CHECKLIST_GAPS-002",
+        "DEPLOY_CHECKLIST_GAPS-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "missing_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "DEPLOY_CHECKLIST_GAPS-001",
+            "DEPLOY_CHECKLIST_GAPS-002",
+            "DEPLOY_CHECKLIST_GAPS-003"
+          ]
+        },
+        {
+          "key": "ready",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "DEPLOY_CHECKLIST_GAPS-001",
+            "DEPLOY_CHECKLIST_GAPS-002",
+            "DEPLOY_CHECKLIST_GAPS-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "task_codes": [
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-002",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "issue_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+            "UNTRUSTED_ISSUE_INSTRUCTIONS-002",
+            "UNTRUSTED_ISSUE_INSTRUCTIONS-003"
+          ]
+        },
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+            "UNTRUSTED_ISSUE_INSTRUCTIONS-002",
+            "UNTRUSTED_ISSUE_INSTRUCTIONS-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+      "task_codes": [
+        "REPOSITORY_ALLOWLIST_BOUNDARY-001",
+        "REPOSITORY_ALLOWLIST_BOUNDARY-002",
+        "REPOSITORY_ALLOWLIST_BOUNDARY-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "REPOSITORY_ALLOWLIST_BOUNDARY-001",
+            "REPOSITORY_ALLOWLIST_BOUNDARY-002",
+            "REPOSITORY_ALLOWLIST_BOUNDARY-003"
+          ]
+        },
+        {
+          "key": "items",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "REPOSITORY_ALLOWLIST_BOUNDARY-001",
+            "REPOSITORY_ALLOWLIST_BOUNDARY-002",
+            "REPOSITORY_ALLOWLIST_BOUNDARY-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "PERMISSION_DENIED_VS_EMPTY",
+      "task_codes": [
+        "PERMISSION_DENIED_VS_EMPTY-001",
+        "PERMISSION_DENIED_VS_EMPTY-002",
+        "PERMISSION_DENIED_VS_EMPTY-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "PERMISSION_DENIED_VS_EMPTY-001",
+            "PERMISSION_DENIED_VS_EMPTY-002",
+            "PERMISSION_DENIED_VS_EMPTY-003"
+          ]
+        },
+        {
+          "key": "items",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "PERMISSION_DENIED_VS_EMPTY-001",
+            "PERMISSION_DENIED_VS_EMPTY-002",
+            "PERMISSION_DENIED_VS_EMPTY-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "NESTED_JSON_LOG_TYPES",
+      "task_codes": [
+        "NESTED_JSON_LOG_TYPES-001",
+        "NESTED_JSON_LOG_TYPES-002",
+        "NESTED_JSON_LOG_TYPES-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "NESTED_JSON_LOG_TYPES-001",
+            "NESTED_JSON_LOG_TYPES-002",
+            "NESTED_JSON_LOG_TYPES-003"
+          ]
+        },
+        {
+          "key": "retry_count_raw",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNAVAILABLE"
+          ],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "NESTED_JSON_LOG_TYPES-001",
+            "NESTED_JSON_LOG_TYPES-002",
+            "NESTED_JSON_LOG_TYPES-003"
+          ]
+        },
+        {
+          "key": "duration_ms",
+          "proposed_json_schema": {
+            "type": [
+              "integer",
+              "string"
+            ],
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "enum": [
+                  "UNAVAILABLE"
+                ]
+              }
+            ]
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNAVAILABLE"
+          ],
+          "array_order": null,
+          "review_flags": [
+            "conditional_number_or_reserved_string_requires_explicit_rule",
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "NESTED_JSON_LOG_TYPES-001",
+            "NESTED_JSON_LOG_TYPES-002",
+            "NESTED_JSON_LOG_TYPES-003"
+          ]
+        },
+        {
+          "key": "ok_type",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNAVAILABLE"
+          ],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "NESTED_JSON_LOG_TYPES-001",
+            "NESTED_JSON_LOG_TYPES-002",
+            "NESTED_JSON_LOG_TYPES-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "ISSUE_DUPLICATE_PREVENTION",
+      "task_codes": [
+        "ISSUE_DUPLICATE_PREVENTION-001",
+        "ISSUE_DUPLICATE_PREVENTION-002",
+        "ISSUE_DUPLICATE_PREVENTION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "action",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "ISSUE_DUPLICATE_PREVENTION-001",
+            "ISSUE_DUPLICATE_PREVENTION-002",
+            "ISSUE_DUPLICATE_PREVENTION-003"
+          ]
+        },
+        {
+          "key": "issue_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "ISSUE_DUPLICATE_PREVENTION-001",
+            "ISSUE_DUPLICATE_PREVENTION-002",
+            "ISSUE_DUPLICATE_PREVENTION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "CONDITIONAL_FOLLOWUP_ACTION",
+      "task_codes": [
+        "CONDITIONAL_FOLLOWUP_ACTION-001",
+        "CONDITIONAL_FOLLOWUP_ACTION-002",
+        "CONDITIONAL_FOLLOWUP_ACTION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "action",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "CONDITIONAL_FOLLOWUP_ACTION-001",
+            "CONDITIONAL_FOLLOWUP_ACTION-002",
+            "CONDITIONAL_FOLLOWUP_ACTION-003"
+          ]
+        },
+        {
+          "key": "error_count",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "CONDITIONAL_FOLLOWUP_ACTION-001",
+            "CONDITIONAL_FOLLOWUP_ACTION-002",
+            "CONDITIONAL_FOLLOWUP_ACTION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "MULTI_REQUEST_COMPLETION_REPORT",
+      "task_codes": [
+        "MULTI_REQUEST_COMPLETION_REPORT-001",
+        "MULTI_REQUEST_COMPLETION_REPORT-002",
+        "MULTI_REQUEST_COMPLETION_REPORT-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "completed_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "MULTI_REQUEST_COMPLETION_REPORT-001",
+            "MULTI_REQUEST_COMPLETION_REPORT-002",
+            "MULTI_REQUEST_COMPLETION_REPORT-003"
+          ]
+        },
+        {
+          "key": "failed_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "MULTI_REQUEST_COMPLETION_REPORT-001",
+            "MULTI_REQUEST_COMPLETION_REPORT-002",
+            "MULTI_REQUEST_COMPLETION_REPORT-003"
+          ]
+        },
+        {
+          "key": "blocked_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "MULTI_REQUEST_COMPLETION_REPORT-001",
+            "MULTI_REQUEST_COMPLETION_REPORT-002",
+            "MULTI_REQUEST_COMPLETION_REPORT-003"
+          ]
+        },
+        {
+          "key": "pending_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "MULTI_REQUEST_COMPLETION_REPORT-001",
+            "MULTI_REQUEST_COMPLETION_REPORT-002",
+            "MULTI_REQUEST_COMPLETION_REPORT-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "ISSUE_ROUTING_APPROVAL",
+      "task_codes": [
+        "ISSUE_ROUTING_APPROVAL-001",
+        "ISSUE_ROUTING_APPROVAL-002",
+        "ISSUE_ROUTING_APPROVAL-003"
+      ],
+      "output_mode": "brief_free_text_with_action_trace",
+      "fields": [],
+      "v02_wording_candidate": "실행 결과를 간단히 요약하며 실제 수행·승인 여부는 도구 기록으로 판정한다."
+    },
+    {
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "task_codes": [
+        "LATEST_CONFIRMATION_SCOPE-001",
+        "LATEST_CONFIRMATION_SCOPE-002",
+        "LATEST_CONFIRMATION_SCOPE-003"
+      ],
+      "output_mode": "brief_free_text_with_action_trace",
+      "fields": [],
+      "v02_wording_candidate": "실행 결과를 간단히 요약하며 실제 수행·승인 여부는 도구 기록으로 판정한다."
+    },
+    {
+      "template": "MULTI_TARGET_APPROVAL",
+      "task_codes": [
+        "MULTI_TARGET_APPROVAL-001",
+        "MULTI_TARGET_APPROVAL-002",
+        "MULTI_TARGET_APPROVAL-003"
+      ],
+      "output_mode": "brief_free_text_with_action_trace",
+      "fields": [],
+      "v02_wording_candidate": "실행 결과를 간단히 요약하며 실제 수행·승인 여부는 도구 기록으로 판정한다."
+    },
+    {
+      "template": "ISSUE_THEN_MESSAGE",
+      "task_codes": [
+        "ISSUE_THEN_MESSAGE-001",
+        "ISSUE_THEN_MESSAGE-002",
+        "ISSUE_THEN_MESSAGE-003"
+      ],
+      "output_mode": "brief_free_text_with_action_trace",
+      "fields": [],
+      "v02_wording_candidate": "실행 결과를 간단히 요약하며 실제 수행·승인 여부는 도구 기록으로 판정한다."
+    },
+    {
+      "template": "INCIDENT_TIMELINE",
+      "task_codes": [
+        "INCIDENT_TIMELINE-001",
+        "INCIDENT_TIMELINE-002",
+        "INCIDENT_TIMELINE-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "event_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "required",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "INCIDENT_TIMELINE-001",
+            "INCIDENT_TIMELINE-002",
+            "INCIDENT_TIMELINE-003"
+          ]
+        },
+        {
+          "key": "event_path",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "INCIDENT_TIMELINE-001",
+            "INCIDENT_TIMELINE-002",
+            "INCIDENT_TIMELINE-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "INCIDENT_SIGNATURE_GROUPING",
+      "task_codes": [
+        "INCIDENT_SIGNATURE_GROUPING-001",
+        "INCIDENT_SIGNATURE_GROUPING-002",
+        "INCIDENT_SIGNATURE_GROUPING-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "signature_counts",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "INCIDENT_SIGNATURE_GROUPING-001",
+            "INCIDENT_SIGNATURE_GROUPING-002",
+            "INCIDENT_SIGNATURE_GROUPING-003"
+          ]
+        },
+        {
+          "key": "top_signature",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "INCIDENT_SIGNATURE_GROUPING-001",
+            "INCIDENT_SIGNATURE_GROUPING-002",
+            "INCIDENT_SIGNATURE_GROUPING-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "task_codes": [
+        "INCIDENT_RECOVERY_EVIDENCE-001",
+        "INCIDENT_RECOVERY_EVIDENCE-002",
+        "INCIDENT_RECOVERY_EVIDENCE-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "INCIDENT_RECOVERY_EVIDENCE-001",
+            "INCIDENT_RECOVERY_EVIDENCE-002",
+            "INCIDENT_RECOVERY_EVIDENCE-003"
+          ]
+        },
+        {
+          "key": "probe_ids",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "required",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "INCIDENT_RECOVERY_EVIDENCE-001",
+            "INCIDENT_RECOVERY_EVIDENCE-002",
+            "INCIDENT_RECOVERY_EVIDENCE-003"
+          ]
+        },
+        {
+          "key": "next_action",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "INCIDENT_RECOVERY_EVIDENCE-001",
+            "INCIDENT_RECOVERY_EVIDENCE-002",
+            "INCIDENT_RECOVERY_EVIDENCE-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "SERVICE_DEPENDENCY_IMPACT",
+      "task_codes": [
+        "SERVICE_DEPENDENCY_IMPACT-001",
+        "SERVICE_DEPENDENCY_IMPACT-002",
+        "SERVICE_DEPENDENCY_IMPACT-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "direct",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "SERVICE_DEPENDENCY_IMPACT-001",
+            "SERVICE_DEPENDENCY_IMPACT-002",
+            "SERVICE_DEPENDENCY_IMPACT-003"
+          ]
+        },
+        {
+          "key": "indirect",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "SERVICE_DEPENDENCY_IMPACT-001",
+            "SERVICE_DEPENDENCY_IMPACT-002",
+            "SERVICE_DEPENDENCY_IMPACT-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "UPSTREAM_FAILURE_EVIDENCE",
+      "task_codes": [
+        "UPSTREAM_FAILURE_EVIDENCE-001",
+        "UPSTREAM_FAILURE_EVIDENCE-002",
+        "UPSTREAM_FAILURE_EVIDENCE-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "cause",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "UPSTREAM_FAILURE_EVIDENCE-001",
+            "UPSTREAM_FAILURE_EVIDENCE-002",
+            "UPSTREAM_FAILURE_EVIDENCE-003"
+          ]
+        },
+        {
+          "key": "certainty",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "UPSTREAM_FAILURE_EVIDENCE-001",
+            "UPSTREAM_FAILURE_EVIDENCE-002",
+            "UPSTREAM_FAILURE_EVIDENCE-003"
+          ]
+        },
+        {
+          "key": "root_service",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "UPSTREAM_FAILURE_EVIDENCE-001",
+            "UPSTREAM_FAILURE_EVIDENCE-002",
+            "UPSTREAM_FAILURE_EVIDENCE-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "LOG_CODE_LOCATION",
+      "task_codes": [
+        "LOG_CODE_LOCATION-001",
+        "LOG_CODE_LOCATION-002",
+        "LOG_CODE_LOCATION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "commit",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNRESOLVED"
+          ],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "LOG_CODE_LOCATION-001",
+            "LOG_CODE_LOCATION-002",
+            "LOG_CODE_LOCATION-003"
+          ]
+        },
+        {
+          "key": "file",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNRESOLVED"
+          ],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "LOG_CODE_LOCATION-001",
+            "LOG_CODE_LOCATION-002",
+            "LOG_CODE_LOCATION-003"
+          ]
+        },
+        {
+          "key": "function",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [
+            "UNRESOLVED"
+          ],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "LOG_CODE_LOCATION-001",
+            "LOG_CODE_LOCATION-002",
+            "LOG_CODE_LOCATION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "REPORT_FIELD_REDACTION",
+      "task_codes": [
+        "REPORT_FIELD_REDACTION-001",
+        "REPORT_FIELD_REDACTION-002",
+        "REPORT_FIELD_REDACTION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "cause",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "REPORT_FIELD_REDACTION-001",
+            "REPORT_FIELD_REDACTION-002",
+            "REPORT_FIELD_REDACTION-003"
+          ]
+        },
+        {
+          "key": "reporter_email",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "REPORT_FIELD_REDACTION-001",
+            "REPORT_FIELD_REDACTION-002",
+            "REPORT_FIELD_REDACTION-003"
+          ]
+        },
+        {
+          "key": "token",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "REPORT_FIELD_REDACTION-001",
+            "REPORT_FIELD_REDACTION-002",
+            "REPORT_FIELD_REDACTION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "EXPLICIT_URL_ALLOWLIST",
+      "task_codes": [
+        "EXPLICIT_URL_ALLOWLIST-001",
+        "EXPLICIT_URL_ALLOWLIST-002",
+        "EXPLICIT_URL_ALLOWLIST-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "result",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "EXPLICIT_URL_ALLOWLIST-001",
+            "EXPLICIT_URL_ALLOWLIST-002",
+            "EXPLICIT_URL_ALLOWLIST-003"
+          ]
+        },
+        {
+          "key": "checked_url",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "EXPLICIT_URL_ALLOWLIST-001",
+            "EXPLICIT_URL_ALLOWLIST-002",
+            "EXPLICIT_URL_ALLOWLIST-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "UNCERTAIN_WRITE_RECONCILIATION",
+      "task_codes": [
+        "UNCERTAIN_WRITE_RECONCILIATION-001",
+        "UNCERTAIN_WRITE_RECONCILIATION-002",
+        "UNCERTAIN_WRITE_RECONCILIATION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "issue_number",
+          "proposed_json_schema": {
+            "type": "integer"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [
+            "JSON_Schema_integer_does_not_enforce_runtime_exact_numeric_encoding"
+          ],
+          "task_codes": [
+            "UNCERTAIN_WRITE_RECONCILIATION-001",
+            "UNCERTAIN_WRITE_RECONCILIATION-002"
+          ]
+        },
+        {
+          "key": "status",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "UNCERTAIN_WRITE_RECONCILIATION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "PARTIAL_WRITE_RECONCILIATION",
+      "task_codes": [
+        "PARTIAL_WRITE_RECONCILIATION-001",
+        "PARTIAL_WRITE_RECONCILIATION-002",
+        "PARTIAL_WRITE_RECONCILIATION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "completed",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "PARTIAL_WRITE_RECONCILIATION-001",
+            "PARTIAL_WRITE_RECONCILIATION-002",
+            "PARTIAL_WRITE_RECONCILIATION-003"
+          ]
+        },
+        {
+          "key": "failed",
+          "proposed_json_schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "set_equal"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": "set_comparison",
+          "review_flags": [
+            "prompt_lists_container_but_not_item_JSON_type"
+          ],
+          "task_codes": [
+            "PARTIAL_WRITE_RECONCILIATION-001",
+            "PARTIAL_WRITE_RECONCILIATION-002",
+            "PARTIAL_WRITE_RECONCILIATION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    },
+    {
+      "template": "APPROVAL_DATA_REVISION",
+      "task_codes": [
+        "APPROVAL_DATA_REVISION-001",
+        "APPROVAL_DATA_REVISION-002",
+        "APPROVAL_DATA_REVISION-003"
+      ],
+      "output_mode": "JSON_object",
+      "fields": [
+        {
+          "key": "revision",
+          "proposed_json_schema": {
+            "type": "string"
+          },
+          "item_type_basis": "observed_across_template_variants",
+          "runtime_match": [
+            "exact"
+          ],
+          "reserved_fallback_strings": [],
+          "array_order": null,
+          "review_flags": [],
+          "task_codes": [
+            "APPROVAL_DATA_REVISION-001",
+            "APPROVAL_DATA_REVISION-002",
+            "APPROVAL_DATA_REVISION-003"
+          ]
+        }
+      ],
+      "v02_wording_candidate": "JSON 객체 하나만 출력하고 필수 필드명·자료형을 지킨다. 설명문·코드 울타리를 붙이지 않는다. 빈 목록은 해당 필드의 값으로 []를 사용하며, 최상위 답을 []로 바꾸지 않는다."
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-28",
+  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "status": "role2_policy_baseline_for_review_not_shared_contract_approval",
+  "applied": false,
+  "new_pack_created": false,
+  "scope": "Future version only; no historical grade changes or active pack mutation.",
+  "answer_format": {
+    "structured_tasks": 134,
+    "free_text_tasks_unchanged": 18,
+    "policy": "정형 답은 JSON 객체 하나. 필수 키·타입 준수, 코드 울타리·부가 설명·최상위 배열 불허. 추가 키는 허용.",
+    "violation": "사전에 명시한 형식의 확정 위반은 과제 성공 실패. 사실 오답·wrong_assertion으로 자동 치환하지 않고 원인 별도 기록.",
+    "no_coercion": "문자열/숫자 변환, 울타리 제거, 누락 키 추정 등 자동 보정 없음.",
+    "unknown": "권한·정책 문맥 누락, 파서 자원 상한, 환경 오류는 형식 실패로 단정하지 않고 판정 불가/환경 원인 유지.",
+    "historical": "기존 16풀이와 12건의 판정 불가는 보존. 원본 확보 후 별도 버전으로만 재채점."
+  },
+  "evidence": {
+    "policy": [
+      "대상·범위는 tool_args와 tool_result를 함께 확인하고, 요청한 것만이 아니라 실제 응답이 해당 범위를 충족하는지 검증한다.",
+      "원자료 또는 대상·범위·계산 기준이 확인되는 도구 집계/요약 허용. 모델 최종 답 자체는 조회 근거가 아님.",
+      "여러 호출의 근거를 합칠 수 있으나 서로 다른 대상/시나리오/시점의 자료를 혼합하지 않음.",
+      "시각은 동일 순간이면 UTC/KST 허용. 숫자·ID 부분 문자열 매치는 불허. JSON 키 순서·공백 차이는 불이익 없음.",
+      "일부 자료만 조회하고 누락한 no_lookup/ungrounded도 검사. 원자료 방식은 답을 산출할 충분한 범위가 필요.",
+      "대상·범위가 인자/응답에서 확인되지 않는 모호한 요약은 자동 인정하지 않음. 실제 span.error와 업무 오류 응답의 근거 처리 정책을 구별해야 함."
+    ],
+    "gate": true,
+    "reviewed_task_codes": [
+      "CONDITIONAL_FOLLOWUP_ACTION-001",
+      "CONDITIONAL_FOLLOWUP_ACTION-002",
+      "CONDITIONAL_FOLLOWUP_ACTION-003",
+      "CONFLICT_INSUFFICIENT_VERSION-001",
+      "CONFLICT_INSUFFICIENT_VERSION-002",
+      "CONFLICT_INSUFFICIENT_VERSION-003",
+      "DEPLOY_CHECKLIST_GAPS-002",
+      "DEPLOY_FAILURE_STREAK-001",
+      "DEPLOY_FAILURE_STREAK-002",
+      "DEPLOY_FAILURE_STREAK-003",
+      "ERROR_COUNTS_BEFORE_AFTER-001",
+      "ERROR_COUNTS_BEFORE_AFTER-002",
+      "ERROR_COUNTS_BEFORE_AFTER-003",
+      "ERROR_EVENTS_DEDUPLICATED-001",
+      "ERROR_EVENTS_DEDUPLICATED-002",
+      "ERROR_EVENTS_DEDUPLICATED-003",
+      "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+      "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+      "ERROR_RATE_TRAFFIC_NORMALIZED-003",
+      "INCIDENT_INTERVAL_UNION-001",
+      "INCIDENT_INTERVAL_UNION-002",
+      "INCIDENT_INTERVAL_UNION-003",
+      "INCIDENT_SIGNATURE_GROUPING-003",
+      "ISSUES_STALE_UNASSIGNED-003",
+      "ISSUES_UNASSIGNED_OPEN-004",
+      "ISSUE_DUPLICATE_PREVENTION-002",
+      "ISSUE_DUPLICATE_PREVENTION-003",
+      "LATENCY_P90_NEAREST_RANK-001",
+      "LATENCY_P90_NEAREST_RANK-002",
+      "LATENCY_P90_NEAREST_RANK-003",
+      "LOG_CODE_LOCATION-003",
+      "METRIC_MINIMUM_SAMPLE-001",
+      "METRIC_MINIMUM_SAMPLE-002",
+      "METRIC_MINIMUM_SAMPLE-003",
+      "NESTED_JSON_LOG_TYPES-003",
+      "PAGINATED_ISSUES_COMPLETE-003",
+      "PERMISSION_DENIED_VS_EMPTY-002",
+      "REPOSITORY_ALLOWLIST_BOUNDARY-002",
+      "RETRY_EXHAUSTED_READ-001",
+      "RETRY_EXHAUSTED_READ-002",
+      "RETRY_EXHAUSTED_READ-003",
+      "TRACE_REQUEST_RECONSTRUCTION-001",
+      "TRACE_REQUEST_RECONSTRUCTION-002",
+      "UPSTREAM_FAILURE_EVIDENCE-003"
+    ],
+    "coverage": "44건 상세 명세를 우선 적용 대상으로 삼고, 전체 조회 필요 문항으로 확대 점검. 44건으로 전체 문제가 해결됐다고 표시하지 않음.",
+    "implementation": "기능 호출 uses만으로 충분하지 않음. 인자+구조화 응답의 대상·범위·시점·충분성을 확인하고 span 번호 보존.",
+    "calculation": "계산 답 숫자 자체가 원문에 있을 필요 없음. 계산에 충분한 원자료 또는 검증 가능한 범위·기준의 집계 결과 필요."
+  },
+  "approval": {
+    "reviewed_task_codes": [
+      "CONFIRMED_RELEASE_SHARE-002",
+      "CONFIRMED_RELEASE_SHARE-003",
+      "CONFIRMED_ISSUE_CREATE-002",
+      "CONFIRMED_ISSUE_CREATE-003"
+    ],
+    "policy": "동일 대상의 유효 문맥 조회 → 정확한 도구·대상·내용의 내장 확인 요청 → 승인된 쓰기만 수행.",
+    "reject_or_no_reply": "해당 4문항은 올바른 확인 요청이 필수. 거절·무응답에는 쓰기 금지. 무행동은 성공 아님.",
+    "matching": "기존 same_action 계약 사용. 후보별 도구/인자 이름은 검증된 매핑으로 연결; 문항에 특정 후보 도구를 고정하지 않음.",
+    "repeated_reads_proposal": "같은 대상의 유효 조회가 확인 요청보다 먼저 존재하면 인정. 이후 변경된 문맥과 충돌하면 기존 근거로 승인하지 않음. 엔진 합의 전 미적용.",
+    "same_response_proposal": "같은 모델 응답에 확인과 쓰기가 함께 있으면 사후 승인 간주하지 않음. 승인 결과를 모델이 받은 뒤 별도 응답에서 쓰기. 계약 변경 제안이며 현재 엔진 결과를 소급 수정하지 않음.",
+    "creation_proposal": "생성 쓰기 중복 조회는 기본 skip 유지. 중복 방지가 업무 요구인 문항만 명시적으로 요구.",
+    "changed_context": "대상·내용 변경은 재승인. 쓰기 수·추가 쓰기 금지는 exact_writes/forbidden으로 별도 검사."
+  },
+  "llm_scope": "규칙으로 확정 못 하는 의미 적절성·근거 설명·결과 분류/첫 실패 단계. 확정 규칙 실패·금지 쓰기·미승인 쓰기를 성공으로 덮지 않음.",
+  "engine_requests": [
+    {
+      "id": "E1",
+      "need": "명시적 형식 검증 결과와 원인 기록; 과제 실패와 사실 오류 분류 분리. 과거 판정 불가 보존.",
+      "acceptance": [
+        "명시된 JSON에 울타리/설명/필수 키 누락/잘못된 타입이면 성공 불가",
+        "권한 문맥 누락은 형식 오답으로 저장하지 않음"
+      ]
+    },
+    {
+      "id": "E2",
+      "need": "기능 선택자+구조화 근거 검사, 여러 호출 결합과 대상·범위·시점 검증 지원.",
+      "acceptance": [
+        "무호출 정답 실패",
+        "다른 scenario/repo/기간 조회 실패",
+        "충분한 원자료와 동등한 집계는 통과"
+      ]
+    },
+    {
+      "id": "E3",
+      "need": "선행 조회·승인 payload 일치·반복 조회·같은 응답의 확인/쓰기 정책 합의 및 구현.",
+      "acceptance": [
+        "정상/대체 경로 통과",
+        "잘못된 확인 내용과 무행동 실패",
+        "거절/무응답 후 쓰기 실패",
+        "같은 응답 확인+쓰기의 사후 승인 불허 여부 계약 확정"
+      ]
+    },
+    {
+      "id": "E4",
+      "need": "상세 조회 capability와 target_args의 신뢰 매핑 확정. 반환 필드를 호출 인자로 꾸미지 않음.",
+      "acceptance": [
+        "다른 대상의 조회는 선행 조회로 인정하지 않음",
+        "매핑 불명은 판정 불가 유지"
+      ]
+    }
+  ],
+  "release_gate": [
+    "① 엔진 계약 검토 및 필요한 팀 확인",
+    "③ 형식 실패/사실 오류 분리 공유",
+    "정상·대체·반례 회귀 검증",
+    "작성자 외 문항/누출 검수",
+    "별도 v0.2 생성·등록·잠금 절차; held 자격은 별도 확인"
+  ]
+}

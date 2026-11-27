@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-27",
+  "status": "design_only_no_generator_or_data_migration",
+  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "core": {
+    "entities": [
+      "synthetic_company",
+      "synthetic_person",
+      "team",
+      "membership"
+    ],
+    "shared_rules": [
+      "Namespaced stable IDs; preserve source IDs and explicit composite keys.",
+      "Timezone-aware instants plus Asia/Seoul business-date rules. Preserve historical raw timestamps.",
+      "Use immutable generator/data versions and canonical content hashes.",
+      "Record root seed and deterministic per-module seeds; do not use Python hash()."
+    ]
+  },
+  "modules": {
+    "it_ops": [
+      "repository",
+      "deployment_run",
+      "issue",
+      "release",
+      "incident",
+      "oncall_assignment"
+    ],
+    "analytics_future": [
+      "order",
+      "sales_record"
+    ]
+  },
+  "interface": {
+    "shape": "generate(core, seed) -> domain_data; oracle(domain_data, task) -> expected_conditions",
+    "seed_derivation": "int(SHA256(root_seed + module_name + generator_version), 16); independent RNG per module",
+    "model_view": "Explicit public projections only; no oracle outputs, expected conditions, approval policies or future response schedule."
+  },
+  "compatibility": [
+    "Keep all 13 current snapshots unchanged and reference them from a versioned manifest first.",
+    "Repository issue/run numbers are composite with repo; never treat number alone as globally unique.",
+    "Do not invent company/team/person links for old rows lacking that information; mark unmapped until supplied.",
+    "Adapters translate legacy id/run_id/number while preserving original values and types.",
+    "A new dataset/version does not clear exposure of the same or equivalent template."
+  ],
+  "generation_policy": [
+    "Compute answer-bearing values deterministically in code.",
+    "If LLM prose is needed, generate once, review, freeze and hash; never regenerate during candidate runs.",
+    "Do not embed raw private reconciliation/scenario files in a public common dataset."
+  ],
+  "phases": [
+    "1: metadata manifest for current frozen sources; no data rewrites.",
+    "2: core and one IT module on a separate development dataset with deterministic checks.",
+    "3: validate relationships, answer/negative cases and public projections before a new pack version.",
+    "4: add analytics module only when its evaluation tasks exist."
+  ],
+  "current_sources": [
+    {
+      "location": "data/deployments.json",
+      "sha256": "940ad97485498300e88155bc9e8d272506808f91b11ab46d5d9e3fd89505d0b6",
+      "snapshot_version": "it_ops-deployments-v0.1"
+    },
+    {
+      "location": "data/issues.json",
+      "sha256": "7f49412704df6c0c4dcbe3f167ecad3d37f140e265da74d4c68d1aa50ee42e6e",
+      "snapshot_version": "it_ops-issues-v0.1"
+    },
+    {
+      "location": "data/operations.json",
+      "sha256": "cfef8707aa0d962f17c926e93e07f4079b1e6545089e83b0bf2faa97dcfd8249",
+      "snapshot_version": "it_ops-operations-v0.1"
+    },
+    {
+      "location": "data/context.json",
+      "sha256": "9c8d4c7600c87d5b2f8a9da6f9aa4bdc75008eb89a784c551b21233c371cf65e",
+      "snapshot_version": "it-ops-write-context-v0.1"
+    },
+    {
+      "location": "data/incidents.json",
+      "sha256": "ab9986889046a5b9b5f00175bb07d80f157ebd9fa910369463d9aeb63def0323",
+      "snapshot_version": "it-ops-incidents-v0.1"
+    },
+    {
+      "location": "data/scenarios.json",
+      "sha256": "7aed883e6b1813bfecf70703b932565a69f6d4d55ee2958f98e06e8111fd0b64",
+      "snapshot_version": "it-ops-reliability-v0.2"
+    },
+    {
+      "location": "data/evidence.json",
+      "sha256": "f8ae068bd9901c4104cd6fd683994a40d69cf542fb520829c61bde99a221664d",
+      "snapshot_version": "it-ops-conflicts-v0.2"
+    },
+    {
+      "location": "data/metrics.json",
+      "sha256": "4cc9d621bb2df6ecc93c5b53b77c0394e4bc24b85e9961c23cd213aff9949d4f",
+      "snapshot_version": "it-ops-metrics-v0.1"
+    },
+    {
+      "location": "data/workflows.json",
+      "sha256": "62f6db98a559fe0eeadc39b3724d4ff5d039054a6d2a75e82513a34b9b8389c7",
+      "snapshot_version": "it-ops-workflows-v0.1"
+    },
+    {
+      "location": "data/write_scenarios.json",
+      "sha256": "7fa4f8c0ee38a42d47d53456d6e541fc7ca6ed0bef8eed4b59bacbc8ad1c1a0b",
+      "snapshot_version": "it-ops-rebalanced-v0.1"
+    },
+    {
+      "location": "data/incident_scenarios.json",
+      "sha256": "545553ef3aab762a2121b420ca5b75e4615b59722ae4e92db568639a665c936a",
+      "snapshot_version": "it-ops-rebalanced-v0.1"
+    },
+    {
+      "location": "data/followup_read_scenarios.json",
+      "sha256": "3cd91c93ef5dd7e35bc4150a037310ebfc5fc56df3b009158648693d7313f8fe",
+      "snapshot_version": "it-ops-followup-read-v0.2"
+    },
+    {
+      "location": "data/reconciliation.json",
+      "sha256": "0c19cd9ac5c2e243337dcebfccf08a26b4ec48c3ad6885ef483a98f7fc52d933",
+      "snapshot_version": null
+    }
+  ],
+  "not_done": [
+    "No shared-core data generated, no new relations fabricated, no v0.2 pack created, no DB or API changes."
+  ]
+}

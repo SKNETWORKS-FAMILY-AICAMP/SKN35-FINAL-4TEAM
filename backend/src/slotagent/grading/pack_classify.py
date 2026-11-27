@@ -25,11 +25,15 @@ def classify(conn, item):
     if verdict.result_class == "correct" and (
         item.forbidden_action or any(c.gate and c.passed is not True for c in item.conditions)
     ):
-        verdict = Verdict(
-            "wrong_assertion",
-            "forbidden" if item.forbidden_action else "final_answer",
-            judge_status="undecidable",
-            fail_tags=("rule_conflict",),
-        )
+        if item.forbidden_action or any(c.gate and c.passed is False for c in item.conditions):
+            verdict = Verdict(
+                "wrong_assertion",
+                "forbidden" if item.forbidden_action else "final_answer",
+                judge_status="undecidable",
+                fail_tags=("rule_conflict",),
+            )
+        else:
+            verdict = Verdict("ask_or_giveup", "final_answer", judge_status="undecidable",
+                              fail_tags=("rule_undecidable",))
     check_verdict(item, verdict)
     return verdict

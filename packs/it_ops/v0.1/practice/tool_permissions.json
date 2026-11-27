@@ -206,6 +206,33 @@
         "github.code.read",
         "github.issues.read",
         "ops.traces.read"
+      ],
+      "call_capabilities": [
+        {
+          "arg": "scenario_id",
+          "pattern": "config-[123]",
+          "capability": "github.code.read"
+        },
+        {
+          "arg": "scenario_id",
+          "pattern": "trace-[123]",
+          "capability": "ops.traces.read"
+        },
+        {
+          "arg": "scenario_id",
+          "pattern": "(?:checklist|json|completion)-[123]",
+          "capability": "github.actions.logs.read"
+        },
+        {
+          "arg": "scenario_id",
+          "pattern": "(?:injection|scope|permission|dedup)-[123]",
+          "capability": "github.issues.read"
+        },
+        {
+          "arg": "scenario_id",
+          "pattern": "conditional-[123]",
+          "capability": "db.errors.read"
+        }
       ]
     }
   ]

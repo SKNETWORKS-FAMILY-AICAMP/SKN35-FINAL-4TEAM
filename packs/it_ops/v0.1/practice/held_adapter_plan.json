@@ -1,0 +1,1962 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-27",
+  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "status": "implementation_inventory_not_connected_not_held_approval",
+  "summary": {
+    "templates": 35,
+    "tasks": 105,
+    "actual_mcp_ready": 0,
+    "waves": {
+      "1_read_only_adapters": 23,
+      "3_fake_write_integration": 10,
+      "2_isolated_stateful_reads": 2
+    }
+  },
+  "evidence_limit": "Success/alternate representative goldens identify example paths, not every valid tool or every variant path.",
+  "engine_builtins_are_not_missing_MCP_tools": [
+    "get_work_state",
+    "get_write_result",
+    "request_user_confirmation"
+  ],
+  "rows": [
+    {
+      "template": "RUN_ISSUE_RELATION",
+      "group": "incidents",
+      "task_count": 3,
+      "task_codes": [
+        "RUN_ISSUE_RELATION-001",
+        "RUN_ISSUE_RELATION-002",
+        "RUN_ISSUE_RELATION-003"
+      ],
+      "source_files": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "list_incident_issues",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.read"
+          ]
+        },
+        {
+          "name": "list_incident_runs",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "CONFIRMED_INCIDENT_SHARE",
+      "group": "incidents",
+      "task_count": 3,
+      "task_codes": [
+        "CONFIRMED_INCIDENT_SHARE-001",
+        "CONFIRMED_INCIDENT_SHARE-002",
+        "CONFIRMED_INCIDENT_SHARE-003"
+      ],
+      "source_files": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "get_incident_logs",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.logs.read"
+          ]
+        },
+        {
+          "name": "list_incident_issues",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.read"
+          ]
+        },
+        {
+          "name": "list_incident_runs",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.read"
+          ]
+        },
+        {
+          "name": "post_message",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "channel",
+              "text"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "slack.messages.write"
+          ]
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "RETRY_EXHAUSTED_READ",
+      "group": "reliability",
+      "task_count": 3,
+      "task_codes": [
+        "RETRY_EXHAUSTED_READ-001",
+        "RETRY_EXHAUSTED_READ-002",
+        "RETRY_EXHAUSTED_READ-003"
+      ],
+      "source_files": [
+        "data/scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "query_issue_ids",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.read"
+          ]
+        }
+      ],
+      "suggested_wave": "2_isolated_stateful_reads",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Reset response counters and pagination state for every trial/attempt."
+      ]
+    },
+    {
+      "template": "PAGINATED_ISSUES_COMPLETE",
+      "group": "reliability",
+      "task_count": 3,
+      "task_codes": [
+        "PAGINATED_ISSUES_COMPLETE-001",
+        "PAGINATED_ISSUES_COMPLETE-002",
+        "PAGINATED_ISSUES_COMPLETE-003"
+      ],
+      "source_files": [
+        "data/scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "list_paged_issues",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "cursor",
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.read"
+          ]
+        }
+      ],
+      "suggested_wave": "2_isolated_stateful_reads",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Reset response counters and pagination state for every trial/attempt."
+      ]
+    },
+    {
+      "template": "CONFLICT_FRESH_PRIMARY",
+      "group": "conflicts",
+      "task_count": 3,
+      "task_codes": [
+        "CONFLICT_FRESH_PRIMARY-001",
+        "CONFLICT_FRESH_PRIMARY-002",
+        "CONFLICT_FRESH_PRIMARY-003"
+      ],
+      "source_files": [
+        "data/evidence.json"
+      ],
+      "tools": [
+        {
+          "name": "get_run_facts",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "environment",
+              "repo",
+              "run_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.read"
+          ]
+        },
+        {
+          "name": "list_version_evidence",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "environment",
+              "repo",
+              "run_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "CONFLICT_INSUFFICIENT_VERSION",
+      "group": "conflicts",
+      "task_count": 3,
+      "task_codes": [
+        "CONFLICT_INSUFFICIENT_VERSION-001",
+        "CONFLICT_INSUFFICIENT_VERSION-002",
+        "CONFLICT_INSUFFICIENT_VERSION-003"
+      ],
+      "source_files": [
+        "data/evidence.json"
+      ],
+      "tools": [
+        {
+          "name": "get_run_facts",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "environment",
+              "repo",
+              "run_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.read"
+          ]
+        },
+        {
+          "name": "list_version_evidence",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "environment",
+              "repo",
+              "run_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+      "group": "metrics",
+      "task_count": 3,
+      "task_codes": [
+        "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+        "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+        "ERROR_RATE_TRAFFIC_NORMALIZED-003"
+      ],
+      "source_files": [
+        "data/metrics.json"
+      ],
+      "tools": [
+        {
+          "name": "query_metric_traffic",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "service"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.requests.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "ERROR_EVENTS_DEDUPLICATED",
+      "group": "metrics",
+      "task_count": 3,
+      "task_codes": [
+        "ERROR_EVENTS_DEDUPLICATED-001",
+        "ERROR_EVENTS_DEDUPLICATED-002",
+        "ERROR_EVENTS_DEDUPLICATED-003"
+      ],
+      "source_files": [
+        "data/metrics.json"
+      ],
+      "tools": [
+        {
+          "name": "query_metric_errors",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "service"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "INCIDENT_INTERVAL_UNION",
+      "group": "metrics",
+      "task_count": 3,
+      "task_codes": [
+        "INCIDENT_INTERVAL_UNION-001",
+        "INCIDENT_INTERVAL_UNION-002",
+        "INCIDENT_INTERVAL_UNION-003"
+      ],
+      "source_files": [
+        "data/metrics.json"
+      ],
+      "tools": [
+        {
+          "name": "query_metric_incidents",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "service"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.incidents.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "LATENCY_P90_NEAREST_RANK",
+      "group": "metrics",
+      "task_count": 3,
+      "task_codes": [
+        "LATENCY_P90_NEAREST_RANK-001",
+        "LATENCY_P90_NEAREST_RANK-002",
+        "LATENCY_P90_NEAREST_RANK-003"
+      ],
+      "source_files": [
+        "data/metrics.json"
+      ],
+      "tools": [
+        {
+          "name": "query_metric_latency",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "service"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.latency.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "METRIC_MINIMUM_SAMPLE",
+      "group": "metrics",
+      "task_count": 3,
+      "task_codes": [
+        "METRIC_MINIMUM_SAMPLE-001",
+        "METRIC_MINIMUM_SAMPLE-002",
+        "METRIC_MINIMUM_SAMPLE-003"
+      ],
+      "source_files": [
+        "data/metrics.json"
+      ],
+      "tools": [
+        {
+          "name": "query_metric_traffic",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [],
+            [
+              "service"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.requests.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "TRACE_REQUEST_RECONSTRUCTION",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "TRACE_REQUEST_RECONSTRUCTION-001",
+        "TRACE_REQUEST_RECONSTRUCTION-002",
+        "TRACE_REQUEST_RECONSTRUCTION-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "DEPLOY_CHECKLIST_GAPS",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "DEPLOY_CHECKLIST_GAPS-001",
+        "DEPLOY_CHECKLIST_GAPS-002",
+        "DEPLOY_CHECKLIST_GAPS-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-002",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "REPOSITORY_ALLOWLIST_BOUNDARY-001",
+        "REPOSITORY_ALLOWLIST_BOUNDARY-002",
+        "REPOSITORY_ALLOWLIST_BOUNDARY-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "lookup_workflow_items",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.read"
+          ]
+        },
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "PERMISSION_DENIED_VS_EMPTY",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "PERMISSION_DENIED_VS_EMPTY-001",
+        "PERMISSION_DENIED_VS_EMPTY-002",
+        "PERMISSION_DENIED_VS_EMPTY-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "lookup_workflow_items",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.read"
+          ]
+        },
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "NESTED_JSON_LOG_TYPES",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "NESTED_JSON_LOG_TYPES-001",
+        "NESTED_JSON_LOG_TYPES-002",
+        "NESTED_JSON_LOG_TYPES-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "ISSUE_DUPLICATE_PREVENTION",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "ISSUE_DUPLICATE_PREVENTION-001",
+        "ISSUE_DUPLICATE_PREVENTION-002",
+        "ISSUE_DUPLICATE_PREVENTION-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "create_issue",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "repo",
+              "title"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.write"
+          ]
+        },
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "CONDITIONAL_FOLLOWUP_ACTION",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "CONDITIONAL_FOLLOWUP_ACTION-001",
+        "CONDITIONAL_FOLLOWUP_ACTION-002",
+        "CONDITIONAL_FOLLOWUP_ACTION-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "post_message",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "channel",
+              "text"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "slack.messages.write"
+          ]
+        },
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "MULTI_REQUEST_COMPLETION_REPORT",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "MULTI_REQUEST_COMPLETION_REPORT-001",
+        "MULTI_REQUEST_COMPLETION_REPORT-002",
+        "MULTI_REQUEST_COMPLETION_REPORT-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "read_workflow_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "db.errors.read",
+            "github.actions.logs.read",
+            "github.code.read",
+            "github.issues.read",
+            "ops.traces.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "ISSUE_ROUTING_APPROVAL",
+      "group": "writes",
+      "task_count": 3,
+      "task_codes": [
+        "ISSUE_ROUTING_APPROVAL-001",
+        "ISSUE_ROUTING_APPROVAL-002",
+        "ISSUE_ROUTING_APPROVAL-003"
+      ],
+      "source_files": [
+        "data/context.json",
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
+      ],
+      "tools": [
+        {
+          "name": "create_issue",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "assignees",
+              "labels",
+              "repo",
+              "title"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.write"
+          ]
+        },
+        {
+          "name": "get_write_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "group": "writes",
+      "task_count": 3,
+      "task_codes": [
+        "LATEST_CONFIRMATION_SCOPE-001",
+        "LATEST_CONFIRMATION_SCOPE-002",
+        "LATEST_CONFIRMATION_SCOPE-003"
+      ],
+      "source_files": [
+        "data/context.json",
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
+      ],
+      "tools": [
+        {
+          "name": "get_write_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "post_message",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "channel",
+              "text"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "slack.messages.write"
+          ]
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "MULTI_TARGET_APPROVAL",
+      "group": "writes",
+      "task_count": 3,
+      "task_codes": [
+        "MULTI_TARGET_APPROVAL-001",
+        "MULTI_TARGET_APPROVAL-002",
+        "MULTI_TARGET_APPROVAL-003"
+      ],
+      "source_files": [
+        "data/context.json",
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
+      ],
+      "tools": [
+        {
+          "name": "get_write_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "post_message",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "channel",
+              "text"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "slack.messages.write"
+          ]
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "ISSUE_THEN_MESSAGE",
+      "group": "writes",
+      "task_count": 3,
+      "task_codes": [
+        "ISSUE_THEN_MESSAGE-001",
+        "ISSUE_THEN_MESSAGE-002",
+        "ISSUE_THEN_MESSAGE-003"
+      ],
+      "source_files": [
+        "data/context.json",
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
+      ],
+      "tools": [
+        {
+          "name": "create_issue",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "assignees",
+              "labels",
+              "repo",
+              "title"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.write"
+          ]
+        },
+        {
+          "name": "get_write_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "post_message",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "channel",
+              "text"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "slack.messages.write"
+          ]
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "INCIDENT_TIMELINE",
+      "group": "incidents",
+      "task_count": 3,
+      "task_codes": [
+        "INCIDENT_TIMELINE-001",
+        "INCIDENT_TIMELINE-002",
+        "INCIDENT_TIMELINE-003"
+      ],
+      "source_files": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "get_incident_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.logs.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "INCIDENT_SIGNATURE_GROUPING",
+      "group": "incidents",
+      "task_count": 3,
+      "task_codes": [
+        "INCIDENT_SIGNATURE_GROUPING-001",
+        "INCIDENT_SIGNATURE_GROUPING-002",
+        "INCIDENT_SIGNATURE_GROUPING-003"
+      ],
+      "source_files": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "get_incident_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.logs.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "group": "incidents",
+      "task_count": 3,
+      "task_codes": [
+        "INCIDENT_RECOVERY_EVIDENCE-001",
+        "INCIDENT_RECOVERY_EVIDENCE-002",
+        "INCIDENT_RECOVERY_EVIDENCE-003"
+      ],
+      "source_files": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "get_incident_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.logs.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "SERVICE_DEPENDENCY_IMPACT",
+      "group": "incidents",
+      "task_count": 3,
+      "task_codes": [
+        "SERVICE_DEPENDENCY_IMPACT-001",
+        "SERVICE_DEPENDENCY_IMPACT-002",
+        "SERVICE_DEPENDENCY_IMPACT-003"
+      ],
+      "source_files": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "get_followup_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "list_service_dependencies",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "service"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "ops.dependencies.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "UPSTREAM_FAILURE_EVIDENCE",
+      "group": "incidents",
+      "task_count": 3,
+      "task_codes": [
+        "UPSTREAM_FAILURE_EVIDENCE-001",
+        "UPSTREAM_FAILURE_EVIDENCE-002",
+        "UPSTREAM_FAILURE_EVIDENCE-003"
+      ],
+      "source_files": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "get_followup_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "get_service_state",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "at",
+              "service"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "ops.status.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "LOG_CODE_LOCATION",
+      "group": "incidents",
+      "task_count": 3,
+      "task_codes": [
+        "LOG_CODE_LOCATION-001",
+        "LOG_CODE_LOCATION-002",
+        "LOG_CODE_LOCATION-003"
+      ],
+      "source_files": [
+        "data/incidents.json",
+        "data/incident_scenarios.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "get_followup_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "get_incident_logs",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "repo",
+              "run_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.actions.logs.read"
+          ]
+        },
+        {
+          "name": "read_code_at_commit",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "commit",
+              "path",
+              "repo"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.code.content.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "REPORT_FIELD_REDACTION",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "REPORT_FIELD_REDACTION-001",
+        "REPORT_FIELD_REDACTION-002",
+        "REPORT_FIELD_REDACTION-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "get_followup_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "get_incident_detail",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "incident_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "ops.incidents.read"
+          ]
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "EXPLICIT_URL_ALLOWLIST",
+      "group": "workflows",
+      "task_count": 3,
+      "task_codes": [
+        "EXPLICIT_URL_ALLOWLIST-001",
+        "EXPLICIT_URL_ALLOWLIST-002",
+        "EXPLICIT_URL_ALLOWLIST-003"
+      ],
+      "source_files": [
+        "data/workflows.json",
+        "data/followup_read_scenarios.json"
+      ],
+      "tools": [
+        {
+          "name": "fetch_url",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "url"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "web.pages.read"
+          ]
+        },
+        {
+          "name": "get_followup_context",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "1_read_only_adapters",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence."
+      ]
+    },
+    {
+      "template": "UNCERTAIN_WRITE_RECONCILIATION",
+      "group": "writes",
+      "task_count": 3,
+      "task_codes": [
+        "UNCERTAIN_WRITE_RECONCILIATION-001",
+        "UNCERTAIN_WRITE_RECONCILIATION-002",
+        "UNCERTAIN_WRITE_RECONCILIATION-003"
+      ],
+      "source_files": [
+        "data/context.json",
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
+      ],
+      "tools": [
+        {
+          "name": "create_issue",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "owner",
+              "repo",
+              "title"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "github.issues.write"
+          ]
+        },
+        {
+          "name": "get_write_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "get_write_result",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "write_ref"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "PARTIAL_WRITE_RECONCILIATION",
+      "group": "writes",
+      "task_count": 3,
+      "task_codes": [
+        "PARTIAL_WRITE_RECONCILIATION-001",
+        "PARTIAL_WRITE_RECONCILIATION-002",
+        "PARTIAL_WRITE_RECONCILIATION-003"
+      ],
+      "source_files": [
+        "data/context.json",
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
+      ],
+      "tools": [
+        {
+          "name": "get_write_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "get_write_result",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "write_ref"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "post_message",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "channel",
+              "text"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "slack.messages.write"
+          ]
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    },
+    {
+      "template": "APPROVAL_DATA_REVISION",
+      "group": "writes",
+      "task_count": 3,
+      "task_codes": [
+        "APPROVAL_DATA_REVISION-001",
+        "APPROVAL_DATA_REVISION-002",
+        "APPROVAL_DATA_REVISION-003"
+      ],
+      "source_files": [
+        "data/context.json",
+        "data/write_scenarios.json",
+        "data/reconciliation.json"
+      ],
+      "tools": [
+        {
+          "name": "get_work_state",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "subject"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "get_write_case",
+          "implementation": "local_simulator_only",
+          "access": "read",
+          "observed_argument_key_sets": [
+            [
+              "scenario_id"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "get_write_result",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "write_ref"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        },
+        {
+          "name": "post_message",
+          "implementation": "local_simulator_only",
+          "access": "write",
+          "observed_argument_key_sets": [
+            [
+              "channel",
+              "text"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": [
+            "slack.messages.write"
+          ]
+        },
+        {
+          "name": "request_user_confirmation",
+          "implementation": "engine_builtin",
+          "access": "builtin",
+          "observed_argument_key_sets": [
+            [
+              "action"
+            ]
+          ],
+          "registration_schema_verified": false,
+          "capabilities": []
+        }
+      ],
+      "suggested_wave": "3_fake_write_integration",
+      "actual_mcp_ready": false,
+      "held_eligibility": "pending_DB_and_team_exposure_review",
+      "required_work": [
+        "Define and validate candidate tool input/output schemas; observed key sets are not a schema.",
+        "Implement MCP/adapter public projections; never return a whole private scenario fixture.",
+        "Use isolated trial/attempt state and the current frozen-data hashes.",
+        "Validate with actual engine calls and record environment evidence.",
+        "Keep writes fake and use builtin confirmation/result/state tools; do not implement a second approval proxy."
+      ]
+    }
+  ]
+}

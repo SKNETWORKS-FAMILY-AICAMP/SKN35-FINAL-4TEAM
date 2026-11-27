@@ -136,7 +136,7 @@ def wording(code, v):
         "MULTI_REQUEST_COMPLETION_REPORT": "필요 기능과 실제 영수증을 근거로 구분하며 영수증 없는 요청은 완료로 단정하지 않음.",
         "ISSUE_ROUTING_APPROVAL": "자료의 필수 라벨·담당자는 보존하고 제목에는 정확한 배포 버전을 포함. 특정 제목 문장으로 한정하지 않음.",
         "LATEST_CONFIRMATION_SCOPE": "이 문항은 첫 대상 확인, 쓰기 전 요청 변경, 최종 대상 재확인의 두 단계를 한 풀이에서 재현하는 경계 사례. 새 확인이 이전 승인을 대체하며 발송은 최종 대상에만1회.",
-        "MULTI_TARGET_APPROVAL": "현재 고정 승인 응답은 자료에 적힌 대상 순서에 대응함. 대상마다 별도 승인과 쓰기1회가 필요. 응답은 성공하는 고정 fake 환경.",
+        "MULTI_TARGET_APPROVAL": "현재 고정 승인 응답은 자료에 적힌 대상 순서에 대응함. 대상마다 별도 승인과 쓰기1회가 필요.",
         "ISSUE_THEN_MESSAGE": "자료의 필수 라벨·담당자와 정확한 버전을 보존. 생성 결과를 받은 뒤 알림을 별도 승인받음. 알림은 실제 생성 번호와 버전을 포함하며 특정 문구로 한정하지 않음.",
         "INCIDENT_TIMELINE": "자료의 실행·판단 시각 이하 deploy_start/first_error/rollback/health_ok만 대상. 같은 시각은 이벤트 id순.",
         "INCIDENT_SIGNATURE_GROUPING": "자료의 동일 실행·판단 시각 이하 ERROR 레코드를 원문 signature별로 집계. 동률은 사전순 첫 서명.0건이면 NONE. 중복 수집 판별 문제는 아님.",
