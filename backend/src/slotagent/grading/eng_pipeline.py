@@ -26,6 +26,7 @@ from slotagent.common import checks, contracts, queue
 from slotagent.common.hashing import canonical_hash, canonical_json
 from slotagent.engine import advance
 from slotagent.grading.eng_context import from_snapshot
+from slotagent.grading.eng_policy import PolicyResult, check_policy, policy_context
 from slotagent.grading.eng_rules import RulePolicyRequired, TraceError, check
 
 
@@ -58,6 +59,8 @@ class GradeItem:
     forbidden_action: bool
     judge_model: str | None
     judge_settings: dict
+    policy: tuple[PolicyResult, ...] = ()  # prereg.process_policy 규칙별 결과 (없으면 비어 있음)
+    policy_gate: bool = False  # true 면 정책 위반 풀이는 성공일 수 없음
 
 
 @dataclass(frozen=True)
@@ -120,6 +123,26 @@ def _is_empty(result: str | None) -> bool:
         return False
 
 
+def error_kind(code: str) -> str:
+    """오류 코드 → 원인 묶음. 코드 체계(agent_·env_·timeout_·tool_error) 밖의 값은 unclassified."""
+    if code == "tool_error":
+        return "tool"
+    if code.startswith("agent_"):
+        return "agent"
+    if code.startswith(("env_", "timeout_")):
+        return "env"
+    return "unclassified"
+
+
+def error_calls(tools: list[dict]) -> dict:
+    """오류로 끝난 도구 호출 수를 원인 묶음별로 (trial_metrics v2)."""
+    counts = {"agent": 0, "tool": 0, "env": 0, "unclassified": 0}
+    for span in tools:
+        if "error" in span:
+            counts[error_kind(span["error"])] += 1
+    return counts
+
+
 def trial_metrics(trace: dict) -> dict:
     """진단 지표. 엔진 내장 도구(확인·검색)도 실제 호출이므로 같이 셉니다."""
     tools = [s for s in trace["spans"] if s["kind"] == "tool"]
@@ -128,13 +151,14 @@ def trial_metrics(trace: dict) -> dict:
     for span in tools:
         seconds[span["name"]] = seconds.get(span["name"], 0) + span["duration_sec"]
     metrics = {
-        "schema_version": 1,
+        "schema_version": 2,
         "tool_calls": len(tools),
         "distinct_tools": len(seconds),
         "repeated_calls": sum(n - 1 for n in calls.values()),
         "empty_results": sum("error" not in s and _is_empty(s.get("tool_result")) for s in tools),
         "steps": sum(s["kind"] in {"llm", "tool"} for s in trace["spans"]),
         "tool_sec_by_tool": seconds,
+        "error_calls": error_calls(tools),
     }
     return contracts.validate("grading", metrics, part="trial_metrics")
 
@@ -220,6 +244,15 @@ def _is_finished(conn, run_id) -> bool:
     ).fetchone()[0]
 
 
+def _ensure_unchanged(what: str, saved: dict, recomputed: dict) -> None:
+    """중단 전과 다른 규칙으로 이어서 채점하면 한 실행에 결과가 섞입니다.
+
+    저장된 확정 결과가 판정 불가(None)·결과 없음으로 바뀌는 것도 섞임으로 봅니다.
+    """
+    if any(recomputed.get(key) != passed for key, passed in saved.items()):
+        raise ValueError(f"저장된 {what} 결과와 다시 계산한 결과가 다릅니다. 새 채점 실행을 만드세요.")
+
+
 def _grade_rules(conn, run, trial_id, job) -> GradeItem | None:
     """규칙 결과를 저장하고 ②에게 넘길 값을 만듭니다. 이미 채점한 풀이와 채점기 오류 풀이는 None."""
     run_id = run["grading_run_id"]
@@ -230,6 +263,10 @@ def _grade_rules(conn, run, trial_id, job) -> GradeItem | None:
             return None
         trial, conditions = _load(conn, run, trial_id)
         context = from_snapshot(trial["config_snapshot"], trial["confirmation"])
+        prereg = conn.execute(
+            "SELECT prereg FROM sa_experiments WHERE experiment_id=%s", (run["experiment_id"],)
+        ).fetchone()[0]
+        policy = (prereg or {}).get("process_policy")
         try:
             trace = load_trace(conn, trial)
             unreadable = False
@@ -239,6 +276,9 @@ def _grade_rules(conn, run, trial_id, job) -> GradeItem | None:
             try:
                 # 기록 오류(TraceError)만 풀이 탓입니다. 조건·코드 결함은 그대로 올려 채점을 멈춥니다.
                 results = check_conditions(conditions, trace, context)
+                policy_results = check_policy(
+                    policy, trace, policy_ctx=policy_context(trial["config_snapshot"]), **context
+                )
             except TraceError:
                 unreadable = True
         if unreadable:
@@ -256,17 +296,29 @@ def _grade_rules(conn, run, trial_id, job) -> GradeItem | None:
                 (run_id, trial_id),
             ).fetchall()
         )
+        _ensure_unchanged("규칙", saved, {r.answer_condition_id: r.passed for r in results})
         for r in results:
             if r.passed is not None:
-                if saved.get(r.answer_condition_id, r.passed) != r.passed:
-                    # 중단 전과 다른 규칙으로 이어서 채점하면 한 실행에 결과가 섞입니다.
-                    raise ValueError("저장된 규칙 결과와 다시 계산한 결과가 다릅니다. 새 채점 실행을 만드세요.")
                 conn.execute(
                     """INSERT INTO sa_condition_results(grading_run_id,trial_id,answer_condition_id,passed,evidence)
                        VALUES (%s,%s,%s,%s,%s)
                        ON CONFLICT (grading_run_id,trial_id,answer_condition_id) DO NOTHING""",
                     (run_id, trial_id, r.answer_condition_id, r.passed, Jsonb(r.evidence)),
                 )
+        saved_policy = dict(
+            conn.execute(
+                "SELECT rule,passed FROM sa_policy_results WHERE grading_run_id=%s AND trial_id=%s", (run_id, trial_id)
+            ).fetchall()
+        )
+        _ensure_unchanged("정책", saved_policy, {p.rule: p.passed for p in policy_results})
+        for p in policy_results:
+            if p.passed is None:
+                continue  # 판정 불가는 저장하지 않습니다 (condition_results 와 같음)
+            conn.execute(
+                """INSERT INTO sa_policy_results(grading_run_id,trial_id,rule,passed,evidence) VALUES (%s,%s,%s,%s,%s)
+                   ON CONFLICT (grading_run_id,trial_id,rule) DO NOTHING""",
+                (run_id, trial_id, p.rule, p.passed, Jsonb(p.evidence)),
+            )
     return GradeItem(
         run_id,
         trial_id,
@@ -278,6 +330,8 @@ def _grade_rules(conn, run, trial_id, job) -> GradeItem | None:
         any(r.kind == "forbidden" and r.passed is False for r in results),
         run["judge_model"],
         run["judge_settings"],
+        policy_results,
+        bool((policy or {}).get("gate", False)),
     )
 
 
@@ -298,6 +352,8 @@ def check_verdict(item: GradeItem, verdict: Verdict) -> bool:
         raise ValueError("끝까지 실행하지 못한 풀이는 성공일 수 없습니다.")
     if success and any(r.gate and r.passed is False for r in item.conditions):
         raise ValueError("규칙 조건에서 실패한 풀이를 성공으로 바꿀 수 없습니다.")
+    if success and item.policy_gate and any(p.passed is False for p in item.policy):
+        raise ValueError("관문인 과정 정책을 어긴 풀이를 성공으로 바꿀 수 없습니다.")
     if success and verdict.first_fail_type is not None:
         raise ValueError("성공한 풀이에는 첫 실패 단계가 없습니다.")
     if not success and item.run_outcome == "completed" and not item.out_of_scope and verdict.first_fail_type is None:

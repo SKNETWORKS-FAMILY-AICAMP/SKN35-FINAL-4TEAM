@@ -334,6 +334,17 @@ ERD·테이블 정의서를 고칠 때 이 표를 그대로 쓰면 됨. 이 파�
 | passed | `passed` |  |
 | evidence | `evidence` |  |
 
+## policy_results → `sa_policy_results` (0006, ERD v1.2 에 없음)
+
+| ERD v1.2 | 지금 DB | 종류 |
+|---|---|---|
+| id | `policy_result_id` | PK |
+| grading_run_id | `grading_run_id` | FK |
+| trial_id | `trial_id` | FK |
+| rule | `rule` |  |
+| passed | `passed` |  |
+| evidence | `evidence` |  |
+
 ## llm_votes → `sa_llm_votes`
 
 | ERD v1.2 | 지금 DB | 종류 |

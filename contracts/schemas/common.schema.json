@@ -146,6 +146,27 @@
           "type": "array", "uniqueItems": true, "maxItems": 20,
           "items": { "$ref": "#/$defs/capability" }
         },
+        "call_capabilities": {
+          "description": "범용 도구(예: REST 호출 하나로 여러 일을 하는 도구)의 호출별 기능 (선택, 과정 채점). 인자 arg 의 문자열 값이 pattern 에 통째로 맞는 줄의 capability 가 그 호출의 기능. 맞는 줄이 없으면 기능 불명(판정 불가), 서로 다른 기능이 둘 이상 맞아도 판정 불가. 있으면 capabilities 대신 이것만 씀. capability 는 capabilities 안에 있어야 함 (common.checks.check_registration)",
+          "type": "array", "minItems": 1, "maxItems": 20,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["arg", "pattern", "capability"],
+            "properties": {
+              "arg": { "type": "string", "minLength": 1, "maxLength": 64 },
+              "pattern": { "description": "Python re 정규식 (fullmatch)", "type": "string", "minLength": 1, "maxLength": 256 },
+              "capability": { "$ref": "#/$defs/capability" }
+            }
+          }
+        },
+        "target_args": {
+          "description": "이 도구 호출이 가리키는 대상을 담은 인자 이름 (선택, 과정 정책 read_before_write). 서비스·대상 종류는 호출의 기능 이름표(<서비스>.<대상>.*)에서, 저장소·대상 ID 는 여기 적은 인자 값에서 읽음",
+          "type": "object", "additionalProperties": false, "minProperties": 1,
+          "properties": {
+            "repo": { "type": "string", "minLength": 1, "maxLength": 64 },
+            "target_id": { "type": "string", "minLength": 1, "maxLength": 64 }
+          }
+        },
         "write_mode": {
           "description": "access = write 인 도구만. 비면 fake (API 연결은 dry_run 필수). 검사: common.checks.check_write_modes",
           "$ref": "#/$defs/write_mode"

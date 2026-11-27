@@ -22,6 +22,7 @@ def from_tools(tools: list[dict], confirmation: dict | None, builtins: frozenset
             confirmation,
             frozenset(name for name, value in access.items() if value == "write"),
             {t["name"]: list(t.get("capabilities", [])) for t in tools},
+            {t["name"]: list(t["call_capabilities"]) for t in tools if t.get("call_capabilities")},
         ),
     }
 

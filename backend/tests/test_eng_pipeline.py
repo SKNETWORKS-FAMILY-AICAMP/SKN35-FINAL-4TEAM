@@ -378,3 +378,66 @@ def test_judge_item_hides_candidate(experiment):
     grade(conn, run_id, classify=lambda c, i: items.append(i) or Verdict("correct"))
     assert not {"label", "candidate", "config_snapshot", "role"} & set(vars(items[0]))
     assert items[0].prompt == next(t["prompt"] for t in load("pack.json")["tasks"] if t["code"] == "T2-0")
+
+
+def set_policy(conn, data, policy):
+    """잠긴 실험의 사전 등록에 과정 정책을 넣습니다 (검사용으로 트리거만 잠시 끔)."""
+    conn.execute("SET session_replication_role = replica")
+    conn.execute(
+        "UPDATE sa_experiments SET prereg = prereg || %s WHERE experiment_id=%s",
+        (Jsonb({"process_policy": policy}), data["experiment"]),
+    )
+    conn.execute("SET session_replication_role = DEFAULT")
+
+
+def policy_rows(conn, run_id):
+    return conn.execute(
+        "SELECT trial_id,rule,passed,evidence->'span_seqs' FROM sa_policy_results WHERE grading_run_id=%s ORDER BY trial_id",
+        (run_id,),
+    ).fetchall()
+
+
+def test_policy_violation_is_saved_and_reported_without_changing_success(experiment):
+    conn, data = experiment
+    set_policy(conn, data, {"approved_tools": []})   # 외부 도구 전부 금지, gate 기본 false
+    conn, data, run_id = prepare(experiment)
+    grade(conn, run_id, classify=by_rules)
+    rows = policy_rows(conn, run_id)
+    assert [(r[1], r[2], r[3]) for r in rows] == [("approved_tools", False, [2])] * len(data["trials"])
+    assert all(g[2] for g in grades(conn, run_id))   # 관문이 아니므로 성공률은 그대로
+
+
+def test_policy_gate_blocks_success(experiment):
+    conn, data = experiment
+    set_policy(conn, data, {"approved_tools": [], "gate": True})
+    conn, _, run_id = prepare(experiment)
+    with pytest.raises(ValueError, match="과정 정책"):
+        grade(conn, run_id, classify=by_rules)
+    assert grades(conn, run_id) == []
+
+
+def test_approved_server_passes_policy(experiment):
+    conn, data = experiment
+    set_policy(conn, data, {"approved_tools": [{"source": "mcp", "server": "github", "tool": "*"}]})
+    conn, _, run_id = prepare(experiment)
+    grade(conn, run_id, classify=by_rules)
+    assert {r[2] for r in policy_rows(conn, run_id)} == {True}
+
+
+def test_resume_rejects_saved_condition_becoming_undecided(experiment, monkeypatch):
+    from slotagent.grading import eng_pipeline
+
+    conn, _, run_id = prepare(experiment, info("no"), deps=[answer('{"answer":"ok"}'), answer('{"answer":"ok"}')])
+    with pytest.raises(JudgeNotConnected):
+        grade(conn, run_id)
+    real = eng_pipeline.check_conditions
+
+    def undecided(conditions, trace, context):
+        return tuple(
+            eng_pipeline.ConditionResult(r.answer_condition_id, r.seq, r.kind, None, undecided="x", gate=r.gate)
+            for r in real(conditions, trace, context)
+        )
+
+    monkeypatch.setattr(eng_pipeline, "check_conditions", undecided)
+    with pytest.raises(ValueError, match="규칙 결과"):
+        grade(conn, run_id, classify=by_rules)

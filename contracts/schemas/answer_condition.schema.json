@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://slotagent.local/schemas/answer_condition.schema.json",
   "title": "정답 조건 (answer_conditions.spec)",
-  "description": "쓰는 역할 ② · 읽는 역할 ①(규칙 채점). answer_conditions.kind 칸에 따라 $defs 중 하나로 검사함 (validate('answer_condition', spec, part=kind)). 어떤 도구로 얻었는지는 따지지 않음. 성공 = gate 가 true 인 조건이 모두 통과. gate 를 비우면 kind 별 기본값: info·order·end_state = true, link = false (근거·진단용). forbidden 은 gate 칸이 없고 항상 true (관문). 기본값 풀이는 common.checks.condition_gate() 한 곳에서만",
+  "description": "쓰는 역할 ② · 읽는 역할 ①(규칙 채점). answer_conditions.kind 칸에 따라 $defs 중 하나로 검사함 (validate('answer_condition', spec, part=kind)). 어떤 도구로 얻었는지는 따지지 않음. 성공 = gate 가 true 인 조건이 모두 통과. gate 를 비우면 kind 별 기본값: info·order·end_state·exact_writes = true, link·uses = false (근거·진단용). forbidden 은 gate 칸이 없고 항상 true (관문). 기본값 풀이는 common.checks.condition_gate() 한 곳에서만",
   "$defs": {
     "match": {
       "description": "값 비교 방법. 18시 20분 = 18:20 같은 표기 차이는 normalize 가 맞춤",
@@ -161,6 +161,27 @@
         }
       }
     },
+    "uses": {
+      "description": "필수 기능 호출 — call 에 맞는 정상 호출이 한 번 이상 있어야 함. '호출했다'까지만 증명하고, 그 결과를 근거로 답했는지는 link 로 따로 봄. gate 기본 false (과정 진단용, 성공률을 바꾸지 않음)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "call"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "gate": {
+          "description": "성공 판정에 쓰는지. 비우면 false",
+          "type": "boolean"
+        },
+        "call": {
+          "$ref": "#/$defs/call_match"
+        }
+      }
+    },
     "end_state": {
       "description": "끝난 상태 — 가짜 쓰기 기록(write_intents)이 이래야 함",
       "type": "object",
@@ -256,7 +277,7 @@
       }
     },
     "call_match": {
-      "description": "도구 호출 하나를 가리킴. tool 이나 access 중 하나는 있어야 함",
+      "description": "도구 호출 하나를 가리킴. tool·access·capability 중 하나는 있어야 함. capability 는 호출 하나가 하는 일(기능 이름표)로 고름 — 후보마다 도구 이름이 달라도 같은 조건을 쓸 수 있음. 호출의 기능은 config_snapshot 의 도구 정의(capabilities, call_capabilities)에서만 정하고 trace 값은 믿지 않음",
       "type": "object",
       "additionalProperties": false,
       "anyOf": [
@@ -268,6 +289,11 @@
         {
           "required": [
             "access"
+          ]
+        },
+        {
+          "required": [
+            "capability"
           ]
         }
       ],
@@ -281,6 +307,9 @@
         "args_include": {
           "description": "인자 일부가 같아야 함",
           "type": "object"
+        },
+        "capability": {
+          "$ref": "common.schema.json#/$defs/capability"
         }
       }
     }

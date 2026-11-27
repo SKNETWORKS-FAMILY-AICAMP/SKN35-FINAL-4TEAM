@@ -48,3 +48,10 @@ wandb/
 /artifacts/
 /.tmp-*/
 /tmp/
+.understand-anything/
+
+# Understand-Anything 그래프 (로컬 전용)
+backend/src/.ua/
+
+# Serena MCP 설정 (로컬 전용)
+.serena/

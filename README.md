@@ -192,6 +192,12 @@ Copy-Item .env.example .env
 docker compose up -d
 ```
 
+이미 만든 볼륨에는 새 마이그레이션 파일이 자동으로 들어가지 않습니다. 볼륨을 지우지 말고 새 파일만 직접 넣습니다 (파일 이름만 바꿔서).
+
+```powershell
+docker compose exec -T postgres psql -U slotagent -d slotagent -v ON_ERROR_STOP=1 -f /docker-entrypoint-initdb.d/0006_process_grading.sql
+```
+
 ## 저장소 구조
 
 ```text

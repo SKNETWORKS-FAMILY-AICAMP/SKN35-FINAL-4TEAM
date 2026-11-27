@@ -55,7 +55,7 @@ def test_0_naming(conn):
                               WHERE tc.constraint_type = 'PRIMARY KEY' AND tc.table_schema = 'public'""").fetchall())
     wrong = {t: c for t, c in pks.items() if c != db_names.PK[t[3:]]}   # PK = <테이블 단수>_id (domains 는 domain_code)
     assert not wrong, wrong
-    assert len(pks) == sum(1 for _, kind in rels if kind == "BASE TABLE") == 33
+    assert len(pks) == sum(1 for _, kind in rels if kind == "BASE TABLE") == 34
     # FK 칸: 가리키는 PK 이름 그대로, 아니면 역할 이름 (같은 테이블을 두 번·역할 이름) — 그 목록은 db/README.md
     fks = conn.execute("""SELECT kcu.table_name, kcu.column_name, ccu.table_name, ccu.column_name
                             FROM information_schema.table_constraints tc

@@ -32,7 +32,8 @@
 - [ ] 작업 큐 워커 (`sa_jobs` 임대·재시도·취소)
   - [x] DB 큐 임대·연장·만료 회수·토큰 검사, 풀이 복구와 큐 반환 원자화, 명시적 deps의 `workers/eng_main.run_once` (별도 연결의 20초 연장)
   - [x] Docker 의존성 연결: `run_once(stdio=...)` 로 풀이별 컨테이너 생성·정리, 만료 임대 회수 때 남은 컨테이너 먼저 제거
-  - [ ] 배포용 반복 실행 진입점·재시도 운영 정책 (기본 registry는 아직 deps 없이 실제 모델을 실행하지 않음)
+  - [x] 배포용 반복 실행 진입점 `workers/eng_serve.py` (servers.json → local/Docker stdio, ProviderModel, 멈춤 신호, `--drain`) (11/27)
+  - [ ] 분석·리포트 워커 (③ `analyze`·`build` 대기), 채점은 ② 판정 함수가 오면 `serve(classify=)` 로
   - [x] `run_trial` 읽기 경로: 시작 전 예산·스냅샷 검사, attempt 확인, 결과 원자적 저장, `advance` 채점 작업 생성 (임시 DB)
   - [x] 잡을 수 있는 예외 후 현재 attempt만 pending 반환·번호 증가·재실행 확인, 중단된 실험 취소, `sa_spans.error` 저장
   - [x] 중간 비용 보존: 응답별 커밋, 임대 상실 뒤 비용 기록, (trial·attempt·span seq) 중복/값 충돌 검사, 최종 저장 중복 방지·기존 작업 재시도 상한 연결 (임시 DB·가짜 모델)
@@ -63,10 +64,13 @@
   - [x] 잔여 보완: 이름/결과 조건의 권한 요구 제거·완전 문맥 명시(기본 불완전)·문맥 밖 invalid 호출의 access 제외. 골든 변화 20건 개별 기록, 기존 불일치 1건 재노출 (11/24, `docs/eng_review_fix_1124.md`)
 
 **W5 (12/4~12/10) — 게이트**
-- [ ] 기록·재생 (키 없이 다시 채점, 재생 10건이 원래와 같음)
+- [x] 기록·재생 (키 없이 다시 채점, 재생 10건이 원래와 같음) `engine/replay.py` — 파일럿 30풀이 재생 일치 (11/27)
 - [x] 도구 검색 후보 실행 `engine/tool_search.py` (BM25)
 - [ ] SlotAgent MCP 서버 (조회 함수부터) 🔗 ← ④ chatbot 함수 5개 모양
+  - [x] stdio 서버·도구 5개, `get_results`·`write_report` 저장값 조회, `start_run` 확인 뒤 실행 (`docs/eng_mcp_server.md`). `calc_sample_size`·`create_experiment` 는 ③④ 뒤쪽 구현 대기, Claude Desktop 실제 연결 확인 전
 - [ ] API (FastAPI) + plan-proposal 🔗 → ④ 등록·실험 저장 함수가 여기 붙음
+  - [x] plan-proposal 본체 `common/proposal.propose` (settings + ② 문항 고르기, as_of 재현). ③ `sample_size` 대기 (11/27)
+  - [x] HTTP `POST /api/experiments/plan-proposal` 등록 (계약 밖 요청 422, `sample_size` 없으면 501) (11/27)
 - [ ] 화면 1차 (Next.js) — 등록 질문 4개, 실험 설계, 진행 상태, 결과 🔗 ← ④ 등록 API
 - [ ] 화면 타입 생성 (스키마 → `frontend/src/types/contracts.ts`)
 

@@ -16,7 +16,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
-from slotagent.api import eng_errors, eng_experiments
+from slotagent.api import eng_errors, eng_experiments, eng_plan_proposal
 from slotagent.common import db, queue
 from slotagent.common.checks import CheckError
 
@@ -112,6 +112,7 @@ def create_app(connect: Callable | None = None) -> FastAPI:
     app = FastAPI(title="SlotAgent")
     app.state.connect = connect or partial(db.connect, autocommit=True)
     app.include_router(eng_experiments.router)
+    app.include_router(eng_plan_proposal.router)
     app.add_exception_handler(CheckError, _check)
     app.add_exception_handler(RequestValidationError, _validation)
     app.add_exception_handler(HTTPException, _http)
