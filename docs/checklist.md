@@ -72,6 +72,7 @@
   - [x] plan-proposal 본체 `common/proposal.propose` (settings + ② 문항 고르기, as_of 재현). ③ `sample_size` 대기 (11/27)
   - [x] HTTP `POST /api/experiments/plan-proposal` 등록 (계약 밖 요청 422, `sample_size` 없으면 501) (11/27)
 - [ ] 화면 1차 (Next.js) — 등록 질문 4개, 실험 설계, 진행 상태, 결과 🔗 ← ④ 등록 API
+  - [x] 진행 상태를 실제 API 로: `?experiment=번호` 면 시험 단계가 run → status 2초 조회 → stop (`components/live-run.tsx`, `/api` 프록시) (11/27)
 - [ ] 화면 타입 생성 (스키마 → `frontend/src/types/contracts.ts`)
 
 **W6~W8 — 고도화**

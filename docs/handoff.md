@@ -11,6 +11,16 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 
 ---
 
+## 2026-11-27 · Claude · taemin (화면 진행 상태를 실제 API 에 연결)
+- 한 일: 주소에 `?experiment=번호` 가 있으면 시험 단계(3)가 모의 재생 대신 `LiveRun`(새 `components/live-run.tsx`)을 보여 줌 — `POST run`(같은 요청 반복해도 한 번만 잠김) → `GET status` 2초마다(locked/running 동안) → `POST stop`. 호출은 `features/slotagent/api.ts`, 타입은 기존 `contracts.ts` 의 RunResponse·StatusResponse. `next.config.ts` 에 `/api/*` → FastAPI(`SLOTAGENT_API`, 기본 127.0.0.1:8000) 프록시(CORS 불필요). 번호가 없으면 기존 예시 화면 그대로.
+- 확인: 저장소 밖 `D:\final_test\live_demo\serve_demo.py`(임시 DB + SQL 로 만든 초안 실험 + uvicorn + eng_serve, 실제 OpenAI)로 띄우고 브라우저에서 시작 → 0/6 → 6/6 끝남, 비용 9.7원(시험 가격), 채점 시작까지 화면에 나옴. `npm run typecheck` 통과.
+- 남은 일: 실험 상태는 채점·분석(②③) 전이라 계속 running 이고 화면도 계속 조회함. 결과·요약 화면은 여전히 모의 데이터(③ results API 대기). 등록·설계 화면도 ④ API 대기. `contracts.ts` 재생성은 안 함(새 칸은 이번 화면에서 안 씀). 화면 시험(playwright) 없음.
+
+## 2026-11-27 · Claude · taemin (반복 워커 실제 실행 확인)
+- 한 일: `eng_serve` CLI 를 별도 프로세스로 띄워(`--drain`, local stdio = ② 연습 서버) 실제 OpenAI `gpt-4.1-mini` 로 3유형 × A·B = 6풀이를 돌림. 실험 등록은 ④ 함수가 없어 `test_eng_pilot.create_experiment`(SQL)로 대신, DB 는 pgserver 임시 DB. 스크립트는 저장소 밖 `D:\final_test\real_pilot\test_real_serve.py`, 결과 `result_serve.json`. 제품 코드 변경 없음.
+- 결과: 6풀이 모두 finished/completed, 워커가 6건 처리 후 스스로 끝남, 작업 run_trial done 6 · grade done 1 · analyze queued 1(③ 대기). 규칙 채점(가짜 판정 by_rules) 성공 2(ISSUES_UNASSIGNED_OPEN A·B), 나머지 4는 11/26 과 같은 이유(DEPLOY_LATEST_SUCCESS 오답, DEPLOY_RECOVERY 답 102 는 맞지만 형식). 풀이당 입력 약 1.3~1.7k·출력 37~150 토큰.
+- 남은 일: Docker stdio(`kind: docker`)로는 안 돌림(② 이미지 대기). 답 형식 문제는 11/26 기록의 ② 결정 대기 그대로.
+
 ## 2026-11-27 · Claude · taemin (배포용 반복 워커)
 - 한 일: `workers/eng_serve.py`(새). `serve` 가 `run_once`(+ classify 를 주면 `grade_once`)를 반복하고, 할 일이 없거나 실패하면 `idle_sec` 쉼, `stop` Event 로 끝냄(`drain` 이면 할 일이 없을 때 끝). 실패한 작업은 run_once 가 이미 돌려줬으므로 오류 종류만 남기고 계속. CLI `python -m slotagent.workers.eng_serve --stdio servers.json` — servers.json(`kind` local/docker)을 `LocalStdioConfig`·`DockerStdioConfig` 로 바꾸고 모델은 `ProviderModel`, SIGINT/SIGTERM 은 진행 중 풀이를 끝낸 뒤 멈춤. 기존 엔진·큐 코드 변경 없음.
 - 검증: `tests/test_eng_serve.py` 7건(반복 수·실패 뒤 계속·채점 같이·멈춤·local/docker 읽기·제어 소켓 거절). DB 가 안 닿을 때 CLI 가 오류 종류만 찍고 다시 시도하는 것 확인. 전체 1466 passed / 1 skipped (plan-proposal HTTP 시험 포함), Ruff 0건. 커밋 없음.

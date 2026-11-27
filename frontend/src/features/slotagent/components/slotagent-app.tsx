@@ -7,6 +7,7 @@ import { Registration } from "@/features/slotagent/components/registration";
 import { TrialSettings } from "./trial-settings";
 import { ResultDetails, EvaluationContext, SummaryEvidence } from "./result-details";
 import { DemoChat } from "@/features/slotagent/components/demo-chat";
+import { LiveRun } from "./live-run";
 import { bestCandidate, candidates, percent, sampleAgent, steps, won, defaultDesign, type TrialDesign, type CandidateId, type DemoAgent, type DemoComparison } from "@/features/slotagent/mocks/demo";
 import { readDemo, saveDemo } from "@/features/slotagent/storage";
 
@@ -41,6 +42,7 @@ export function SlotAgentApp() {
   const [modal, setModal] = useState<{ title: string; body: string } | null>(null);
   const [toast, setToast] = useState("");
   const [storageWarning, setStorageWarning] = useState(false);
+  const [liveId, setLiveId] = useState<number | null>(null); // ?experiment=번호 면 3단계를 실제 API 로 돌림
   const current = agents.find((a) => a.id === selected) || sampleAgent;
   const capable = current.method !== "api" && current.tools.includes("GitHub");
   const main = useRef<HTMLElement>(null);
@@ -49,6 +51,8 @@ export function SlotAgentApp() {
   useEffect(() => {
     const saved = readDemo();
     if (saved) { setAgents(saved.agents); setHistory(saved.history); setDailyCalls(saved.dailyCalls); setTheme(saved.theme); }
+    const id = Number(new URLSearchParams(window.location.search).get("experiment"));
+    if (Number.isSafeInteger(id) && id > 0) setLiveId(id);
     setReady(true);
   }, []);
   useEffect(() => {
@@ -81,6 +85,7 @@ export function SlotAgentApp() {
   function ensureSample() { setAgents((prev) => prev.some((a) => a.id === "sample") ? prev : [sampleAgent, ...prev]); setSelected("sample"); }
   function makeComparison(agent = current): DemoComparison { return { id: crypto.randomUUID(), agent: { ...agent }, candidates: [...selectedCandidates], preference, targets: [...targets], date: new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }), dailyCalls, design: { ...design } }; }
   function startComparison() {
+    if (liveId) { setStep(3); setReached(3); return; }
     if (!selectedCandidates.length || !capable) return;
     pendingRun.current = makeComparison(); setComparison(null); setProgress(0); setRunning(true); setStep(3); setReached(3);
   }
@@ -127,7 +132,8 @@ export function SlotAgentApp() {
 
           {step === 2 && <TrialSettings agentName={current.name} ids={allCandidates} preference={preference} targets={targets} design={design} onPreference={(v) => { setPreference(v); setReached(2); }} onTargets={(v) => { setTargets(v); setReached(2); }} onDesign={(v) => { setDesign(v); setReached(2); }} onBack={() => go(1)} onStart={startComparison} />}
 
-          {step === 3 && <><ScreenTitle title="같은 문제로, 공정하게 비교하고 있어요">예시 기록을 재생하고 있어요. 외부 도구를 호출하지 않아요.</ScreenTitle><div className="run-layout"><section className="card">{allCandidates.map((id) => <div className="run-candidate" key={id}><div className="row"><b>{candidates[id].name} {candidates[id].size}개</b><small>{Math.round(progress * 0.92)} / 92회</small></div><div className="meter" role="progressbar" aria-label={`${candidates[id].name} 진행률`} aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${progress}%` }} /></div><div className="run-dots" aria-hidden="true">{Array.from({ length: 46 }, (_, i) => <i key={i} className={i < progress * 0.46 ? "completed" : ""} />)}</div></div>)}</section><aside className="run-side"><div className="run-stat"><p>실제 청구 비용</p><strong>0원</strong><small>예시 실행 · 실제 과금이 없어요</small></div><div className="run-stat"><p>비교 진행률</p><strong>{progress}%</strong><small>같은 문제를 후보마다 두 번씩 풀어요</small></div></aside></div><section className="card run-records"><h2>실시간 시험 기록 <span className="pill b">예시 재생</span></h2><div className="runlog" aria-label="예시 시험 기록">{Array.from({ length: Math.max(1, Math.floor(progress / 7)) }, (_, i) => <p key={i}><span className="muted">[예시 {(i + 1).toString().padStart(2, "0")}]</span> {candidates[allCandidates[i % allCandidates.length]].name} · {["배포 버전 확인", "이슈에 연결된 PR 찾기", "실패한 실행 확인", "담당자 조회"][i % 4]} <span style={{ color: i % 4 === 2 ? "var(--amber)" : "var(--green)" }}>— {i % 4 === 2 ? "검토 필요" : "채점 완료"}</span></p>)}</div></section><div className="page-actions"><Button variant="outline" onClick={stopRun}>시험 중단</Button><span className="small muted">현재 설정은 안전해요.</span><Button variant="outline" onClick={() => setProgress(100)}>완료 예시 보기</Button></div></>}
+          {step === 3 && liveId && <LiveRun experimentId={liveId} onBack={() => go(2)} />}
+          {step === 3 && !liveId && <><ScreenTitle title="같은 문제로, 공정하게 비교하고 있어요">예시 기록을 재생하고 있어요. 외부 도구를 호출하지 않아요.</ScreenTitle><div className="run-layout"><section className="card">{allCandidates.map((id) => <div className="run-candidate" key={id}><div className="row"><b>{candidates[id].name} {candidates[id].size}개</b><small>{Math.round(progress * 0.92)} / 92회</small></div><div className="meter" role="progressbar" aria-label={`${candidates[id].name} 진행률`} aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${progress}%` }} /></div><div className="run-dots" aria-hidden="true">{Array.from({ length: 46 }, (_, i) => <i key={i} className={i < progress * 0.46 ? "completed" : ""} />)}</div></div>)}</section><aside className="run-side"><div className="run-stat"><p>실제 청구 비용</p><strong>0원</strong><small>예시 실행 · 실제 과금이 없어요</small></div><div className="run-stat"><p>비교 진행률</p><strong>{progress}%</strong><small>같은 문제를 후보마다 두 번씩 풀어요</small></div></aside></div><section className="card run-records"><h2>실시간 시험 기록 <span className="pill b">예시 재생</span></h2><div className="runlog" aria-label="예시 시험 기록">{Array.from({ length: Math.max(1, Math.floor(progress / 7)) }, (_, i) => <p key={i}><span className="muted">[예시 {(i + 1).toString().padStart(2, "0")}]</span> {candidates[allCandidates[i % allCandidates.length]].name} · {["배포 버전 확인", "이슈에 연결된 PR 찾기", "실패한 실행 확인", "담당자 조회"][i % 4]} <span style={{ color: i % 4 === 2 ? "var(--amber)" : "var(--green)" }}>— {i % 4 === 2 ? "검토 필요" : "채점 완료"}</span></p>)}</div></section><div className="page-actions"><Button variant="outline" onClick={stopRun}>시험 중단</Button><span className="small muted">현재 설정은 안전해요.</span><Button variant="outline" onClick={() => setProgress(100)}>완료 예시 보기</Button></div></>}
 
           {step === 4 && comparison && <Results comparison={comparison} detail={detail} onSummary={() => go(5)} onRange={() => setModal({ title: "차이가 흔들리는 범위", body: bestCandidate(comparison.candidates) === "C" ? "필요한 것만 8개 − 지금 구성 26개\n정답률 차이 +16.3%p · 예시 범위는 비교 후보 수에 따라 달라져요. 정확한 범위는 한 장 요약에서 확인해 주세요.\n\n범위에 0이 포함돼 성능이 확실히 좋아졌다고 단정하기는 어려워요. 미리 정한 비용·속도 기준이 좋아졌을 때 조건부 채택으로 표시해요. 성능을 최우선으로 고르면 판단을 보류해요.\n\n채점 검증 전의 예시 기록이며 실제 서비스 성능을 보장하지 않아요." : "직접 만든 도구 1개는 예시에서 92번 중 72번 정답이었어요. 지금 구성(76번 정답)보다 낮고, 아직 확실한 개선 근거가 없어 판단을 보류해요." })} />}
           {step === 5 && comparison && <Summary comparison={comparison} onBack={() => go(4)} onNew={() => navigate("test")} onShare={() => setModal({ title: "공유 링크는 준비 중이에요", body: "현재는 브라우저에 저장되는 UI 체험 화면이에요. 다른 사람이 열 수 있는 공유 링크는 생성하지 않아요.\n\n‘PDF로 저장하기’를 누르면 브라우저 인쇄 창에서 한 장 요약을 저장할 수 있어요." })} />}
