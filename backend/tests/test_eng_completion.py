@@ -367,3 +367,17 @@ def test_gate_rolls_back_with_caller(experiment):
     assert status(conn, ids) == ("running", None)
     with queue.transaction(conn):
         assert advance.completion_blockers(conn, ids["experiment"]) == []
+
+
+def test_final_analysis_is_newest_with_both_reports(experiment):
+    """리포트 있는 A, 더 최신이지만 리포트 없는 B, 더 최신 중간 분석 C → 근거는 A (status 의 latest 는 C)."""
+    conn, ids, a = ready(experiment)
+    assert advance.final_analysis_id(conn, ids["experiment"]) is None
+    report(conn, ids, a)
+    b = analysis(conn, ids, grading(conn, ids, regrade=True))
+    c = analysis(conn, ids, grading(conn, ids, regrade=True), interim=True)
+    assert advance.complete_analysis_ids(conn, ids["experiment"]) == [a, b]
+    assert advance.final_analysis_id(conn, ids["experiment"]) == a < b < c
+    report(conn, ids, b)
+    assert advance.final_analysis_id(conn, ids["experiment"]) == b
+    assert advance.on_reports_done(conn, ids["experiment"]) == []

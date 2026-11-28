@@ -13,11 +13,13 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 
 from slotagent.common import contracts
+from slotagent.common.checks import pattern_risk
 from slotagent.common.confirmation import approved_write
 
 KINDS = {"info", "link", "order", "forbidden", "uses", "end_state", "exact_writes"}
 MAX_ANSWER_DEPTH = 64
 MAX_NUMBER_CHARS = 1024
+MAX_PATTERN_VALUE_CHARS = 128  # call_capabilities 정규식에 맞춰 볼 인자 값 길이 상한 (ReDoS)
 
 
 class RulePolicyRequired(NotImplementedError):
@@ -313,12 +315,13 @@ def _rule_capabilities(span, rules):
         value = span.get("tool_args", {}).get(rule["arg"])
         if not isinstance(value, str):
             continue
-        try:
-            hit = re.fullmatch(rule["pattern"], value)
-        except (re.error, OverflowError, RecursionError):
-            # 등록 검사를 거치지 않은 잘못된 정규식. 채점을 멈추지 않고 이 호출만 판정 불가로 둡니다.
-            raise RulePolicyRequired("call_capability_pattern_invalid") from None
-        if hit:
+        if pattern_risk(rule["pattern"]):
+            # 등록 검사를 거치지 않은 잘못되거나 위험한 정규식. 채점을 멈추지 않고 이 호출만 판정 불가로 둡니다.
+            raise RulePolicyRequired("call_capability_pattern_invalid")
+        if len(value) > MAX_PATTERN_VALUE_CHARS:
+            # 반복 개수 제한과 같이 써야 되돌아가기 시간이 묶임 (checks.pattern_risk)
+            raise RulePolicyRequired("call_capability_value_too_long")
+        if re.fullmatch(rule["pattern"], value):
             found.add(rule["capability"])
     return found
 

@@ -5,7 +5,7 @@ SlotAgent 를 MCP 서버(stdio)로 엽니다. 도구 = ④ chatbot 함수 5개(`
 
 | 도구 | 하는 일 | 지금 |
 |---|---|---|
-| `get_results` | 실험 상태(`status`), 최신 분석의 비교·판정(`sa_comparisons`), 그 분석의 리포트(`sa_reports.content`) | 됨 |
+| `get_results` | 실험 상태(`status`), 분석의 비교·판정(`sa_comparisons`), 그 분석의 리포트(`sa_reports.content`). 분석은 `done` 이면 `engine/advance.final_analysis_id`(리포트 2종 있는 최종), 아니면 최신(`is_interim` 같이) | 됨 |
 | `write_report` | 저장된 리포트 내용을 돌려줌. 쉬운 말로 다시 쓰는 것은 붙인 쪽 에이전트가 함 (숫자는 content 것만) | 됨 |
 | `start_run` | `lock_and_enqueue` (= POST /run) | 됨, 확인 필요 |
 | `calc_sample_size` | `eng_plan_proposal.handle` (= POST /plan-proposal) | `not_ready` (③ `sample_size`·`propose` 미구현) |

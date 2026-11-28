@@ -1,8 +1,29 @@
 # 작업 인계 기록
 
+- 2026-11-27 · Codex · taemin(fcf9fb8+작업 트리) · 오케스트레이터 4차: 외부 감사 233건·예산 해시 보강 6건·지정 시험 117건 통과, Ruff 0건, 마지막 전체 1회 1591 passed / 1 skipped / 실패 0(897.70초); 메모리/Postgres 비유한 수·33단계 이상·순환·bigint 밖·dict 아닌 응답 거절 및 정상 복구, 32단계 이하·설명 새 기준 확인. 코드·계약·기존 테스트 편집·커밋 없음, 외부 원본 *.before_4.py.bak 보존. 동시 변경 해시 대조·상세: D:\final_test\orch_audit\REPORT_4.md.
+
 Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합니다. 한 작업에 기록 하나를 씁니다.
 
 ```
+
+
+## 2026-11-27 · Claude · taemin (화면 /live — 등록부터 초안까지 실제 API)
+- 한 일: 체험 등록 화면은 도구를 {서비스, 연결 방식}만 받아 agent_spec 계약으로 못 보내므로, 따로 `/live` 화면(`components/live-setup.tsx`, `app/live/page.tsx`)을 둠 — 계약 모양 JSON 을 붙여 넣어 `POST /api/agents` → 자리 고르기 → `POST /api/slots/{id}/candidates`(최대 2개) → 평가팩 번호로 `plan-proposal`(유형·문항·반복·풀이 수·warnings 표시) → `POST /api/experiments` → `/?experiment=번호`. `api.ts` 에 호출 4개. `?experiment=번호` 로 열면 바로 진행 단계(3)가 보이게 바꿈(전에는 홈부터 단계를 눌러야 했음). 체험 화면은 그대로.
+- 확인: 임시 DB + 실제 it_ops v0.1 팩 + API(8000) + `next start`(3001)로 브라우저에서 끝까지 — 실험 #2 초안 저장, 진행 화면 0/276·running·0원(워커 안 띄움, 유료 호출 없음). 거절도 화면에 그대로 나옴: capabilities 없는 후보 → "후보 B 범위 확인이 필요합니다"(④ P-01). `npm run typecheck`, `npm run test:e2e` 10건 통과. 스크립트 `D:\final_test\live_setup\serve_setup.py`. 커밋 없음.
+- 발견 (고치지 않음): **it_ops v0.1 팩은 50유형이 모두 split=dev** 라 ④ 파일럿 계획(held 고정)이 "Need 15 fresh templates, only 0 available" 로 실패함. 확인할 때는 임시 DB 에서만 앞 20유형을 held 로 바꿈. ②(held 나누기)·④(파일럿 split 고정) 결정 필요.
+- 남은 일: 체험 화면 등록·설계 단계를 계약에 맞추기(화면 문구·흐름 결정 필요), 결과 화면(③ 대기).
+
+## 2026-11-27 · Claude · taemin (오케스트레이터 5단계 — final_analysis_id 분리)
+- 한 일: `engine/advance.py` — `complete_analysis_ids`(게이트의 전체 채점 조건, 작은 번호부터)와 `final_analysis_id`(그중 `one_pager`·`detail` 이 다 있는 가장 큰 번호, 없으면 None)로 떼어 냄. `completion_blockers` 는 목록이 비면 `analysis_missing`, 있는데 final 이 None 이면 `reports_missing` — 오류 구분 그대로.
+- 검증: `tests/test_eng_completion.py` 에 "리포트 있는 A / 더 최신이지만 리포트 없는 B / 더 최신 중간 분석 C → 근거 A, B 리포트 뒤 B" 시험 추가. 기존 게이트·멱등 시험 그대로 통과(52건), Ruff 0건. 전체 시험 안 돌림. 커밋 없음.
+- 남은 일: `HttpBackend.final_result` 는 여전히 not_ready — 최종 분석·리포트를 HTTP 로 읽을 길이 없음(status 응답에 칸 추가 = 계약 변경, 또는 새 조회 API = 계약 추가). 설계 7절 2, 4명 확인 필요.
+- 이어서(사용자 결정): MCP `get_results` 는 실험이 `done` 이면 `final_analysis_id`(리포트 2종 있는 최종), 아니면 지금처럼 최신(`is_interim` 같이). 리포트 없는 재채점이 더 최신인 done 실험 시험 추가(`tests/test_mcp_server.py`), `docs/eng_mcp_server.md` 표 갱신.
+
+## 2026-11-27 · Claude · taemin (오케스트레이터 4단계 — 실제 run·status HTTP)
+- 한 일: `orchestrator/http.py` `HttpBackend` — plan-proposal·run·status 는 실제 API, 응답 오류는 API `code` 그대로 `BackendError`, 연결 끊김·시간 초과는 `unavailable`, JSON 아님은 `bad_response`. 후보 목록(API 없음)·초안 저장(중복 방지 키 계약 전)·최종 결과(5단계 전)는 `not_ready` 로 멈춤 — `POST /api/experiments` 는 생겼지만 키 없이 쓰면 재시작 때 실험이 둘 생길 수 있어 쓰지 않음.
+- 검증: `tests/test_eng_orch_http.py` 5건 — fixture draft 로 run·status 응답 계약·재요청 멱등, not_found·멈춘 실험 재요청 `experiment_locked`, 연결 끊김, not_ready 셋, 그래프(후보·제안·저장은 가짜, run·status 실제)로 승인 → 실행 → 실제 stop → tick → 부분 설명(facts = 실제 status). Ruff 0건. 전체 시험 안 돌림. 커밋 없음.
+- 남은 일: 5단계 `final_analysis_id`·`complete_analysis_ids` 분리 → `final_result` 실제 연결, 초안 저장 키 계약(④·4명), 후보 목록 API, 실제 LLM 설정·구동기 프로세스.
+
 ## YYYY-MM-DD · <도구 또는 사람> · <브랜치>
 - 한 일:
 - 안 한 일 / 남은 일:
@@ -10,6 +31,88 @@ Codex·Claude·팀원이 같이 씁니다. **새 기록은 맨 위에** 더합�
 ```
 
 ---
+
+## 2026-11-27 · Claude · taemin (오케스트레이터 3차 검증 반영)
+- 한 일: `runtime.resume` 입구에 유한 수 검사(NaN·±Infinity → invalid_answer, 상태 고착 원인)와 깊이 상한 32(순환·깊은 dict 도 재귀 오류 대신 invalid_answer). 설명 글 검사를 단어 목록에서 `unicodedata.numeric` 로 바꿈 — 숫자 값을 가진 글자(½·²·①·十·Ⅻ·전각 등)와 %·퍼센트만 막고, 오탐이던 프로·포인트·ASCII 로마(LLM·CLI·CI) 검사는 뺌.
+- 판단: 말로 쓴 수량("절반", "두 배", "twice", 한글 수사)과 ASCII 로마(XII)는 막지 않음 — 글에 수치가 없다고 보증하지 않고, 원본은 `facts`, 화면은 facts 우선 + text 에 "모델 설명" 출처 표시로 설계 3절에 명시.
+- 검증: `tests/test_eng_orchestrator.py` 78건 통과, Ruff 0건. Codex `test_audit_2.py`+`test_resume_edges_3.py` 92 통과 / 14 실패 — 10건은 위 판단으로 받아들인 수량·ASCII 로마·"열 포인트", 4건은 깊이 100·400 중첩을 받아들이길 기대하지만 32 상한으로 invalid_answer(보고서가 허용한 "일관된 거절"). 전체 시험 안 돌림. 커밋 없음.
+
+## 2026-11-27 · Codex · taemin (오케스트레이터 3차 검증 — 비유한 수·설명 경계 보완 필요)
+- 한 일 / 닫힘: 지정 66건 통과, Ruff 0건. facts는 결과 원본 보존, failed/stopped 부분 설명은 모델 없이 고정 글·status 원본 facts 확인. 기본 invalid_answer 거절 뒤 메모리/Postgres 정상 재개, 계획 계약 경계·유한한 잘못된 edits 미보존 확인. 기존 회귀 22건·프로세스 종료 6지점·sync 인자 제거 음성 대조 모두 통과. 사용자 Command(resume) 제품 경로는 runtime.resume 구현과 tick뿐.
+- 전체 확인: ./scripts/test.ps1 → 1572 passed / 1 skipped / 실패 0 (858.34초). 지난 Docker kill_reclaim 실패도 재발하지 않음.
+- 안 닫힘: 모델 글의 구십구 배·열 개 더·절반·두 배·ninety nine·twice·½·²·①·十 및 XII배·V 배가 저장됨. facts 원본은 바뀌지 않음. 반대 판정 글도 저장되지만 facts/text로 분리됨(설계에 적힌 잔여 위험). 실제 화면의 출처 구별은 아직 검증 안 함.
+- 새로 확인: runtime.resume가 NaN·±Infinity를 허용. NaN/+Infinity 예산은 edits에 남아 propose 해시 오류로 멈추며 정상 승인·budget=10 수정도 같은 오류(메모리/Postgres). -Infinity는 입구 누락이나 예산 계약에서 거절되어 복구 가능. 중첩 400단계는 직렬화 TypeError, 순환 dict는 RecursionError로 invalid_answer가 아님(이 둘은 후속 승인 가능). 프로세스·포인트를 짚으면·LLM·CLI·CI 정상 문구 오탐도 확인.
+- 의견: 100단계 JSON·한글 1,048,576자·-0.0 메타데이터·일반 dict 하위 클래스는 양쪽 저장소에서 통과. reps 1.0은 계약상 정수 값으로 허용되고 1.5·bool은 거절. NaN/+Infinity가 상태를 고착시키는 입구 누락을 우선 판단할 필요. 과잉 차단·수치 우회 허용 여부는 ① 판단, 실제 모델 차단율로 일반화하지 않음.
+- 재현·상세: D:\final_test\orch_audit\REPORT_3.md. 외부 test_audit_2.py·test_pg_boundary_2.py만 새 기대값으로 갱신하고 *.before_3.py.bak 보존. test_resume_edges_3.py와 *_3.log에 재현·기대·실제. 이전 REPORT.md·REPORT_2.md 보존. 실제 저장 API·최종 결과 조회·오케스트레이터 HTTP 연결은 범위 밖. 제품 코드·계약·기존 테스트·체크리스트 수정 없음, handoff 기록만 추가. 커밋 없음.
+
+## 2026-11-27 · Claude · taemin (오케스트레이터 Codex 재검증 반영)
+- 한 일: 설명 검사를 "근거 숫자와 맞춰 보기"에서 **"모델 글에 숫자 금지"** 로 바꿈 — 숫자·판정·근거 ID 는 `explanation.facts`(저장값 그대로), 모델은 숫자 없는 글만(`brain.prose_problems`: 숫자(전각)·%·퍼센트·포인트·로마 숫자 → blocked). `explain_partial` 은 모델 없이 정해진 글(추천 말투 우회 원천 차단). 사용자 응답 입구 `runtime.resume` — dict·JSON 값·bigint 범위가 아니면 그래프에 넣지 않고 `ValueError("invalid_answer")`(Postgres 에서 같은 오류 반복되던 문제). 노드도 dict 아닌 응답은 빈 응답으로. 계획 수정값은 `plan_proposal_request` 계약으로 검사(edits 타입·reps 범위·예산 > 0). 설계 3절 규칙 갱신.
+- 검증: `tests/test_eng_orchestrator.py` 66건 통과, Ruff 0건. Codex `test_audit_2.py` 는 없어진 `unsupported` 를 불러 수집 안 됨(재검증 때 갱신 필요). `test_pg_boundary_2.py` 3건은 옛 예외(AttributeError 등)를 기대하는 관찰 시험이라 이제 `ValueError: invalid_answer` 로 실패 = 입구에서 막힘. 전체 시험은 안 돌림. 커밋 없음.
+- 남은 위험: 퍼센트·포인트가 안 붙은 한글 수사("구십구 배", "열 개 더"), 판정과 반대되는 설명 글은 코드로 못 막음 — `facts` 가 원본. `82%`·`0.820` 과잉 차단 문제는 글에서 숫자를 없애 사라짐.
+
+## 2026-11-27 · Claude · taemin (등록·실험 초안 HTTP)
+- 한 일: dev(②④ 11/27) 병합 후 `api/eng_intake.py` 추가 — `POST /api/agents`(④ `register_agent`), `POST /api/slots/{slot_id}/candidates`(④ `register_candidate`), `POST /api/experiments`(④ `create_experiment_draft`, 응답 `{experiment_id, status: draft}`). 계약 검사는 라우터에서 먼저(④ 함수의 ContractError 는 500 이 되므로 422 로). 만든 사람은 MCP 서버와 같은 `SLOTAGENT_USER_ID`, 없거나 숫자가 아니면 501. ④ 코드 변경 없음.
+- 검증: `tests/test_eng_api_intake.py` — 등록 → 후보 → plan-proposal → 초안 → status(draft, pending 수)를 HTTP 로만, 계약 밖 422·없는 자리 404·같은 라벨 409·사용자 없음 501. 전체 1571 passed / 1 failed / 1 skipped, Ruff 0건. 실패는 `test_eng_docker.py::test_docker_initialize_timeout`(이번 변경과 무관한 Docker 시험, 단독 재실행 통과 — 기존 Docker 간헐 실패와 같은 종류로 보임). 커밋 없음.
+- 남은 일: 화면 등록·설계 단계를 이 API 에 연결, 오케스트레이터 4단계 실제 HTTP.
+- 의문점: 계약에 후보 등록 응답 모양이 없어 `{candidate_id}` 로 돌려줌(계약 추가는 4명 확인). 로그인 전이라 사용자는 환경 변수 하나(shortcut). `register_candidate` 는 자체 트랜잭션이 없어 라벨 겹침 DB 오류가 바깥 트랜잭션을 깨뜨림 — 앱은 autocommit 이라 문제없음.
+
+## 2026-11-27 · Codex · taemin (오케스트레이터 Codex 반영분 재검증 — 설명·입력 경계 보완 필요)
+- 한 일 / 닫힘: 지정 43건 통과, Ruff 0건. 이전 외부 재현은 예상대로 45 통과 / 2 실패(잘못된 설명을 저장하지 않고 blocked로 보내는 정책 차이, 새 기대값 시험은 통과). 후보 조회 BackendError→blocked→같은 노드 재시도, bool 등 ID 타입·비정상 candidate_ids 거절, goal 승인자·기록, 비문자 Reply.text→bad_reply 확인. 해시·tick·스키마 회귀 및 프로세스 종료 6지점 모두 통과. sync 인자 제거 시 새 직접 확인 시험이 exit 1로 실제 검출함(제품 파일 대신 메모리에서만 제거).
+- 전체 확인: ./scripts/test.ps1 → 1532 passed / 1 skipped / 실패 0 (770.60초). 지난 Docker kill_reclaim 실패는 이번 전체 실행에서 재발하지 않음.
+- 안 닫힘: unsupported는 한글·로마자 수치, 근거 숫자의 항목·단위·부호 바꾸기, 후보 번호로 분석 인용 대신하기를 통과시켜 저장. failed 설명의 권장·쓰는 게 좋겠습니다·추천 합니다 등도 통과. 목표 원문의 99%를 실측값 근거로 인정하는 동작은 새 설계 문구에는 맞지만 DB 수치 원칙과 긴장.
+- 새로 확인: dict 아닌 resume는 4개 대기 모두 예외(None은 LangGraph UnboundLocalError, 리스트·문자열은 ans.get AttributeError). Postgres에서 [] 입력 뒤 그래프 재생성·정상 승인으로도 같은 리스트 오류 반복. edits 전체가 문자열·리스트·정수일 때 .items 예외. 64비트 밖 거대 ID 수정은 resume 직렬화 TypeError(일반 64비트 큰 ID는 정상 거절). 수정으로 새로 생겼다고 단정하지 않고 입력 경계 미완료로 보고.
+- 의견: 잘못된 글을 저장하지 않고 blocked로 보내는 정책은 타당. 0.82→82%·0.820, 4.1→4.10 같은 정상 표현 차단과 추천 부정문 오인이 있음. 실제 저장소 리포트 예시로 관찰했으나 실제 LLM·최종 결과 연결 전이라 운영 차단율은 산정 못함. 수정 여부는 ① 판단.
+- 재현·상세: D:\final_test\orch_audit\REPORT_2.md 및 test_audit_2.py, test_pg_boundary_2.py, sync_mutation_2.py, report_shape_2.py와 *_2.log. 이전 REPORT.md·test_audit.py 보존. 실제 저장 API·최종 결과 조회·HTTP 연결은 범위 밖. 코드·계약·기존 테스트·체크리스트 수정 없음, handoff 기록만 추가. 커밋 없음.
+
+## 2026-11-27 · Claude · taemin (오케스트레이터 Codex 검증 반영)
+- 한 일: 실패 4건 수정 — `list_candidates` 의 BackendError → blocked, 설명은 저장 전 `brain.unsupported` 검사(근거에 없는 숫자·근거 ID 누락·부분 결과의 추천 말투 → `blocked(explanation_rejected)`, 저장 안 함), 후보 ID 는 `type(v) is int` 로(true 차단), 후보 수정은 타입 먼저 확인(`[1,{}]` 등 → edit_error 로 다시 물음). 의견 반영 — action 오타·빈 응답은 같은 대기로 돌아감(명시적 reject 만 END, blocked 포함), goal 승인도 `by` 필수 + `approvals.goal` 기록, 모델이 글 아닌 값 → `ModelError("bad_reply")` → blocked, `runtime.step` 이 `durability="sync"` 를 넘기는지 직접 확인하는 시험 추가. 설계 문서 3절 표·규칙 반영(후보 선택 문구 모순도 정리).
+- 검증: `tests/test_eng_orchestrator.py` 43건 통과, Ruff 0건. Codex `test_audit.py` 47건 중 45 통과 / 2 실패 — 남은 2건(`numeric_explanation_filtered`·`partial_recommendation_filtered`)은 설명이 걸러진 채 저장되기를 기대하지만, 수정은 저장하지 않고 blocked 로 보냄(KeyError 'explanation'). 기대값 차이라 코드로 맞추지 않음. 전체 시험은 이번에 다시 안 돌림. 커밋 없음.
+- 남은 일·의문점: 숫자 검사는 글자 그대로 비교라 "0.82 → 82%" 같은 바꿔 쓰기도 막음(엄격). 추천 말투 검사는 단어 목록(shortcut). 일반 네트워크 예외는 4단계 HTTP 연결부가 BackendError 로 바꿔야 함. `thread_ids` 내부 의존·Docker 시험 1건 간헐 실패(원인 미확정, 오케스트레이터 밖)는 그대로.
+
+## 2026-11-27 · Codex · taemin (오케스트레이터 1차 검증 — 보완 필요)
+- 한 일: 설계 4·5·6·8절과 graph·brain·runtime·가짜 시험 검증. 지정 오케스트레이터 23건 통과, Ruff 0건. 후보·reps·예산·대상 ID 해시 무효화, run 승인 묶임, 후보 수정 제한, tick 격리·예외 경계·30회 재개, blocked 재시도·저장 문맥 보존, orchestrator 스키마 격리 확인. 종료 지점 6곳(plan_ok 재개 직후·propose·watch·explain·create·run) 모두 같은 create_key·실험 1개·실행 1회 유지.
+- 실패한 것: candidates의 list_candidates BackendError가 blocked 대신 전파됨. 모델의 허구 수치·근거 ID와 failed 상태의 추천이 그대로 explanation에 저장됨. JSON true가 정수 후보 ID로 통과해 요청에 들어감. candidate_ids=[1,{}] 수정은 거절 안내 대신 TypeError로 plan_ok에서 멈춤. 재현과 기대/실제값은 외부 보고서에 기록.
+- 전체 확인: ./scripts/test.ps1 → 1511 passed / 1 failed / 1 skipped (975.55초). 실패는 test_eng_docker.py::test_docker_worker_kill_reclaim의 12초 내 컨테이너 시작 확인. 같은 시험 단독 재실행은 통과(exit 0), 원인 미확정. 전체 통과로 기록하지 않음.
+- 의견: action 오타는 goal·plan·run에서 조용히 END, goal 승인은 by 없이 진행. ModelError 아닌 타입·네트워크 예외는 실패 노드에 남고 watch만 tick 자동 복구. runtime.thread_ids는 private _cursor·내부 표 의존. sync 대신 async 5회와 인자 실제 생략 1회도 종료 시험 통과하므로 기존 시험은 sync 제거를 검출하지 못함(불필요하다는 뜻은 아님). 수정 여부는 ① 판단.
+- 재현·상세: D:\final_test\orch_audit\REPORT.md, test_audit.py(47건 분할 실행: 34 통과 / 13 실패, 실패에는 의견의 더 엄격한 기대값 8건 포함), test_process_audit.py, audit_proc.py, repro_suite_failure.ps1 및 로그. 재현 파일은 저장소 밖에만 둠.
+- 범위 / 남은 일: 실제 저장 API 중복 방지·최종 결과 조회·실제 HTTP 연결 완료는 보증하지 않음. 제품 코드·계약·기존 테스트·체크리스트 변경 없음. handoff 기록만 추가, 커밋 없음.
+
+## 2026-11-27 · Claude · taemin (오케스트레이터 1차 구현 — 가짜 Backend)
+- 한 일: 설계 8절 1~3단계. `orchestrator/graph.py`(노드 13개, `Backend`·`Brain` 연결부, 승인 = 요청 전체 `canonical_hash`·보여 준 해시로만 승인, `experiment_locked` → watch 복구, blocked 재시도는 실패한 노드로·저장 뒤엔 run_ok 앞으로 안 감), `brain.py`(`common/llm.ChatModel` 로 목표·선택 이유·설명, 출력은 코드가 거름), `runtime.py`(스키마 `orchestrator` 의 `PostgresSaver`, `durability="sync"`, 구동기 `tick` 은 `kind="wait"` 만).
+- 설계와 다른 점: 대상 ID(agent_version·slot·pack)는 호출자가 넘기고 LLM 은 관심 축만 구조화 — 설계 3절 "DB 값 중에서만" 보다 좁힘. 상태의 `step` 칸은 체크포인트가 알고 있어 뺌.
+- 검증: `tests/test_eng_orchestrator.py` 15건 — 그래프 재생성 전체 흐름(tick 30번), 후보·반복·예산 수정 시 옛 승인 무효, tick 은 wait 만, 501 → blocked → 재시도, 후보 없음, 끝난 실험 재요청 복구(done·stopped), done 인데 최종 결과 없음, **하위 프로세스 강제 종료**(저장 직후·실행 직후) 뒤 실험 1개·실행 1회, LLM 출력 거르기. Ruff 0건. 커밋 없음.
+- 자체 검토 보완: 계획 수정의 후보는 그래프가 거른 목록(`pool`) 안에서만·기준 맨 앞(서버 `_check_request` 는 자리만 봄), 승인자(`by`) 없는 승인 무효, 모델 오류(`ModelError`)는 그래프 예외 대신 blocked → 재시도, `tick` 은 한 스레드 예외에도 나머지를 깨우고 watch 직전에 멈춘 스레드를 이어 감. 시험 23건.
+- 남은 일: 4단계 실제 run·status HTTP(fixture 실험), 5단계 `final_analysis_id`·`complete_analysis_ids` 분리, 실제 LLM 설정(공급자·모델 이름을 어디서 읽을지), 구동기를 띄울 프로세스(워커에 붙일지 따로 둘지).
+- 의문점: `runtime.thread_ids` 가 LangGraph 내부 `_cursor`·`checkpoints` 표를 직접 읽음(shortcut 주석) — 버전 올리면 확인.
+
+## 2026-11-27 · Claude · taemin (ReDoS 허용 범위 측정 · 값 상한 128자)
+- 한 일: Codex 재검증이 보안 필터에 막혀 직접 측정. `pattern_risk` 가 허용하는 조합 57,835개(긴 반복 14종 × 1~3개, 짧은 선택 10종, 앞뒤 배치, (?i)·[\s\S]·\w·원자 그룹·소유 반복 포함)를 24자 값으로 거른 뒤 가장 느린 300개를 자식 프로세스 3초 제한으로 다시 잼. 지수적으로 터지는 허용 패턴은 없음. 다만 다항 최악이 256자에서 1.57초(`(?i)A*a*(?:a|b)*a?a?a?b`, 대소문자 무시·섞인 문자 집합이 느림)라 채점 값 상한을 256 → **128자**로 낮춤 → 128자 최악 0.13초. 시험의 최악 사례에 이 모양을 넣고 기준을 0.5초로. 스크립트 `D:\final_test\redos_audit\measure_allowed.py`, 결과 `measure_allowed.json`.
+- 검증: 전체 1489 passed / 1 skipped(작업 트리의 다른 세션 오케스트레이터 시험 포함), Ruff 0건. 커밋 없음.
+- 남은 일: 128자를 넘는 인자 값(긴 쿼리 문자열 등)은 기능 판정 불가가 됨 — 실제 도구 인자 길이를 보고 조정할 수 있음. 모양 검사라 측정 밖 우회 가능성은 그대로(확실히 하려면 프로세스 시간 제한·RE2 등, 보고 대상).
+
+## 2026-11-27 · Claude · taemin (오케스트레이터 1차 설계 문서)
+- 한 일: `docs/eng_orchestrator_design_1127.md` 작성 — 고정 시나리오, LangGraph 노드·상태·전이, 승인 2단계(저장·실행), 중복 요청, H→I 는 `status == done` + 최종 분석, 교체 가능한 `Backend` 연결부, 첫 완료 기준. Codex 검토 반영: 승인 비교를 `proposal_hash` 대신 요청 전체 `canonical_hash` 로(`create_key` 도), 끝난 실험 실행 재요청 `experiment_locked` → status 로 복구, `watch` 는 한 번 읽고 interrupt + 외부 구동기(recursion_limit 25), `final_analysis_id` 는 전체 채점 + 리포트 2종 중 가장 큰 ID·게이트도 같은 함수, 그래프 시험(전부 가짜)과 실제 HTTP 시험(fixture 실험) 분리, 마이그레이션 0007, 예상 비용 "산정 전", blocked 재시도는 실패한 노드로. 2차 검토 반영: 시험을 그래프 재생성(메모리 가짜)·프로세스 종료(가짜 상태를 임시 DB 에)·실제 연결로 나눔, 감시를 `watch → wait(interrupt) → tick → watch` 로 하고 구동기는 `kind="wait"` 만 깨움, 게이트 오류 구분용 보조 조회 `complete_analysis_ids`. 코드·계약 변경 없음. 커밋 없음.
+- 남은 일: 구현 1~6단계, `final_analysis_id` 분리(① 엔진).
+- 의문점: 초안 저장 중복 방지 키(계약·④), 최종 분석 HTTP 노출 방법, 후보 목록 API, 승인 기록 DB 저장 여부, stopped·failed 설명 범위, 예상 비용 계산 — 문서 7절.
+
+## 2026-11-27 · Claude · taemin (ReDoS 우회 3건 보완)
+- 한 일: Codex 우회 3건(`(a?a?)+b`, `a?`×60…, `(?:a?){60}a{30}`)의 원인은 `?`(0~1번)를 셈에서 뺀 것 — `?` 하나가 경우의 수를 2배로 늘려 60개면 2^60. `pattern_risk` 셈법을 바꿈: 두 번 이상 도는 반복 안에는 `?` 포함 어떤 반복·갈래도 금지 / 긴 반복(`*`,`+`, 폭 16 초과 `{n,m}`)은 3개까지 / 짧은 선택(`?`, 폭 16 이하 `{n,m}`, `|`)의 경우의 수 곱은 8까지. 채점 값 길이 상한을 512 → 256자로 낮춤(경우의 수 8 × 긴 반복 3개 최악 모양이 512자면 약 1초, 256자면 약 0.06초).
+- 검증: Codex 재현 스크립트 3 passed / 0 failed(등록·채점 모두 거절). `tests/test_eng_redos.py` 에 우회 3건 + 갈래·짧은 {n,m} 경우의 수 2건 추가, 최악 허용 모양 시간 시험을 경우의 수 상한까지 포함해 바꿈. 전체 1488 passed / 1 skipped, Ruff 0건. 커밋 없음.
+- 남은 일: 모양 검사라 새 우회가 있을 수 있음 — 확실히 막으려면 별도 프로세스 시간 제한이나 `regex`/RE2 같은 의존성이 필요(보고 대상). 기존 의문점(계약 설명 한 줄, ④ 등록 문구)은 그대로.
+
+## 2026-11-27 · Codex · taemin (ReDoS 수정 검증 — 보완 필요)
+- 한 일: 기존 ReDoS·과정 채점·감사·등록 관련 시험과 Ruff 통과. 별도 우회 검증은 3건 모두 실패하여 수정 완료로 볼 수 없음. 재현 스크립트는 저장소 밖 `D:\final_test\redos_audit\verify_redos.py`에만 저장. 제품 코드·계약·기존 시험 변경 없음.
+- 남은 일: `checks.pattern_risk`의 선택적 반복 처리 보완 후 재검증 필요. 전체 시험은 이번에 다시 돌리지 않음. 커밋 없음.
+
+## 2026-11-27 · Claude · taemin (call_capabilities 정규식 ReDoS 막기)
+- 한 일: Python re 에는 시간 제한이 없어 모양으로 막음. `common/checks.pattern_risk` — 역참조·조건부·전후방 탐색 금지, 여러 번 반복(`*`,`+`,`{n,m}`) 안에 또 반복이나 갈래(`|`) 금지, 여러 번 반복은 3개까지(`?` 한 번 반복은 셈에서 뺌). 등록(`check_registration`)이 이걸로 거절하고, 채점(`eng_rules._rule_capabilities`)도 같은 검사를 다시 해 위험하면 그 호출만 판정 불가(`call_capability_pattern_invalid`). 채점 때 인자 값이 512자를 넘으면 판정 불가(`call_capability_value_too_long`) — 겹치는 반복 3개 × 512자가 수십 ms 안쪽(1024자면 0.4초, 반복 4개면 수십 초라 둘 다 필요).
+- 검증: `tests/test_eng_redos.py` 16건(허용 5 · 거절 9 · 최악 허용 모양 1초 안 · 채점 거절). 과정 채점 시험 그대로 통과. 전체 1483 passed / 1 skipped, Ruff 0건. 커밋 없음.
+- 의문점 (④·계약): 계약 `common.schema.json` 의 pattern 설명은 "Python re 정규식 (fullmatch)" 뿐이라 이 제한이 적혀 있지 않음 — 계약 설명 한 줄 추가는 4명 확인 필요. 등록 화면·④ 등록 쪽 오류 문구도 이 이유를 그대로 보여 줌. 이미 저장된 후보에 위험한 정규식이 있으면 채점 때 판정 불가로 바뀜(지금 저장된 곳은 시험뿐).
+
+## 2026-11-27 · Codex · taemin (① 현재 상태 전체 검증)
+- 한 일: `./scripts/test.ps1` 전체 1467 passed / 1 skipped / 실패 0 (445.04초), `backend/`의 `uv run ruff check .` 0건. DB 이름 규칙 검사·Docker 격리·규칙 채점·파일럿·재생·API·MCP·반복 워커를 포함한 기존 시험 통과. 프런트 `npm run typecheck`, 계약 재생성 결과와 현재 `contracts.ts`의 완전 일치, `npm run test:e2e` 데스크톱·모바일 10건, `npm run build` 모두 통과.
+- 추가 확인: 실제 진행 화면은 브라우저에서 모의 API로 시작 → 상태 표시(2/6) → 중단(6/6)·중단 버튼 비활성화까지 확인, 브라우저 오류 0건. 실제 실험이나 유료 모델은 호출하지 않음. 제품 코드·계약·테스트 수정 없음. 빌드가 바꾼 `next-env.d.ts`는 검증 전 내용으로 복원. 커밋 없음.
+- 남은 일 / 범위: 실제 4사 모델 연결, Linux 호스트 Docker, ② 판정·연습 서버 및 ③ 분석·리포트·표본 수와 ④ 실험 저장을 붙인 전체 흐름은 이번 결과로 보증하지 않음. 기존 데모 화면 시험과 별도로 실제 진행 화면은 모의 API 검증임. 새로 재현된 결함·계약 충돌 없음.
 
 ## 2026-11-27 · Claude · taemin (화면 타입 재생성 · README)
 - 한 일: `npm run generate:types` 로 `frontend/src/types/contracts.ts` 를 지금 계약으로 다시 만듦(그동안 밀린 call_capabilities·target_args·process_policy·in_scope 등 반영), `npm run typecheck` 통과. README 진행 상황을 11/27 기준으로 고침(테이블 34개, 시험 1466, 반복 워커·재생·과정 채점·API·MCP 서버, 실제 OpenAI 실행 범위)과 "API · 워커 · 화면 연결" 실행법 추가.

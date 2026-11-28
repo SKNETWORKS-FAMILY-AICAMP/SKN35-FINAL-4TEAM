@@ -19,7 +19,10 @@
 """
 from __future__ import annotations
 
+import functools
 import re
+import re._constants as _rc
+import re._parser as _rp
 from collections.abc import Iterable, Mapping
 from typing import Any
 
@@ -99,6 +102,65 @@ def check_registration(connection_type: str, agent_spec: Mapping[str, Any]) -> N
     _raise("invalid_spec", errs)
 
 
+MAX_PATTERN_REPEATS = 3  # 겹치는 반복 3개 × 값 128자(eng_rules.MAX_PATTERN_VALUE_CHARS)
+MAX_PATTERN_CHOICES = 8  # 짧은 선택의 경우의 수 곱. 둘을 곱한 최악 모양도 값 128자에서 0.2초 안쪽 (test_eng_redos)
+_REPEATS = (_rc.MAX_REPEAT, _rc.MIN_REPEAT, _rc.POSSESSIVE_REPEAT)
+_FORBIDDEN = (_rc.GROUPREF, _rc.GROUPREF_EXISTS, _rc.ASSERT, _rc.ASSERT_NOT)
+
+
+@functools.lru_cache(maxsize=256)
+def pattern_risk(pattern: str) -> str | None:
+    """사용자 정규식이 되돌아가기 폭발(ReDoS)을 낼 수 있는 모양이면 이유, 아니면 None.
+
+    Python re 에는 시간 제한이 없어 모양으로 막음. 되돌아가기 시간 ≈ (갈래 경우의 수) × (값 길이)^(긴 반복 수) 이므로:
+    역참조·전후방 탐색 금지 / 두 번 이상 도는 반복 안에 반복(?) 포함)·갈래 금지 /
+    긴 반복(*, +, 폭이 16을 넘는 {n,m})은 MAX_PATTERN_REPEATS 개까지 /
+    짧은 선택(?, 폭 16 이하 {n,m}, |)의 경우의 수 곱은 MAX_PATTERN_CHOICES 까지. 채점 때 값 길이 상한과 같이 써야 묶임.
+    """
+    try:
+        tree = _rp.parse(pattern)  # 표준 라이브러리 re 의 내부 파서 (3.11+ 이름)
+    except (re.error, OverflowError, RecursionError):
+        return "읽을 수 없습니다"
+    repeats, choices = 0, 1
+
+    def walk(items, in_repeat):
+        nonlocal repeats, choices
+        for op, av in items:
+            if op in _FORBIDDEN:
+                return "역참조·전후방 탐색은 쓸 수 없습니다"
+            if op in _REPEATS:
+                low, high, body = av
+                if in_repeat:
+                    return "반복 안에 반복을 둘 수 없습니다"
+                if high - low > 16:
+                    repeats += 1
+                else:
+                    choices *= high - low + 1
+                found = walk(body, high > 1)
+            elif op is _rc.BRANCH:
+                if in_repeat:
+                    return "반복 안에 갈래(|)를 둘 수 없습니다"
+                choices *= len(av[1])
+                found = next((r for b in av[1] if (r := walk(b, in_repeat))), None)
+            elif op is _rc.SUBPATTERN:
+                found = walk(av[-1], in_repeat)
+            elif op is _rc.ATOMIC_GROUP:
+                found = walk(av, in_repeat)
+            else:
+                found = None
+            if found:
+                return found
+        return None
+
+    if found := walk(tree, False):
+        return found
+    if repeats > MAX_PATTERN_REPEATS:
+        return f"긴 반복(*, +, {{n,m}})은 {MAX_PATTERN_REPEATS}개까지입니다"
+    if choices > MAX_PATTERN_CHOICES:
+        return f"선택(?, |, 짧은 {{n,m}})의 경우의 수가 {MAX_PATTERN_CHOICES}를 넘습니다"
+    return None
+
+
 def _call_capability_errors(tool: Mapping[str, Any]) -> list[str]:
     """과정 채점용 호출별 기능·대상 인자 (선택). 인자는 도구 인자 스키마에 있어야 하고, 정규식은 컴파일돼야 함."""
     errs = []
@@ -110,10 +172,8 @@ def _call_capability_errors(tool: Mapping[str, Any]) -> list[str]:
             errs.append(f"{tool['name']} 의 call_capabilities 기능 {rule['capability']} 이(가) capabilities 에 없습니다")
         if rule["arg"] not in props:
             errs.append(f"{tool['name']} 의 call_capabilities 인자 {rule['arg']} 이(가) 도구 인자에 없습니다")
-        try:
-            re.compile(rule["pattern"])
-        except (re.error, OverflowError, RecursionError):
-            errs.append(f"{tool['name']} 의 call_capabilities 정규식을 읽을 수 없습니다")
+        if problem := pattern_risk(rule["pattern"]):
+            errs.append(f"{tool['name']} 의 call_capabilities 정규식: {problem}")
     for role, arg in tool.get("target_args", {}).items():
         if arg not in props:
             errs.append(f"{tool['name']} 의 target_args.{role} 인자 {arg} 이(가) 도구 인자에 없습니다")

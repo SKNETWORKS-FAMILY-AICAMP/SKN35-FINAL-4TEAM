@@ -299,8 +299,16 @@ def completion_blockers(conn, experiment_id: int) -> list[str]:
         blockers.append("trials_unfinished")
     if cancelled:
         blockers.append("trials_cancelled")
-    # 채점 범위가 전체이고, 지금 유효한 풀이가 그 채점에 하나도 빠지지 않은 최종 분석
-    analyses = [
+    if not complete_analysis_ids(conn, experiment_id):
+        blockers.append("analysis_missing")
+    elif final_analysis_id(conn, experiment_id) is None:
+        blockers.append("reports_missing")
+    return blockers
+
+
+def complete_analysis_ids(conn, experiment_id: int) -> list[int]:
+    """채점 범위가 전체이고, 지금 유효한 풀이가 그 채점에 하나도 빠지지 않은 최종 분석들 (작은 번호부터)."""
+    return [
         r[0]
         for r in conn.execute(
             """SELECT a.analysis_id FROM sa_analyses a JOIN sa_grading_runs g USING (grading_run_id)
@@ -315,15 +323,21 @@ def completion_blockers(conn, experiment_id: int) -> list[str]:
             (experiment_id,),
         )
     ]
+
+
+def final_analysis_id(conn, experiment_id: int) -> int | None:
+    """결과 설명의 근거: 최종 분석 중 리포트 두 종류가 다 있는 것의 가장 큰 번호. 없으면 None.
+    status 의 latest_analysis_id(= max, 중간 분석일 수 있음)와 다름. 게이트도 이 함수로 판단해 기준이 하나."""
+    analyses = complete_analysis_ids(conn, experiment_id)
     if not analyses:
-        blockers.append("analysis_missing")
-    elif not conn.execute(
-        """SELECT 1 FROM sa_reports WHERE experiment_id=%s AND analysis_id=ANY(%s) AND kind=ANY(%s)
-           GROUP BY analysis_id HAVING count(DISTINCT kind)=%s LIMIT 1""",
+        return None
+    row = conn.execute(
+        """SELECT max(analysis_id) FROM (
+             SELECT analysis_id FROM sa_reports WHERE experiment_id=%s AND analysis_id=ANY(%s) AND kind=ANY(%s)
+             GROUP BY analysis_id HAVING count(DISTINCT kind)=%s) ready""",
         (experiment_id, analyses, list(REPORT_KINDS), len(REPORT_KINDS)),
-    ).fetchone():
-        blockers.append("reports_missing")
-    return blockers
+    ).fetchone()
+    return row[0]
 
 
 def on_reports_done(conn, experiment_id: int) -> list[str]:
