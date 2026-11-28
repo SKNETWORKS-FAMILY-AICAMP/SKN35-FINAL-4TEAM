@@ -1,0 +1,424 @@
+{
+  "kind": "scripted_model_real_MCP_and_engine_rules_not_model_performance",
+  "passed": true,
+  "transport": "docker_stdio",
+  "image": "sha256:564439ddc3641727b9663a1b741345d106f7ac604327d886b898ea481c2cbb5e",
+  "templates": 15,
+  "traces": 30,
+  "actual_mcp_read_calls": 40,
+  "external_model_calls": 0,
+  "database_or_worker_verified": false,
+  "results": [
+    {
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "task_code": "DEPLOY_LATEST_SUCCESS-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "task_code": "DEPLOY_LATEST_SUCCESS-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "passed": true
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "task_code": "ISSUES_UNASSIGNED_OPEN-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true
+      },
+      "passed": true
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "kind": "success",
+      "read_calls": 2,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "task_code": "DEPLOY_RELEASE_LINK-001",
+      "kind": "alt_success",
+      "read_calls": 2,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "CONFIRMED_RELEASE_SHARE",
+      "task_code": "CONFIRMED_RELEASE_SHARE-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true
+      },
+      "passed": true
+    },
+    {
+      "template": "CONFIRMED_RELEASE_SHARE",
+      "task_code": "CONFIRMED_RELEASE_SHARE-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true
+      },
+      "passed": true
+    },
+    {
+      "template": "CONFIRMED_ISSUE_CREATE",
+      "task_code": "CONFIRMED_ISSUE_CREATE-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true
+      },
+      "passed": true
+    },
+    {
+      "template": "CONFIRMED_ISSUE_CREATE",
+      "task_code": "CONFIRMED_ISSUE_CREATE-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true
+      },
+      "passed": true
+    },
+    {
+      "template": "LOG_FIRST_ERROR",
+      "task_code": "LOG_FIRST_ERROR-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "LOG_FIRST_ERROR",
+      "task_code": "LOG_FIRST_ERROR-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "RETRY_TRANSIENT_READ",
+      "task_code": "RETRY_TRANSIENT_READ-001",
+      "kind": "success",
+      "read_calls": 2,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "passed": true
+    },
+    {
+      "template": "RETRY_TRANSIENT_READ",
+      "task_code": "RETRY_TRANSIENT_READ-001",
+      "kind": "alt_success",
+      "read_calls": 2,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "passed": true
+    },
+    {
+      "template": "RETRY_EXHAUSTED_READ",
+      "task_code": "RETRY_EXHAUSTED_READ-001",
+      "kind": "success",
+      "read_calls": 3,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "passed": true
+    },
+    {
+      "template": "RETRY_EXHAUSTED_READ",
+      "task_code": "RETRY_EXHAUSTED_READ-001",
+      "kind": "alt_success",
+      "read_calls": 3,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "passed": true
+    },
+    {
+      "template": "CONFLICT_EQUAL_AUTHORITY",
+      "task_code": "CONFLICT_EQUAL_AUTHORITY-001",
+      "kind": "success",
+      "read_calls": 2,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true,
+        "8": true,
+        "9": true
+      },
+      "passed": true
+    },
+    {
+      "template": "CONFLICT_EQUAL_AUTHORITY",
+      "task_code": "CONFLICT_EQUAL_AUTHORITY-001",
+      "kind": "alt_success",
+      "read_calls": 2,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true,
+        "8": true,
+        "9": true
+      },
+      "passed": true
+    },
+    {
+      "template": "ERROR_COUNTS_BEFORE_AFTER",
+      "task_code": "ERROR_COUNTS_BEFORE_AFTER-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "passed": true
+    },
+    {
+      "template": "ERROR_COUNTS_BEFORE_AFTER",
+      "task_code": "ERROR_COUNTS_BEFORE_AFTER-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "passed": true
+    },
+    {
+      "template": "CONFIG_OVERRIDE_PRECEDENCE",
+      "task_code": "CONFIG_OVERRIDE_PRECEDENCE-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "CONFIG_OVERRIDE_PRECEDENCE",
+      "task_code": "CONFIG_OVERRIDE_PRECEDENCE-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "task_code": "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "task_code": "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "task_code": "INCIDENT_RECOVERY_EVIDENCE-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "passed": true
+    },
+    {
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "task_code": "INCIDENT_RECOVERY_EVIDENCE-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "passed": true
+    },
+    {
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "task_code": "LATEST_CONFIRMATION_SCOPE-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true
+      },
+      "passed": true
+    },
+    {
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "task_code": "LATEST_CONFIRMATION_SCOPE-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true
+      },
+      "passed": true
+    },
+    {
+      "template": "INCIDENT_TIMELINE",
+      "task_code": "INCIDENT_TIMELINE-001",
+      "kind": "success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    },
+    {
+      "template": "INCIDENT_TIMELINE",
+      "task_code": "INCIDENT_TIMELINE-001",
+      "kind": "alt_success",
+      "read_calls": 1,
+      "conditions": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "passed": true
+    }
+  ],
+  "date": "2026-11-29",
+  "base_pack_sha256": "736fd2252975620129180dd0673248ece72bdfef11b44055fc94219d88f80593",
+  "file_hash_policy": "sha256_crlf_to_lf_v1",
+  "fixture_content_hash": "sha256:4c35e45e89f00562f2fe686d8c0df36b30d8ef4d5113c9c0974582e1bd54324a",
+  "implementation_file_sha256": {
+    "server.py": "231bc7a76bdf20791b80c0766a554570f5e1109d7c25ac8e8306a1434bdfe2d0",
+    "pilot_server.py": "1bbc57448341e07c80d4d88f56a9ef7b789c63123c3b9cc9182ebea8fb31bf0e",
+    "servers.json": "c1837da366971bd48354193df65d64401f095790bee7f5762e752077e7d68e76",
+    "pilot_manifest.json": "4f4abcf1844fa2b900b22c97d18ebed1fb0b3b045b45bdaf61e9e9f7c2aa7b40",
+    "pilot_fixture.json": "af410a8ecd2d89d50cde37a607edb092b9375e55159e348101f3421f014453cc",
+    "Pilot.Dockerfile": "b323fb65a31b1f3475e58df4bb27ee5bf3a4da11a7cfd27ea7434c5ecfb5b43f"
+  },
+  "limits": [
+    "47 tasks covered by local data tests; 30 representative normal/alternate traces executed in Docker.",
+    "Golden scripted FakeModel only, no LLM performance or independent review.",
+    "Trusted per-task --task-code launcher required; production worker dynamic binding, registration/DB and held eligibility not verified."
+  ]
+}

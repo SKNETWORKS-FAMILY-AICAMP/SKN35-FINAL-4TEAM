@@ -1,5 +1,28 @@
 # P-03 연습 MCP 서버 안내
 
+## 11/29 파일럿15유형 연결
+
+기존 `servers.json`과 조회 서버0.1.1은 유지한다. 별도 `pilot_server.py`·`pilot_manifest.json`이 기존5도구와 추가11도구를 제공한다. 파일럿 목록15유형 중 기존 조회 서버와 겹치는 것은3유형이며 이번 추가 대상은12유형이다. 명세에 있는47문항의 자료를 제공하되 실제 모델 성능을 검증한 것은 아니다.
+
+- `scripts/prepare_pilot_server.py`는 원본에서 공개할 문맥·원문만 명시적으로 투영한다. `pilot_fixture.json`은 서버 전용이며 재시도 응답 순서가 포함되므로 에이전트 입력·MCP resource로 전달하지 않는다. 쓰기 receipt·정답·골든·사용자 응답 정책은 제외한다.
+- `query_issue_ids`는 같은 repo에도 transient/persistent 자료가 있으므로 운영자가 `--task-code`로 선택한다. 모델이 선택하는 인자가 아니며 자료 선택에 정답 조건은 사용하지 않는다. 매 trial/attempt마다 새 프로세스로 띄워 카운터를 초기화한다. 공용 워커의 고정 servers 설정에 한 문항 코드를 넣어 전체 큐를 돌리면 안 된다. 문항별 바인딩은①과 추가 연결해야 한다.
+- `post_message`·`create_issue`는 도구 목록에 있지만 서버 직접 호출은 거절한다. 엔진의 기존 fake write_proxy가 승인·거절·무응답과 쓰기를 처리한다. 내장 확인 도구를 MCP에 중복 구현하지 않는다.
+- 정상·대체 골든30개를 실제 Docker MCP→엔진 run_agent→제품 규칙 함수로 검증했다.15유형 통과, 실제 조회40회. FakeModel이 골든 동작을 따라간 것이며 실제 모델·등록·DB·공용 워커 검증은 아니다. 결과는 `pilot_verification.json`에 보존한다.
+- 신규 매핑은 개발 명세만 사용한다. 공식 capability 사전·target_args·link-v2 계약·잠긴 팩·held 자격을 바꾸지 않았다. 새 서버가 기존 이슈/설정 문자열을 정답으로 해석하지 않으며 조회 데이터의 지시문은 참고 데이터다.
+
+로컬 빌드·검증(저장소 루트):
+
+```powershell
+backend/.venv/Scripts/python.exe scripts/prepare_pilot_server.py
+docker build -f packs/it_ops/v0.1/practice/Pilot.Dockerfile -t slotagent-it-ops-pilot:0.1.0 .
+docker image inspect slotagent-it-ops-pilot:0.1.0 --format '{{.Id}}'
+backend/.venv/Scripts/python.exe packs/it_ops/v0.1/practice/check_pilot_mcp.py --docker-image sha256:564439ddc3641727b9663a1b741345d106f7ac604327d886b898ea481c2cbb5e --report tmp/pilot-docker-check.json
+```
+
+위 해시는 검증한 이 PC의 이미지 ID다. 다른 PC에서 빌드하면 로컬 이미지 ID를 확인하고 명세·fixture·코드 해시를 대조한다. 원본3개만 `/data`로 읽기 전용 마운트하며 네트워크 차단·비특권 사용자·읽기 전용 파일시스템을 사용한다. 기존 A/B5대3 도구 계획은 기존 조회 서버용으로 유지하며 새16도구 후보 비교안으로 자동 승격하지 않는다.
+
+## 기존 조회 서버 기록
+
 11/27 후속 환경 점검: [environment_review.json](environment_review.json)에5도구의 응답 경계·13개 데이터 설계 기록·전체152문항의 노출 위험을 기록했다. 결과 암시 scenario_id15문항과 도구 성공 보장3문항을 수정해 해당 패턴은0건이다. [수정·해시·검증 기록](prompt_revision_1127.json)과 [검토 내용](../REVIEW_CHECKLIST.md)을 참고한다. 변경된 scenarios/evidence는 현재 Docker의3개 마운트 원본에 포함되지 않으므로 서버 이미지0.1.1은 유지한다. 실제 MCP 범위는8유형26문항이며 나머지42유형의 환경 완료를 뜻하지 않는다. DB `sa_env_checks` 승인·팩 잠금·독립 검수는 수행하지 않았다.
 
 현재 **GitHub 합성 조회 서버0.1.1 구현·로컬 Docker 빌드·stdio 통신38호출 검증 완료(11/27)** 상태다. 단일 평가팩 안의 조회 그룹8유형·26문항을 지원하는 도구5개를 제공한다. 전체50유형 중 나머지42유형의 Slack 쓰기/DB 조회/장애 전용 도구는 이 서버에 아직 없다.

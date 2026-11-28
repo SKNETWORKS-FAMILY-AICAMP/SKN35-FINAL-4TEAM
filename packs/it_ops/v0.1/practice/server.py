@@ -90,15 +90,16 @@ async def serve(data):
     async def list_tools(context, params):
         return types.ListToolsResult(tools=[types.Tool(
             name=t["name"], description=t["semantics"], inputSchema=t["input_schema"],
-            annotations=types.ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False),
+            annotations=types.ToolAnnotations(readOnlyHint=t['access'] == 'read', destructiveHint=False, openWorldHint=False),
         ) for t in data.tools.values()])
 
     async def call_tool(context, params):
         try:
             result = data.call(params.name, params.arguments or {})
-            return types.CallToolResult(content=[types.TextContent(type="text", text=json.dumps(result, ensure_ascii=False))])
-        except (ValueError, KeyError, TypeError, ValidationError) as exc:
-            return types.CallToolResult(isError=True, content=[types.TextContent(type="text", text=str(exc))])
+            return types.CallToolResult(isError=isinstance(result, dict) and result.get('ok') is False,
+                                        content=[types.TextContent(type="text", text=json.dumps(result, ensure_ascii=False))])
+        except (ValueError, KeyError, TypeError, StopIteration, ValidationError):
+            return types.CallToolResult(isError=True, content=[types.TextContent(type="text", text='invalid_tool_request')])
 
     async def list_resources(context, params):
         return types.ListResourcesResult(resources=[types.Resource(
@@ -110,7 +111,7 @@ async def serve(data):
         return types.ReadResourceResult(contents=[types.TextResourceContents(
             uri=RESOURCE, mimeType="application/json", text=json.dumps(data.metadata(), ensure_ascii=False))])
 
-    server = Server("slotagent-github-practice", version=VERSION, on_list_tools=list_tools,
+    server = Server("slotagent-github-practice", version=data.server['version'], on_list_tools=list_tools,
                     on_call_tool=call_tool, on_list_resources=list_resources, on_read_resource=read_resource)
     async with stdio_server() as (read, write):
         await server.run(read, write, server.create_initialization_options())
