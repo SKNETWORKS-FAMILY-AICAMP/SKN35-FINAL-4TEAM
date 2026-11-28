@@ -1,6 +1,7 @@
 """P-03 명세의 고정 데이터 해시·도구 스키마·capability 포괄 여부를 검증한다."""
 
 import json
+import importlib.util
 import sys
 from pathlib import Path
 
@@ -65,6 +66,21 @@ def verify_practice(pack_dir=PACK_DIR, require_launchable=False):
         raise ValueError(f"Missing capabilities: {required - capabilities}")
     if require_launchable and not launchable:
         raise ValueError("Practice server image/command is not built or pinned yet")
+    spec = importlib.util.spec_from_file_location("practice_coverage", pack_dir / "practice/server.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    data = module.PracticeData(pack_dir / "practice/servers.json", pack_dir / "data")
+    family = {"github.actions.read": ("list_deployments", "list_operation_runs"),
+              "github.issues.read": ("list_issues", "list_operation_issues"),
+              "github.releases.read": ("list_operation_releases",)}
+    for task in pack["tasks"]:
+        if task["template"] not in covered:
+            continue
+        template = next(t for t in templates if t["code"] == task["template"])
+        for capability in template["required_capabilities"]:
+            for name in family[capability]:
+                if not data.call(name, {"repo": task["slot_values"]["repo"]}):
+                    raise ValueError(f"Practice data unavailable: {task['code']} via {name}")
     return {"spec_checks_passed": True, "launchable": bool(launchable), "snapshots": len(datasets),
             "tools": tool_count, "templates_covered_by_capability": len(templates), "pack_templates": len(pack["templates"]),
             "actual_mcp_verified": False}

@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "status": "prepared_not_executed",
+  "pack_content_hash": "sha256:5463abc043c427f7580ad1b464f0927a17a79c5add230f3d0c7926699f36ce47",
+  "comparison": "5 read tools vs 3 read tools; equal source-record coverage, fixed descriptions and runtime",
+  "model": {
+    "provider": "openai",
+    "name": "gpt-4.1-mini",
+    "temperature": 0
+  },
+  "instructions": "업무에 필요한 사실은 도구로 확인하고 각 문항의 응답 규격을 따르세요. 조회만 수행하고 변경·외부 공유하지 마세요.",
+  "candidate_specs": {
+    "A": {
+      "schema_version": 1,
+      "services": [
+        {
+          "code": "github",
+          "name": "GitHub"
+        }
+      ],
+      "mcp_servers": [
+        {
+          "name": "github",
+          "package": "slotagent-it-ops-practice",
+          "version": "0.1.1",
+          "transport": "stdio",
+          "image_digest": "sha256:46304f779a8e555c542b5646724b1df354c031a3b1c9496acb664150853e4d64"
+        }
+      ],
+      "tools": [
+        {
+          "name": "list_deployments",
+          "description": "모든 연습 저장소의 배포 실행 조회. deployments와 operations의 같은 전체 데이터 범위를 제공하며 실행 번호는 정수 run_id. sha·started_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음.",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "capabilities": [
+            "github.actions.read"
+          ],
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "list_issues",
+          "description": "모든 연습 저장소의 이슈 조회. issues와 operations의 같은 전체 데이터 범위를 제공하며 이슈 번호는 문자열 number. updated_at·closed_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음.",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "capabilities": [
+            "github.issues.read"
+          ],
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "list_operation_runs",
+          "description": "모든 연습 저장소의 배포 실행 조회. list_deployments와 같은 전체 데이터 범위를 제공하며 실행 번호는 문자열 id. sha·started_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음.",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "capabilities": [
+            "github.actions.read"
+          ],
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "list_operation_issues",
+          "description": "모든 연습 저장소의 이슈 조회. list_issues와 같은 전체 데이터 범위를 제공하며 이슈 번호는 문자열 id. updated_at·closed_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음.",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "capabilities": [
+            "github.issues.read"
+          ],
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "list_operation_releases",
+          "description": "operations 고정 데이터의 릴리스 조회. repo·tag·sha를 반환. 배포 여부는 같은 저장소의 성공 배포 실행 sha와 비교하며 릴리스 목록만으로 단정하지 않음. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음.",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "capabilities": [
+            "github.releases.read"
+          ],
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ],
+      "runtime": {
+        "max_steps": 30,
+        "timeout_sec": 300,
+        "max_api_retries": 3,
+        "max_output_tokens": 1024
+      }
+    },
+    "B": {
+      "schema_version": 1,
+      "services": [
+        {
+          "code": "github",
+          "name": "GitHub"
+        }
+      ],
+      "mcp_servers": [
+        {
+          "name": "github",
+          "package": "slotagent-it-ops-practice",
+          "version": "0.1.1",
+          "transport": "stdio",
+          "image_digest": "sha256:46304f779a8e555c542b5646724b1df354c031a3b1c9496acb664150853e4d64"
+        }
+      ],
+      "tools": [
+        {
+          "name": "list_deployments",
+          "description": "모든 연습 저장소의 배포 실행 조회. deployments와 operations의 같은 전체 데이터 범위를 제공하며 실행 번호는 정수 run_id. sha·started_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음.",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "capabilities": [
+            "github.actions.read"
+          ],
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "list_issues",
+          "description": "모든 연습 저장소의 이슈 조회. issues와 operations의 같은 전체 데이터 범위를 제공하며 이슈 번호는 문자열 number. updated_at·closed_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음.",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "capabilities": [
+            "github.issues.read"
+          ],
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "list_operation_releases",
+          "description": "operations 고정 데이터의 릴리스 조회. repo·tag·sha를 반환. 배포 여부는 같은 저장소의 성공 배포 실행 sha와 비교하며 릴리스 목록만으로 단정하지 않음. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음.",
+          "service": "github",
+          "access": "read",
+          "origin": "mcp:github",
+          "capabilities": [
+            "github.releases.read"
+          ],
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ],
+      "runtime": {
+        "max_steps": 30,
+        "timeout_sec": 300,
+        "max_api_retries": 3,
+        "max_output_tokens": 1024
+      }
+    }
+  },
+  "worker_stdio": {
+    "kind": "docker",
+    "scope": "role2-ab-local",
+    "servers": {
+      "github": {
+        "image": "sha256:46304f779a8e555c542b5646724b1df354c031a3b1c9496acb664150853e4d64",
+        "arguments": [],
+        "mounts": [
+          {
+            "source": "C:\\study\\SKN35-FINAL-4TEAM\\packs\\it_ops\\v0.1\\data\\deployments.json",
+            "target": "/data/deployments.json"
+          },
+          {
+            "source": "C:\\study\\SKN35-FINAL-4TEAM\\packs\\it_ops\\v0.1\\data\\issues.json",
+            "target": "/data/issues.json"
+          },
+          {
+            "source": "C:\\study\\SKN35-FINAL-4TEAM\\packs\\it_ops\\v0.1\\data\\operations.json",
+            "target": "/data/operations.json"
+          }
+        ],
+        "allowed_data_roots": [
+          "C:\\study\\SKN35-FINAL-4TEAM\\packs\\it_ops\\v0.1\\data"
+        ]
+      }
+    }
+  },
+  "tasks": [
+    {
+      "code": "DEPLOY_LATEST_SUCCESS-001",
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "seed": 1
+    },
+    {
+      "code": "DEPLOY_LATEST_SUCCESS-002",
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "seed": 2
+    },
+    {
+      "code": "DEPLOY_LATEST_SUCCESS-003",
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "seed": 3
+    },
+    {
+      "code": "DEPLOY_LATEST_SUCCESS-004",
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "seed": 4
+    },
+    {
+      "code": "ISSUES_UNASSIGNED_OPEN-001",
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "seed": 1
+    },
+    {
+      "code": "ISSUES_UNASSIGNED_OPEN-002",
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "seed": 2
+    },
+    {
+      "code": "ISSUES_UNASSIGNED_OPEN-003",
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "seed": 3
+    },
+    {
+      "code": "ISSUES_UNASSIGNED_OPEN-004",
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "seed": 4
+    },
+    {
+      "code": "DEPLOY_FAILURES_PERIOD-001",
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "seed": 1
+    },
+    {
+      "code": "DEPLOY_FAILURES_PERIOD-002",
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "seed": 2
+    },
+    {
+      "code": "DEPLOY_FAILURES_PERIOD-003",
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "seed": 3
+    },
+    {
+      "code": "DEPLOY_RECOVERY-001",
+      "template": "DEPLOY_RECOVERY",
+      "seed": 1
+    },
+    {
+      "code": "DEPLOY_RECOVERY-002",
+      "template": "DEPLOY_RECOVERY",
+      "seed": 2
+    },
+    {
+      "code": "DEPLOY_RECOVERY-003",
+      "template": "DEPLOY_RECOVERY",
+      "seed": 3
+    },
+    {
+      "code": "ISSUES_STALE_UNASSIGNED-001",
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "seed": 1
+    },
+    {
+      "code": "ISSUES_STALE_UNASSIGNED-002",
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "seed": 2
+    },
+    {
+      "code": "ISSUES_STALE_UNASSIGNED-003",
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "seed": 3
+    },
+    {
+      "code": "DEPLOY_RELEASE_LINK-001",
+      "template": "DEPLOY_RELEASE_LINK",
+      "seed": 1
+    },
+    {
+      "code": "DEPLOY_RELEASE_LINK-002",
+      "template": "DEPLOY_RELEASE_LINK",
+      "seed": 2
+    },
+    {
+      "code": "DEPLOY_RELEASE_LINK-003",
+      "template": "DEPLOY_RELEASE_LINK",
+      "seed": 3
+    },
+    {
+      "code": "DEPLOY_FAILURE_STREAK-001",
+      "template": "DEPLOY_FAILURE_STREAK",
+      "seed": 1
+    },
+    {
+      "code": "DEPLOY_FAILURE_STREAK-002",
+      "template": "DEPLOY_FAILURE_STREAK",
+      "seed": 2
+    },
+    {
+      "code": "DEPLOY_FAILURE_STREAK-003",
+      "template": "DEPLOY_FAILURE_STREAK",
+      "seed": 3
+    },
+    {
+      "code": "DEPLOY_UNDEPLOYED_RELEASES-001",
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "seed": 1
+    },
+    {
+      "code": "DEPLOY_UNDEPLOYED_RELEASES-002",
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "seed": 2
+    },
+    {
+      "code": "DEPLOY_UNDEPLOYED_RELEASES-003",
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "seed": 3
+    }
+  ],
+  "actual_supported_templates": 8,
+  "tasks_count": 26,
+  "reps_1_trials": 52,
+  "blocked_before_real_execution": [
+    "Answer-format policy and source historical12 review pending.",
+    "Evidence gates remain unchanged; use only a demo, not validated success-rate claims.",
+    "No DB pack lock/environment approval or real model/judge run performed.",
+    "Fix and record resolved model version, prereg, reps, seed, prices and budget before execution."
+  ],
+  "model_input_boundary": "Send only task.prompt, fixed instructions and candidate tool definitions; no task codes, expected conditions, golden traces or environment-review artifacts."
+}

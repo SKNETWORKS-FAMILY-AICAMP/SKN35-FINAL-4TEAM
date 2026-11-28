@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "purpose": "review_inventory_only_not_candidate_permissions",
-  "manifest_sha256": "6547da169ce96882c5014911d7fd5a5cf271bc80c04b9eaf366375e5e941d626",
+  "manifest_sha256": "6965b25739a6a3f7d35525950640dc8d374e2aaf149fac4db9e7ee1e6bca18ff",
   "notes": [
     "Observed arguments are not an input schema.",
     "Local access describes simulator behavior, not candidate authority.",
@@ -339,11 +339,21 @@
                 "type": [
                   "string"
                 ]
+              },
+              "sha": {
+                "type": [
+                  "string"
+                ]
+              },
+              "started_at": {
+                "type": [
+                  "string"
+                ]
               }
             }
           }
         },
-        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        "semantics": "모든 연습 저장소의 배포 실행 조회. deployments와 operations의 같은 전체 데이터 범위를 제공하며 실행 번호는 정수 run_id. sha·started_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
       },
       "observed": {
         "templates": [
@@ -466,11 +476,22 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "updated_at": {
+                "type": [
+                  "string"
+                ]
+              },
+              "closed_at": {
+                "type": [
+                  "null",
+                  "string"
+                ]
               }
             }
           }
         },
-        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        "semantics": "모든 연습 저장소의 이슈 조회. issues와 operations의 같은 전체 데이터 범위를 제공하며 이슈 번호는 문자열 number. updated_at·closed_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
       },
       "observed": {
         "templates": [
@@ -517,12 +538,10 @@
             "additionalProperties": false,
             "required": [
               "assignees",
-              "closed_at",
               "id",
               "labels",
               "repo",
-              "state",
-              "updated_at"
+              "state"
             ],
             "properties": {
               "id": {
@@ -570,7 +589,7 @@
             }
           }
         },
-        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        "semantics": "모든 연습 저장소의 이슈 조회. list_issues와 같은 전체 데이터 범위를 제공하며 이슈 번호는 문자열 id. updated_at·closed_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
       },
       "observed": {
         "templates": [
@@ -639,7 +658,7 @@
             }
           }
         },
-        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        "semantics": "operations 고정 데이터의 릴리스 조회. repo·tag·sha를 반환. 배포 여부는 같은 저장소의 성공 배포 실행 sha와 비교하며 릴리스 목록만으로 단정하지 않음. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
       },
       "observed": {
         "templates": [
@@ -690,8 +709,6 @@
               "finished_at",
               "id",
               "repo",
-              "sha",
-              "started_at",
               "status",
               "version"
             ],
@@ -739,7 +756,7 @@
             }
           }
         },
-        "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+        "semantics": "모든 연습 저장소의 배포 실행 조회. list_deployments와 같은 전체 데이터 범위를 제공하며 실행 번호는 문자열 id. sha·started_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
       },
       "observed": {
         "templates": [

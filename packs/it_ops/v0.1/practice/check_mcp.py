@@ -9,12 +9,14 @@ from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from server import PracticeData
 
 HERE = Path(__file__).resolve().parent
 
 
 async def check(command, args):
     manifest = json.loads((HERE / "servers.json").read_text(encoding="utf-8"))
+    expected_data = PracticeData(HERE / "servers.json", HERE.parent / "data")
     async with stdio_client(StdioServerParameters(command=command, args=args)) as streams:
         async with ClientSession(*streams, read_timeout_seconds=15) as session:
             initialized = await session.initialize()
@@ -23,6 +25,7 @@ async def check(command, args):
             assert {t.name for t in listed.tools} == set(expected)
             for tool in listed.tools:
                 assert tool.input_schema == expected[tool.name]["input_schema"]
+                assert tool.description == expected[tool.name]["semantics"]
             metadata_result = await session.read_resource("slotagent://practice/manifest")
             metadata = json.loads(metadata_result.contents[0].text)
             assert metadata["version"] == manifest["services"][0]["version"]
@@ -30,12 +33,12 @@ async def check(command, args):
             assert metadata["snapshot_hashes"] == {s["id"]: s["content_hash"] for s in manifest["snapshots"]}
             calls = 0
             for name, tool in expected.items():
-                source = next(s for s in manifest["snapshots"] if s["id"] == tool["source_snapshot"])
-                rows = json.loads((HERE.parent / source["path"]).read_text(encoding="utf-8"))[tool["source_key"]]
-                for arguments in ({}, {"repo": rows[0]["repo"]}, {"repo": "acme/no-such-repository"}):
+                rows = expected_data.call(name, {})
+                for arguments in ({}, *({"repo": repo} for repo in sorted({r["repo"] for r in rows})),
+                                  {"repo": "acme/no-such-repository"}):
                     result = await session.call_tool(name, arguments)
                     assert not result.is_error
-                    assert json.loads(result.content[0].text) == [r for r in rows if not arguments or r["repo"] == arguments["repo"]]
+                    assert json.loads(result.content[0].text) == expected_data.call(name, arguments)
                     calls += 1
                 result = await session.call_tool(name, {"unexpected": True})
                 assert result.is_error

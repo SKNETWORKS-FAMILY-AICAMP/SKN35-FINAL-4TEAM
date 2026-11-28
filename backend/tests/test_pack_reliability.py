@@ -32,10 +32,10 @@ def test_pack_and_sixty_scenarios(tmp_path):
 
 def test_independent_fixed_answers_and_empty_middle_page():
     by_code = {t["code"]: t for t in tasks()}
-    assert module.oracle(by_code["RETRY_TRANSIENT_READ-001"], module.load_case("transient-1")) == {
+    assert module.oracle(by_code["RETRY_TRANSIENT_READ-001"], module.load_case("case-831da297")) == {
         "status": "complete", "items": ["101", "102"], "call_count": 2}
-    assert module.oracle(by_code["RETRY_TRANSIENT_READ-003"], module.load_case("transient-3"))["call_count"] == 3
-    assert module.oracle(by_code["RETRY_EXHAUSTED_READ-001"], module.load_case("persistent-1")) == {
+    assert module.oracle(by_code["RETRY_TRANSIENT_READ-003"], module.load_case("case-f2b495a3"))["call_count"] == 3
+    assert module.oracle(by_code["RETRY_EXHAUSTED_READ-001"], module.load_case("case-9fa018c2")) == {
         "status": "unavailable", "items": [], "call_count": 3}
     assert module.oracle(by_code["PAGINATED_ISSUES_COMPLETE-001"], module.load_case("pages-1")) == {
         "status": "complete", "items": ["101", "102", "103", "104"], "call_count": 3}
@@ -47,7 +47,7 @@ def test_independent_fixed_answers_and_empty_middle_page():
 
 
 def test_per_candidate_attempt_state_isolation():
-    case = module.load_case("transient-1")
+    case = module.load_case("case-831da297")
     first, second = module.ToolEnvironment(case), module.ToolEnvironment(case)
     request = {"repo": case["repo"]}
     assert not first.call(request)["ok"]
@@ -81,7 +81,7 @@ def test_forged_or_incomplete_evidence_fails(change):
 def test_wrong_arguments_are_not_valid_exhaustion():
     task = next(t for t in tasks() if t["code"] == "RETRY_EXHAUSTED_READ-001")
     trace = module.simulate(task, "success")
-    environment = module.ToolEnvironment(module.load_case("persistent-1"))
+    environment = module.ToolEnvironment(module.load_case("case-9fa018c2"))
     for span in trace["spans"]:
         span["tool_args"]["repo"] = "acme/other"
         span["tool_result"] = json.dumps(environment.call(span["tool_args"]))
@@ -96,3 +96,26 @@ def test_duplicate_page_response_does_not_change_fixture():
     reply["items"].clear()
     assert environment.call({"repo": case["repo"], "cursor": None})["items"]
     assert case == original
+
+
+@pytest.mark.parametrize("code", ["RETRY_TRANSIENT_READ-001", "RETRY_TRANSIENT_READ-003", "RETRY_EXHAUSTED_READ-001"])
+def test_expected_replayed_failures_accept_engine_tool_error(code):
+    selected = next(t for t in tasks() if t["code"] == code)
+    trace = module.simulate(selected, "success")
+    for span in trace["spans"]:
+        if json.loads(span["tool_result"]).get("ok") is False:
+            span["error"] = "tool_error"
+    assert module.grade(selected, trace)["success"]
+
+
+@pytest.mark.parametrize("change", ["error_on_success", "environment_error", "forged_reply"])
+def test_error_marker_cannot_excuse_wrong_results(change):
+    selected = next(t for t in tasks() if t["code"] == "RETRY_TRANSIENT_READ-001")
+    trace = module.simulate(selected, "success")
+    if change == "error_on_success":
+        trace["spans"][-1]["error"] = "tool_error"
+    else:
+        trace["spans"][0]["error"] = "tool_error" if change == "forged_reply" else "env_mcp_server_down"
+        if change == "forged_reply":
+            trace["spans"][0]["tool_result"] = '{"ok":false,"error":"permission_denied"}'
+    assert not module.grade(selected, trace)["success"]

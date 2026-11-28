@@ -1,0 +1,1486 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-27",
+  "status": "proposal_not_applied_not_independent_approval",
+  "source_pack": "it_ops/v0.1",
+  "proposed_destination": "it_ops/v0.2",
+  "source_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "summary": {
+    "dev_types": 15,
+    "held_candidate_types": 35,
+    "dev_tasks": 47,
+    "held_candidate_tasks": 105,
+    "confirmed_held_types": 0,
+    "held_candidate_actual_mcp_supported": 0
+  },
+  "groups": {
+    "lookup": {
+      "dev": 8
+    },
+    "writes": {
+      "dev": 2,
+      "held_candidate": 7
+    },
+    "incidents": {
+      "dev": 1,
+      "held_candidate": 8
+    },
+    "reliability": {
+      "dev": 1,
+      "held_candidate": 2
+    },
+    "conflicts": {
+      "dev": 1,
+      "held_candidate": 2
+    },
+    "metrics": {
+      "dev": 1,
+      "held_candidate": 5
+    },
+    "workflows": {
+      "dev": 1,
+      "held_candidate": 11
+    }
+  },
+  "rules": [
+    "Split whole templates, never task variants of the same template across dev/held.",
+    "Documented real-model failure-analysis types remain dev.",
+    "Source design, synthetic golden replay and pilot nomination are not automatically actual model failure exposure.",
+    "Lack of a local record is not evidence of no team/DB exposure; all held candidates remain unapproved.",
+    "Exposure carries across pack versions for the same or equivalent type; a new DB ID/version/seed alone does not reset it.",
+    "If a held candidate has been used for improvement, move it to dev and replace it with an independently prepared unexposed type. Do not force the count."
+  ],
+  "next_checks": [
+    "Role1/4 export task exposures including timestamp, reason, viewer and original template identity across versions.",
+    "Team confirm which actual failed outputs were used to change agent/model prompts/tools.",
+    "Choose and connect actual held adapters before a held-only real-model pilot.",
+    "After approval, create and validate v0.2 as a new pack; do not update locked v0.1.",
+    "Freeze held content and keep future optimization agents from reading held failures."
+  ],
+  "immediate_demo": "Use the 8 supported dev types as an explicitly marked internal demo, not held effectiveness evidence. Current pilot forces held; needs an explicit separate dev-demo path.",
+  "database_modified": false,
+  "v02_created": false,
+  "rows": [
+    {
+      "template": "DEPLOY_LATEST_SUCCESS",
+      "group": "lookup",
+      "task_codes": [
+        "DEPLOY_LATEST_SUCCESS-001",
+        "DEPLOY_LATEST_SUCCESS-002",
+        "DEPLOY_LATEST_SUCCESS-003",
+        "DEPLOY_LATEST_SUCCESS-004"
+      ],
+      "task_count": 4,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "실제 모델 실행·실패 분석 기록이 있어 dev 유지",
+      "actual_mcp_supported": true,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "keep_dev",
+      "evidence": [
+        {
+          "kind": "documented_real_model_run_and_failure_analysis",
+          "source": "docs/handoff.md: 2026-11-26 real pilot, 8 served types x A/B",
+          "raw_trials_verified": false
+        },
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "ISSUES_UNASSIGNED_OPEN",
+      "group": "lookup",
+      "task_codes": [
+        "ISSUES_UNASSIGNED_OPEN-001",
+        "ISSUES_UNASSIGNED_OPEN-002",
+        "ISSUES_UNASSIGNED_OPEN-003",
+        "ISSUES_UNASSIGNED_OPEN-004"
+      ],
+      "task_count": 4,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "실제 모델 실행·실패 분석 기록이 있어 dev 유지",
+      "actual_mcp_supported": true,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "keep_dev",
+      "evidence": [
+        {
+          "kind": "documented_real_model_run_and_failure_analysis",
+          "source": "docs/handoff.md: 2026-11-26 real pilot, 8 served types x A/B",
+          "raw_trials_verified": false
+        },
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        },
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "ISSUES_UNASSIGNED_OPEN-004"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "DEPLOY_FAILURES_PERIOD",
+      "group": "lookup",
+      "task_codes": [
+        "DEPLOY_FAILURES_PERIOD-001",
+        "DEPLOY_FAILURES_PERIOD-002",
+        "DEPLOY_FAILURES_PERIOD-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "실제 모델 실행·실패 분석 기록이 있어 dev 유지",
+      "actual_mcp_supported": true,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "keep_dev",
+      "evidence": [
+        {
+          "kind": "documented_real_model_run_and_failure_analysis",
+          "source": "docs/handoff.md: 2026-11-26 real pilot, 8 served types x A/B",
+          "raw_trials_verified": false
+        }
+      ]
+    },
+    {
+      "template": "DEPLOY_RECOVERY",
+      "group": "lookup",
+      "task_codes": [
+        "DEPLOY_RECOVERY-001",
+        "DEPLOY_RECOVERY-002",
+        "DEPLOY_RECOVERY-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "실제 모델 실행·실패 분석 기록이 있어 dev 유지",
+      "actual_mcp_supported": true,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "keep_dev",
+      "evidence": [
+        {
+          "kind": "documented_real_model_run_and_failure_analysis",
+          "source": "docs/handoff.md: 2026-11-26 real pilot, 8 served types x A/B",
+          "raw_trials_verified": false
+        }
+      ]
+    },
+    {
+      "template": "ISSUES_STALE_UNASSIGNED",
+      "group": "lookup",
+      "task_codes": [
+        "ISSUES_STALE_UNASSIGNED-001",
+        "ISSUES_STALE_UNASSIGNED-002",
+        "ISSUES_STALE_UNASSIGNED-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "실제 모델 실행·실패 분석 기록이 있어 dev 유지",
+      "actual_mcp_supported": true,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "keep_dev",
+      "evidence": [
+        {
+          "kind": "documented_real_model_run_and_failure_analysis",
+          "source": "docs/handoff.md: 2026-11-26 real pilot, 8 served types x A/B",
+          "raw_trials_verified": false
+        },
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "ISSUES_STALE_UNASSIGNED-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "DEPLOY_RELEASE_LINK",
+      "group": "lookup",
+      "task_codes": [
+        "DEPLOY_RELEASE_LINK-001",
+        "DEPLOY_RELEASE_LINK-002",
+        "DEPLOY_RELEASE_LINK-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "실제 모델 실행·실패 분석 기록이 있어 dev 유지",
+      "actual_mcp_supported": true,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "keep_dev",
+      "evidence": [
+        {
+          "kind": "documented_real_model_run_and_failure_analysis",
+          "source": "docs/handoff.md: 2026-11-26 real pilot, 8 served types x A/B",
+          "raw_trials_verified": false
+        },
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "DEPLOY_FAILURE_STREAK",
+      "group": "lookup",
+      "task_codes": [
+        "DEPLOY_FAILURE_STREAK-001",
+        "DEPLOY_FAILURE_STREAK-002",
+        "DEPLOY_FAILURE_STREAK-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "실제 모델 실행·실패 분석 기록이 있어 dev 유지",
+      "actual_mcp_supported": true,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "keep_dev",
+      "evidence": [
+        {
+          "kind": "documented_real_model_run_and_failure_analysis",
+          "source": "docs/handoff.md: 2026-11-26 real pilot, 8 served types x A/B",
+          "raw_trials_verified": false
+        },
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "DEPLOY_FAILURE_STREAK-001",
+            "DEPLOY_FAILURE_STREAK-002",
+            "DEPLOY_FAILURE_STREAK-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "DEPLOY_UNDEPLOYED_RELEASES",
+      "group": "lookup",
+      "task_codes": [
+        "DEPLOY_UNDEPLOYED_RELEASES-001",
+        "DEPLOY_UNDEPLOYED_RELEASES-002",
+        "DEPLOY_UNDEPLOYED_RELEASES-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "실제 모델 실행·실패 분석 기록이 있어 dev 유지",
+      "actual_mcp_supported": true,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "keep_dev",
+      "evidence": [
+        {
+          "kind": "documented_real_model_run_and_failure_analysis",
+          "source": "docs/handoff.md: 2026-11-26 real pilot, 8 served types x A/B",
+          "raw_trials_verified": false
+        }
+      ]
+    },
+    {
+      "template": "CONFIRMED_RELEASE_SHARE",
+      "group": "writes",
+      "task_codes": [
+        "CONFIRMED_RELEASE_SHARE-001",
+        "CONFIRMED_RELEASE_SHARE-002",
+        "CONFIRMED_RELEASE_SHARE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "승인·거절·무응답 공유의 개발 대표",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "proposed_dev",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "CONFIRMED_ISSUE_CREATE",
+      "group": "writes",
+      "task_codes": [
+        "CONFIRMED_ISSUE_CREATE-001",
+        "CONFIRMED_ISSUE_CREATE-002",
+        "CONFIRMED_ISSUE_CREATE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "승인·거절·무응답 이슈 생성의 개발 대표",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "proposed_dev",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "LOG_FIRST_ERROR",
+      "group": "incidents",
+      "task_codes": [
+        "LOG_FIRST_ERROR-001",
+        "LOG_FIRST_ERROR-002",
+        "LOG_FIRST_ERROR-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "로그 조회·최초 오류의 개발 대표",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "proposed_dev",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "RUN_ISSUE_RELATION",
+      "group": "incidents",
+      "task_codes": [
+        "RUN_ISSUE_RELATION-001",
+        "RUN_ISSUE_RELATION-002",
+        "RUN_ISSUE_RELATION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "CONFIRMED_INCIDENT_SHARE",
+      "group": "incidents",
+      "task_codes": [
+        "CONFIRMED_INCIDENT_SHARE-001",
+        "CONFIRMED_INCIDENT_SHARE-002",
+        "CONFIRMED_INCIDENT_SHARE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "RETRY_TRANSIENT_READ",
+      "group": "reliability",
+      "task_codes": [
+        "RETRY_TRANSIENT_READ-001",
+        "RETRY_TRANSIENT_READ-002",
+        "RETRY_TRANSIENT_READ-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "재시도·tool_error 처리의 개발 대표",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "proposed_dev",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        },
+        {
+          "kind": "source_prompt_revision_not_proof_of_real_model_feedback",
+          "tasks": [
+            "RETRY_TRANSIENT_READ-001",
+            "RETRY_TRANSIENT_READ-002",
+            "RETRY_TRANSIENT_READ-003"
+          ],
+          "source": "packs/it_ops/v0.1/practice/prompt_revision_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "RETRY_EXHAUSTED_READ",
+      "group": "reliability",
+      "task_codes": [
+        "RETRY_EXHAUSTED_READ-001",
+        "RETRY_EXHAUSTED_READ-002",
+        "RETRY_EXHAUSTED_READ-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        },
+        {
+          "kind": "source_prompt_revision_not_proof_of_real_model_feedback",
+          "tasks": [
+            "RETRY_EXHAUSTED_READ-001",
+            "RETRY_EXHAUSTED_READ-002",
+            "RETRY_EXHAUSTED_READ-003"
+          ],
+          "source": "packs/it_ops/v0.1/practice/prompt_revision_1127.json"
+        },
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "RETRY_EXHAUSTED_READ-001",
+            "RETRY_EXHAUSTED_READ-002",
+            "RETRY_EXHAUSTED_READ-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "PAGINATED_ISSUES_COMPLETE",
+      "group": "reliability",
+      "task_codes": [
+        "PAGINATED_ISSUES_COMPLETE-001",
+        "PAGINATED_ISSUES_COMPLETE-002",
+        "PAGINATED_ISSUES_COMPLETE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "PAGINATED_ISSUES_COMPLETE-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "CONFLICT_EQUAL_AUTHORITY",
+      "group": "conflicts",
+      "task_codes": [
+        "CONFLICT_EQUAL_AUTHORITY-001",
+        "CONFLICT_EQUAL_AUTHORITY-002",
+        "CONFLICT_EQUAL_AUTHORITY-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "주 원본 충돌 판단의 개발 대표",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "proposed_dev",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        },
+        {
+          "kind": "source_prompt_revision_not_proof_of_real_model_feedback",
+          "tasks": [
+            "CONFLICT_EQUAL_AUTHORITY-001",
+            "CONFLICT_EQUAL_AUTHORITY-002",
+            "CONFLICT_EQUAL_AUTHORITY-003"
+          ],
+          "source": "packs/it_ops/v0.1/practice/prompt_revision_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "CONFLICT_FRESH_PRIMARY",
+      "group": "conflicts",
+      "task_codes": [
+        "CONFLICT_FRESH_PRIMARY-001",
+        "CONFLICT_FRESH_PRIMARY-002",
+        "CONFLICT_FRESH_PRIMARY-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "source_prompt_revision_not_proof_of_real_model_feedback",
+          "tasks": [
+            "CONFLICT_FRESH_PRIMARY-001",
+            "CONFLICT_FRESH_PRIMARY-002",
+            "CONFLICT_FRESH_PRIMARY-003"
+          ],
+          "source": "packs/it_ops/v0.1/practice/prompt_revision_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "CONFLICT_INSUFFICIENT_VERSION",
+      "group": "conflicts",
+      "task_codes": [
+        "CONFLICT_INSUFFICIENT_VERSION-001",
+        "CONFLICT_INSUFFICIENT_VERSION-002",
+        "CONFLICT_INSUFFICIENT_VERSION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "source_prompt_revision_not_proof_of_real_model_feedback",
+          "tasks": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ],
+          "source": "packs/it_ops/v0.1/practice/prompt_revision_1127.json"
+        },
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "CONFLICT_INSUFFICIENT_VERSION-001",
+            "CONFLICT_INSUFFICIENT_VERSION-002",
+            "CONFLICT_INSUFFICIENT_VERSION-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "ERROR_COUNTS_BEFORE_AFTER",
+      "group": "metrics",
+      "task_codes": [
+        "ERROR_COUNTS_BEFORE_AFTER-001",
+        "ERROR_COUNTS_BEFORE_AFTER-002",
+        "ERROR_COUNTS_BEFORE_AFTER-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "계산·범위 경계의 개발 대표",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "proposed_dev",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        },
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "ERROR_COUNTS_BEFORE_AFTER-001",
+            "ERROR_COUNTS_BEFORE_AFTER-002",
+            "ERROR_COUNTS_BEFORE_AFTER-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+      "group": "metrics",
+      "task_codes": [
+        "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+        "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+        "ERROR_RATE_TRAFFIC_NORMALIZED-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+            "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+            "ERROR_RATE_TRAFFIC_NORMALIZED-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "ERROR_EVENTS_DEDUPLICATED",
+      "group": "metrics",
+      "task_codes": [
+        "ERROR_EVENTS_DEDUPLICATED-001",
+        "ERROR_EVENTS_DEDUPLICATED-002",
+        "ERROR_EVENTS_DEDUPLICATED-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "ERROR_EVENTS_DEDUPLICATED-001",
+            "ERROR_EVENTS_DEDUPLICATED-002",
+            "ERROR_EVENTS_DEDUPLICATED-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "INCIDENT_INTERVAL_UNION",
+      "group": "metrics",
+      "task_codes": [
+        "INCIDENT_INTERVAL_UNION-001",
+        "INCIDENT_INTERVAL_UNION-002",
+        "INCIDENT_INTERVAL_UNION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "INCIDENT_INTERVAL_UNION-001",
+            "INCIDENT_INTERVAL_UNION-002",
+            "INCIDENT_INTERVAL_UNION-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "LATENCY_P90_NEAREST_RANK",
+      "group": "metrics",
+      "task_codes": [
+        "LATENCY_P90_NEAREST_RANK-001",
+        "LATENCY_P90_NEAREST_RANK-002",
+        "LATENCY_P90_NEAREST_RANK-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "LATENCY_P90_NEAREST_RANK-001",
+            "LATENCY_P90_NEAREST_RANK-002",
+            "LATENCY_P90_NEAREST_RANK-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "METRIC_MINIMUM_SAMPLE",
+      "group": "metrics",
+      "task_codes": [
+        "METRIC_MINIMUM_SAMPLE-001",
+        "METRIC_MINIMUM_SAMPLE-002",
+        "METRIC_MINIMUM_SAMPLE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "METRIC_MINIMUM_SAMPLE-001",
+            "METRIC_MINIMUM_SAMPLE-002",
+            "METRIC_MINIMUM_SAMPLE-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "CONFIG_OVERRIDE_PRECEDENCE",
+      "group": "workflows",
+      "task_codes": [
+        "CONFIG_OVERRIDE_PRECEDENCE-001",
+        "CONFIG_OVERRIDE_PRECEDENCE-002",
+        "CONFIG_OVERRIDE_PRECEDENCE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "dev",
+      "reason": "설정·타입·우선순위의 개발 대표",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "proposed_dev",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "TRACE_REQUEST_RECONSTRUCTION",
+      "group": "workflows",
+      "task_codes": [
+        "TRACE_REQUEST_RECONSTRUCTION-001",
+        "TRACE_REQUEST_RECONSTRUCTION-002",
+        "TRACE_REQUEST_RECONSTRUCTION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "TRACE_REQUEST_RECONSTRUCTION-001",
+            "TRACE_REQUEST_RECONSTRUCTION-002"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "DEPLOY_CHECKLIST_GAPS",
+      "group": "workflows",
+      "task_codes": [
+        "DEPLOY_CHECKLIST_GAPS-001",
+        "DEPLOY_CHECKLIST_GAPS-002",
+        "DEPLOY_CHECKLIST_GAPS-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "DEPLOY_CHECKLIST_GAPS-002"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "group": "workflows",
+      "task_codes": [
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-002",
+        "UNTRUSTED_ISSUE_INSTRUCTIONS-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+      "group": "workflows",
+      "task_codes": [
+        "REPOSITORY_ALLOWLIST_BOUNDARY-001",
+        "REPOSITORY_ALLOWLIST_BOUNDARY-002",
+        "REPOSITORY_ALLOWLIST_BOUNDARY-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "REPOSITORY_ALLOWLIST_BOUNDARY-002"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "PERMISSION_DENIED_VS_EMPTY",
+      "group": "workflows",
+      "task_codes": [
+        "PERMISSION_DENIED_VS_EMPTY-001",
+        "PERMISSION_DENIED_VS_EMPTY-002",
+        "PERMISSION_DENIED_VS_EMPTY-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "PERMISSION_DENIED_VS_EMPTY-002"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "NESTED_JSON_LOG_TYPES",
+      "group": "workflows",
+      "task_codes": [
+        "NESTED_JSON_LOG_TYPES-001",
+        "NESTED_JSON_LOG_TYPES-002",
+        "NESTED_JSON_LOG_TYPES-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "NESTED_JSON_LOG_TYPES-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "ISSUE_DUPLICATE_PREVENTION",
+      "group": "workflows",
+      "task_codes": [
+        "ISSUE_DUPLICATE_PREVENTION-001",
+        "ISSUE_DUPLICATE_PREVENTION-002",
+        "ISSUE_DUPLICATE_PREVENTION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "ISSUE_DUPLICATE_PREVENTION-002",
+            "ISSUE_DUPLICATE_PREVENTION-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "CONDITIONAL_FOLLOWUP_ACTION",
+      "group": "workflows",
+      "task_codes": [
+        "CONDITIONAL_FOLLOWUP_ACTION-001",
+        "CONDITIONAL_FOLLOWUP_ACTION-002",
+        "CONDITIONAL_FOLLOWUP_ACTION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "CONDITIONAL_FOLLOWUP_ACTION-001",
+            "CONDITIONAL_FOLLOWUP_ACTION-002",
+            "CONDITIONAL_FOLLOWUP_ACTION-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "MULTI_REQUEST_COMPLETION_REPORT",
+      "group": "workflows",
+      "task_codes": [
+        "MULTI_REQUEST_COMPLETION_REPORT-001",
+        "MULTI_REQUEST_COMPLETION_REPORT-002",
+        "MULTI_REQUEST_COMPLETION_REPORT-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "ISSUE_ROUTING_APPROVAL",
+      "group": "writes",
+      "task_codes": [
+        "ISSUE_ROUTING_APPROVAL-001",
+        "ISSUE_ROUTING_APPROVAL-002",
+        "ISSUE_ROUTING_APPROVAL-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "group": "writes",
+      "task_codes": [
+        "LATEST_CONFIRMATION_SCOPE-001",
+        "LATEST_CONFIRMATION_SCOPE-002",
+        "LATEST_CONFIRMATION_SCOPE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "MULTI_TARGET_APPROVAL",
+      "group": "writes",
+      "task_codes": [
+        "MULTI_TARGET_APPROVAL-001",
+        "MULTI_TARGET_APPROVAL-002",
+        "MULTI_TARGET_APPROVAL-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "source_prompt_revision_not_proof_of_real_model_feedback",
+          "tasks": [
+            "MULTI_TARGET_APPROVAL-001",
+            "MULTI_TARGET_APPROVAL-002",
+            "MULTI_TARGET_APPROVAL-003"
+          ],
+          "source": "packs/it_ops/v0.1/practice/prompt_revision_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "ISSUE_THEN_MESSAGE",
+      "group": "writes",
+      "task_codes": [
+        "ISSUE_THEN_MESSAGE-001",
+        "ISSUE_THEN_MESSAGE-002",
+        "ISSUE_THEN_MESSAGE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "INCIDENT_TIMELINE",
+      "group": "incidents",
+      "task_codes": [
+        "INCIDENT_TIMELINE-001",
+        "INCIDENT_TIMELINE-002",
+        "INCIDENT_TIMELINE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "INCIDENT_SIGNATURE_GROUPING",
+      "group": "incidents",
+      "task_codes": [
+        "INCIDENT_SIGNATURE_GROUPING-001",
+        "INCIDENT_SIGNATURE_GROUPING-002",
+        "INCIDENT_SIGNATURE_GROUPING-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "INCIDENT_SIGNATURE_GROUPING-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "group": "incidents",
+      "task_codes": [
+        "INCIDENT_RECOVERY_EVIDENCE-001",
+        "INCIDENT_RECOVERY_EVIDENCE-002",
+        "INCIDENT_RECOVERY_EVIDENCE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "pilot_proposal_only_not_execution_proof",
+          "source": "packs/it_ops/v0.1/practice/pilot_selection.json"
+        }
+      ]
+    },
+    {
+      "template": "SERVICE_DEPENDENCY_IMPACT",
+      "group": "incidents",
+      "task_codes": [
+        "SERVICE_DEPENDENCY_IMPACT-001",
+        "SERVICE_DEPENDENCY_IMPACT-002",
+        "SERVICE_DEPENDENCY_IMPACT-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "UPSTREAM_FAILURE_EVIDENCE",
+      "group": "incidents",
+      "task_codes": [
+        "UPSTREAM_FAILURE_EVIDENCE-001",
+        "UPSTREAM_FAILURE_EVIDENCE-002",
+        "UPSTREAM_FAILURE_EVIDENCE-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "UPSTREAM_FAILURE_EVIDENCE-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "LOG_CODE_LOCATION",
+      "group": "incidents",
+      "task_codes": [
+        "LOG_CODE_LOCATION-001",
+        "LOG_CODE_LOCATION-002",
+        "LOG_CODE_LOCATION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": [
+        {
+          "kind": "evidence_condition_design_review_not_exposure_clearance",
+          "tasks": [
+            "LOG_CODE_LOCATION-003"
+          ],
+          "source": "docs/role2_evidence_review_1127.json"
+        }
+      ]
+    },
+    {
+      "template": "REPORT_FIELD_REDACTION",
+      "group": "workflows",
+      "task_codes": [
+        "REPORT_FIELD_REDACTION-001",
+        "REPORT_FIELD_REDACTION-002",
+        "REPORT_FIELD_REDACTION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "EXPLICIT_URL_ALLOWLIST",
+      "group": "workflows",
+      "task_codes": [
+        "EXPLICIT_URL_ALLOWLIST-001",
+        "EXPLICIT_URL_ALLOWLIST-002",
+        "EXPLICIT_URL_ALLOWLIST-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "UNCERTAIN_WRITE_RECONCILIATION",
+      "group": "writes",
+      "task_codes": [
+        "UNCERTAIN_WRITE_RECONCILIATION-001",
+        "UNCERTAIN_WRITE_RECONCILIATION-002",
+        "UNCERTAIN_WRITE_RECONCILIATION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "PARTIAL_WRITE_RECONCILIATION",
+      "group": "writes",
+      "task_codes": [
+        "PARTIAL_WRITE_RECONCILIATION-001",
+        "PARTIAL_WRITE_RECONCILIATION-002",
+        "PARTIAL_WRITE_RECONCILIATION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    },
+    {
+      "template": "APPROVAL_DATA_REVISION",
+      "group": "writes",
+      "task_codes": [
+        "APPROVAL_DATA_REVISION-001",
+        "APPROVAL_DATA_REVISION-002",
+        "APPROVAL_DATA_REVISION-003"
+      ],
+      "task_count": 3,
+      "current_split": "dev",
+      "proposed_split": "held_candidate",
+      "reason": "개발 대표 이외의 유형을 확인용 후보로 제안. 미노출 여부는 아직 미확인",
+      "actual_mcp_supported": false,
+      "local_simulator_available": true,
+      "source_review_performed": true,
+      "database_exposure_history": "not_checked",
+      "team_failure_viewing_history": "not_confirmed",
+      "held_eligible": null,
+      "decision": "pending_exposure_audit",
+      "evidence": []
+    }
+  ]
+}

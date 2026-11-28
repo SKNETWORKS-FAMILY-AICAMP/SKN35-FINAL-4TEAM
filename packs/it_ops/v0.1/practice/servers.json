@@ -8,8 +8,8 @@
       "service": "github",
       "server_id": "it-ops-github-practice",
       "status": "ready",
-      "image": "sha256:4db1d9c66a0dd2338fab2b294c4bae66e92fe186c1af9fdd3d9befd0dd7e2aa3",
-      "version": "0.1.0",
+      "image": "sha256:46304f779a8e555c542b5646724b1df354c031a3b1c9496acb664150853e4d64",
+      "version": "0.1.1",
       "command": [
         "python",
         "/app/server.py",
@@ -87,11 +87,21 @@
                   "type": [
                     "string"
                   ]
+                },
+                "sha": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "started_at": {
+                  "type": [
+                    "string"
+                  ]
                 }
               }
             }
           },
-          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+          "semantics": "모든 연습 저장소의 배포 실행 조회. deployments와 operations의 같은 전체 데이터 범위를 제공하며 실행 번호는 정수 run_id. sha·started_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
         },
         {
           "name": "list_issues",
@@ -154,11 +164,22 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "updated_at": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "closed_at": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
                 }
               }
             }
           },
-          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+          "semantics": "모든 연습 저장소의 이슈 조회. issues와 operations의 같은 전체 데이터 범위를 제공하며 이슈 번호는 문자열 number. updated_at·closed_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
         },
         {
           "name": "list_operation_runs",
@@ -188,8 +209,6 @@
                 "finished_at",
                 "id",
                 "repo",
-                "sha",
-                "started_at",
                 "status",
                 "version"
               ],
@@ -237,7 +256,7 @@
               }
             }
           },
-          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+          "semantics": "모든 연습 저장소의 배포 실행 조회. list_deployments와 같은 전체 데이터 범위를 제공하며 실행 번호는 문자열 id. sha·started_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
         },
         {
           "name": "list_operation_issues",
@@ -264,12 +283,10 @@
               "additionalProperties": false,
               "required": [
                 "assignees",
-                "closed_at",
                 "id",
                 "labels",
                 "repo",
-                "state",
-                "updated_at"
+                "state"
               ],
               "properties": {
                 "id": {
@@ -317,7 +334,7 @@
               }
             }
           },
-          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+          "semantics": "모든 연습 저장소의 이슈 조회. list_issues와 같은 전체 데이터 범위를 제공하며 이슈 번호는 문자열 id. updated_at·closed_at은 원본에 있을 때만 포함. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
         },
         {
           "name": "list_operation_releases",
@@ -366,7 +383,7 @@
               }
             }
           },
-          "semantics": "repo 생략이면 전체 목록, 있으면 정확 일치 필터. 원본 순서 유지. 해당 결과가 없으면 []."
+          "semantics": "operations 고정 데이터의 릴리스 조회. repo·tag·sha를 반환. 배포 여부는 같은 저장소의 성공 배포 실행 sha와 비교하며 릴리스 목록만으로 단정하지 않음. repo만 정확 일치 필터 지원하며 생략하면 전체. 상태·환경·라벨·날짜 필터와 정렬은 반환된 레코드에서 처리. 원본 순서 유지, 일치 기록 없으면 []. 원본에 없는 필드는 추정하지 않음."
         }
       ],
       "lifecycle": {
@@ -376,7 +393,7 @@
         "mount_policy": "allowlisted_data_files_only"
       },
       "image_scope": "local_daemon_only",
-      "image_tag": "slotagent-it-ops-practice:0.1.0"
+      "image_tag": "slotagent-it-ops-practice:0.1.1"
     }
   ],
   "snapshots": [

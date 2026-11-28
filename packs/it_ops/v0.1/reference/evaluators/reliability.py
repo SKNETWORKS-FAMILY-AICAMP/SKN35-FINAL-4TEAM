@@ -6,10 +6,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[5] / "backend/src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from slotagent.common import contracts
-from slotagent.packs.groups import load_group
 from slotagent.common.hashing import canonical_json
+from slotagent.packs.groups import load_group
+from tool_errors import expected_read_error
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -153,7 +155,7 @@ def grade(task, trace):
             recorded = json.loads(span.get("tool_result", "null"))
         except (ValueError, TypeError):
             recorded = None
-        if recorded != reply or span.get("error") or completed:
+        if recorded != reply or (span.get("error") and not expected_read_error(span, reply)) or completed:
             valid = False
         if not reply["ok"] and reply.get("error") != "temporary_unavailable":
             valid = False

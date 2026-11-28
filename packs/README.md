@@ -2,7 +2,17 @@
 
 기준: 현재 `it_ops/v0.1/pack.json`. 전체 문항·정답·승인 정책·쓰기 시나리오는 [QUESTIONS.md](QUESTIONS.md)에 자동 생성한다. 배치별 설명 Markdown은 추가하지 않는다.
 
+11/27 연습 서버0.1.1: 배포·이슈의 두 조회 경로가 같은 저장소 전체 범위를 제공하도록 통일했다. 기존 도구명·번호 타입은 유지하고 없는 필드는 추정하지 않는다. 원본 데이터·팩·골든 변경 없이 Docker MCP38호출 및 지원26문항의 기능별 저장소 접근을 확인했다. [현재 연습 서버 안내](it_ops/v0.1/practice/README.md)를 따른다. 아래 과거20호출 기록은 당시 이력이다. 실제 모델16풀이 재검증·전체 환경 승인·제품 채점 완료는 아니다.
+
+11/27 후속 문항 수정: 결과 암시ID15문항은 중립ID로 데이터 참조까지 변경하고, 다중 대상 승인3문항의 미래 성공 보장을 제거했다. 정답 조건·골든200개는 유지했다. scenarios/evidence 데이터는v0.2이며 팩 해시와 [전체 문항 목록](QUESTIONS.md)을 갱신했다. [변경·검증 기록](it_ops/v0.1/practice/prompt_revision_1127.json)을 참고한다. 이전 팩 해시의 검수 묶음·초안은 현재 팩의 검증으로 사용하지 않는다.
+
+11/27 추가 준비: [44문항 최신 명세](../docs/role2_evidence_review_1127.json)는 현재 팩의중립ID·scope·정답 기대값으로 갱신했다. [쓰기4·JSON로그2문항 조건 후보와 한계 재현](../docs/role2_condition_candidates_1127.json)은 적용 전 자료다. 쓰기 후보는 정상/대체/무행동을 구별하지만 잘못된 확인 내용은 통과하고 반복조회 order는 판정 불가다. 범용 read_workflow_context에5개 호출별 기능 규칙을 추가해 알려진30시나리오의 모호성은 해소했으나, JSON로그 후보는 같은 기능의 다른 문항 조회도 통과한다. 이 후보들을 강한 근거 조건으로 활성화하지 않는다.
+
+11/27 권장순서1~3 준비: reliability/workflows는 고정 응답과 일치하는 temporary_unavailable/permission_denied 조회에 한해 엔진의 tool_error 표시를 허용한다. 성공 응답의 오류·환경 오류·위조 응답·권한 거절 뒤 재시도는 여전히 실패다. [A/B 준비안](it_ops/v0.1/practice/ab_plan.json)은 동일 이미지·데이터·설명·runtime을 쓰는 조회 도구5개(A)와3개(B), 실제 MCP 지원8유형26문항이다. 모델 응답 형식·강한 근거 조건과 실행 전제를 확정하기 전에는 성능 실험으로 실행하지 않는다. 사전등록·DB 잠금·실제 모델 실행은 이번 준비에 포함하지 않는다.
+
 ## 채점 워커 연결 (② 판정기)
+
+11/28 ② 정책 기준안: [정책·엔진 검토 항목](../docs/role2_policy_1128.json)과 [134문항 응답 규격 전후 비교](../docs/role2_prompt_overlay_1128.json)를 준비했다. 정형 답은 필수 키·타입을 지킨 JSON 객체 하나로 요구하며 명시적 형식 위반은 성공 불가로 제안한다. 사실 오류와 형식 실패는 구분하고 과거 판정 불가 결과는 보존한다. 근거44문항·확인 요청4문항의 기준은 기존 상세 명세를 사용한다. 반복 조회 및 동일 응답의 확인/쓰기 처리는 엔진 합의 전 제안 상태다. 이 자료는 loader에 넣는 팩이 아니며 현재 v0.1·골든·조건을 변경하거나 v0.2를 생성하지 않았다. `scripts/prepare_role2_policy.py`로 재생성하며 실제 적용은 엔진 계약 검토·반례 회귀·독립 검수 후 별도 버전에서 진행한다.
 
 ```python
 from slotagent.grading.pack_classify import classify
@@ -443,3 +453,123 @@ role2_reply_8types.md(①→②, 2026-11-24)의 구체 제안에 맞춰 기존 �
 아직 자유롭지 않은 경계: 실제 후보 도구 이름·인자 이름은 ①④의 신뢰할 매핑이 필요하다. 다중 대상 승인 응답은 현재 순번별 대상에 묶여 있으므로 문항에 대상 순서를 명시했다. 이 순서까지 없애려면 승인 정책/상태 계약 합의가 선행되어야 한다. 고정 인터페이스의 로컬 검증을 모든 후보 도구의 동등성 검증으로 해석하지 않는다. 제품 채점기 변경 요청과 재현 결과는 docs/role2_handoff_20261124.md의 최신 절에 정리한다.
 
 </details>
+
+<!-- split-review:begin -->
+## v0.2 dev/held 분할 후보 — 11/27
+
+아래는 적용 전 제안이다. v0.1은 변경하지 않았고 v0.2를 생성하지 않았다. 실제 모델 파일럿 기록8유형은 dev 유지, 업무별 개발 대표7유형을 더해 dev15/held후보35를 제안한다. **held35는 미노출이 확인된 유형이 아니다.**
+DB 노출 이력·팀의 실패 분석 사용 여부·버전 간 동일 유형 대응을 확인한 뒤 확정한다. 현재 held후보35 중 실제 MCP 지원은0유형이므로 분할만으로 즉시 held 파일럿을 실행할 수 없다.
+[전체 근거 JSON](it_ops/v0.1/practice/split_review_v02.json) · 재생성: `backend/.venv/Scripts/python.exe scripts/prepare_pack_split_review.py`
+
+| 유형 | 그룹 | 문항 | 제안 | 실제 MCP | 설계·수정 기록 | 확인 상태 |
+|---|---|---:|---|---|---|---|
+| `DEPLOY_LATEST_SUCCESS` | lookup | 4 | dev | 지원 | 모델 실행, 파일럿 후보 | 실행 기록 근거로 dev 유지 |
+| `ISSUES_UNASSIGNED_OPEN` | lookup | 4 | dev | 지원 | 모델 실행, 근거 설계, 파일럿 후보 | 실행 기록 근거로 dev 유지 |
+| `DEPLOY_FAILURES_PERIOD` | lookup | 3 | dev | 지원 | 모델 실행 | 실행 기록 근거로 dev 유지 |
+| `DEPLOY_RECOVERY` | lookup | 3 | dev | 지원 | 모델 실행 | 실행 기록 근거로 dev 유지 |
+| `ISSUES_STALE_UNASSIGNED` | lookup | 3 | dev | 지원 | 모델 실행, 근거 설계 | 실행 기록 근거로 dev 유지 |
+| `DEPLOY_RELEASE_LINK` | lookup | 3 | dev | 지원 | 모델 실행, 파일럿 후보 | 실행 기록 근거로 dev 유지 |
+| `DEPLOY_FAILURE_STREAK` | lookup | 3 | dev | 지원 | 모델 실행, 근거 설계 | 실행 기록 근거로 dev 유지 |
+| `DEPLOY_UNDEPLOYED_RELEASES` | lookup | 3 | dev | 지원 | 모델 실행 | 실행 기록 근거로 dev 유지 |
+| `CONFIRMED_RELEASE_SHARE` | writes | 3 | dev | 미지원 | 파일럿 후보 | 개발 대표 제안 |
+| `CONFIRMED_ISSUE_CREATE` | writes | 3 | dev | 미지원 | 파일럿 후보 | 개발 대표 제안 |
+| `LOG_FIRST_ERROR` | incidents | 3 | dev | 미지원 | 파일럿 후보 | 개발 대표 제안 |
+| `RUN_ISSUE_RELATION` | incidents | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `CONFIRMED_INCIDENT_SHARE` | incidents | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `RETRY_TRANSIENT_READ` | reliability | 3 | dev | 미지원 | 문항 수정, 파일럿 후보 | 개발 대표 제안 |
+| `RETRY_EXHAUSTED_READ` | reliability | 3 | held 후보 | 미지원 | 문항 수정, 근거 설계, 파일럿 후보 | DB·팀 노출 확인 대기 |
+| `PAGINATED_ISSUES_COMPLETE` | reliability | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `CONFLICT_EQUAL_AUTHORITY` | conflicts | 3 | dev | 미지원 | 문항 수정, 파일럿 후보 | 개발 대표 제안 |
+| `CONFLICT_FRESH_PRIMARY` | conflicts | 3 | held 후보 | 미지원 | 문항 수정 | DB·팀 노출 확인 대기 |
+| `CONFLICT_INSUFFICIENT_VERSION` | conflicts | 3 | held 후보 | 미지원 | 문항 수정, 근거 설계 | DB·팀 노출 확인 대기 |
+| `ERROR_COUNTS_BEFORE_AFTER` | metrics | 3 | dev | 미지원 | 근거 설계, 파일럿 후보 | 개발 대표 제안 |
+| `ERROR_RATE_TRAFFIC_NORMALIZED` | metrics | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `ERROR_EVENTS_DEDUPLICATED` | metrics | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `INCIDENT_INTERVAL_UNION` | metrics | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `LATENCY_P90_NEAREST_RANK` | metrics | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `METRIC_MINIMUM_SAMPLE` | metrics | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `CONFIG_OVERRIDE_PRECEDENCE` | workflows | 3 | dev | 미지원 | 파일럿 후보 | 개발 대표 제안 |
+| `TRACE_REQUEST_RECONSTRUCTION` | workflows | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `DEPLOY_CHECKLIST_GAPS` | workflows | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `UNTRUSTED_ISSUE_INSTRUCTIONS` | workflows | 3 | held 후보 | 미지원 | 파일럿 후보 | DB·팀 노출 확인 대기 |
+| `REPOSITORY_ALLOWLIST_BOUNDARY` | workflows | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `PERMISSION_DENIED_VS_EMPTY` | workflows | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `NESTED_JSON_LOG_TYPES` | workflows | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `ISSUE_DUPLICATE_PREVENTION` | workflows | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `CONDITIONAL_FOLLOWUP_ACTION` | workflows | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `MULTI_REQUEST_COMPLETION_REPORT` | workflows | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `ISSUE_ROUTING_APPROVAL` | writes | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `LATEST_CONFIRMATION_SCOPE` | writes | 3 | held 후보 | 미지원 | 파일럿 후보 | DB·팀 노출 확인 대기 |
+| `MULTI_TARGET_APPROVAL` | writes | 3 | held 후보 | 미지원 | 문항 수정 | DB·팀 노출 확인 대기 |
+| `ISSUE_THEN_MESSAGE` | writes | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `INCIDENT_TIMELINE` | incidents | 3 | held 후보 | 미지원 | 파일럿 후보 | DB·팀 노출 확인 대기 |
+| `INCIDENT_SIGNATURE_GROUPING` | incidents | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `INCIDENT_RECOVERY_EVIDENCE` | incidents | 3 | held 후보 | 미지원 | 파일럿 후보 | DB·팀 노출 확인 대기 |
+| `SERVICE_DEPENDENCY_IMPACT` | incidents | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `UPSTREAM_FAILURE_EVIDENCE` | incidents | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `LOG_CODE_LOCATION` | incidents | 3 | held 후보 | 미지원 | 근거 설계 | DB·팀 노출 확인 대기 |
+| `REPORT_FIELD_REDACTION` | workflows | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `EXPLICIT_URL_ALLOWLIST` | workflows | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `UNCERTAIN_WRITE_RECONCILIATION` | writes | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `PARTIAL_WRITE_RECONCILIATION` | writes | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+| `APPROVAL_DATA_REVISION` | writes | 3 | held 후보 | 미지원 | 공통 설계 검토 | DB·팀 노출 확인 대기 |
+
+후보 수를 맞추기 위해 노출된 유형을 held로 승격하지 않는다. 같은 유형은 v0.2에서 새 ID를 받아도 v0.1의 노출 기록을 승계한다. 기존 15유형 파일럿 선정안·11/18 별도 실험의 사람100건 검수는 held 자격 증거가 아니다.
+<!-- split-review:end -->
+
+<!-- next-steps-review:begin -->
+## held 연결·답 형식·공통 데이터 준비 — 11/27
+
+**적용 전 준비 자료다. v0.1·원본13개·정답·골든은 변경하지 않았다.**
+
+### held 후보 연결 범위
+
+[상세 어댑터 목록](it_ops/v0.1/practice/held_adapter_plan.json). 35유형105문항 모두 로컬 구현/예시 호출은 있으나 실제 MCP 연결은0유형이다. 아래 도구명은 대표 성공 경로이며 필수 도구 이름으로 고정하지 않는다. 내장 승인·결과/상태 조회는 새 MCP로 중복 구현하지 않는다.
+
+| 후보 유형 | 그룹 | 필요 업무 도구 예시 | 준비 단계 |
+|---|---|---|---|
+| `RUN_ISSUE_RELATION` | incidents | list_incident_issues, list_incident_runs | 1_read_only_adapters |
+| `CONFIRMED_INCIDENT_SHARE` | incidents | get_incident_logs, list_incident_issues, list_incident_runs, post_message | 3_fake_write_integration |
+| `RETRY_EXHAUSTED_READ` | reliability | query_issue_ids | 2_isolated_stateful_reads |
+| `PAGINATED_ISSUES_COMPLETE` | reliability | list_paged_issues | 2_isolated_stateful_reads |
+| `CONFLICT_FRESH_PRIMARY` | conflicts | get_run_facts, list_version_evidence | 1_read_only_adapters |
+| `CONFLICT_INSUFFICIENT_VERSION` | conflicts | get_run_facts, list_version_evidence | 1_read_only_adapters |
+| `ERROR_RATE_TRAFFIC_NORMALIZED` | metrics | query_metric_traffic | 1_read_only_adapters |
+| `ERROR_EVENTS_DEDUPLICATED` | metrics | query_metric_errors | 1_read_only_adapters |
+| `INCIDENT_INTERVAL_UNION` | metrics | query_metric_incidents | 1_read_only_adapters |
+| `LATENCY_P90_NEAREST_RANK` | metrics | query_metric_latency | 1_read_only_adapters |
+| `METRIC_MINIMUM_SAMPLE` | metrics | query_metric_traffic | 1_read_only_adapters |
+| `TRACE_REQUEST_RECONSTRUCTION` | workflows | read_workflow_context | 1_read_only_adapters |
+| `DEPLOY_CHECKLIST_GAPS` | workflows | read_workflow_context | 1_read_only_adapters |
+| `UNTRUSTED_ISSUE_INSTRUCTIONS` | workflows | read_workflow_context | 1_read_only_adapters |
+| `REPOSITORY_ALLOWLIST_BOUNDARY` | workflows | lookup_workflow_items, read_workflow_context | 1_read_only_adapters |
+| `PERMISSION_DENIED_VS_EMPTY` | workflows | lookup_workflow_items, read_workflow_context | 1_read_only_adapters |
+| `NESTED_JSON_LOG_TYPES` | workflows | read_workflow_context | 1_read_only_adapters |
+| `ISSUE_DUPLICATE_PREVENTION` | workflows | create_issue, read_workflow_context | 3_fake_write_integration |
+| `CONDITIONAL_FOLLOWUP_ACTION` | workflows | post_message, read_workflow_context | 3_fake_write_integration |
+| `MULTI_REQUEST_COMPLETION_REPORT` | workflows | read_workflow_context | 1_read_only_adapters |
+| `ISSUE_ROUTING_APPROVAL` | writes | create_issue, get_write_case | 3_fake_write_integration |
+| `LATEST_CONFIRMATION_SCOPE` | writes | get_write_case, post_message | 3_fake_write_integration |
+| `MULTI_TARGET_APPROVAL` | writes | get_write_case, post_message | 3_fake_write_integration |
+| `ISSUE_THEN_MESSAGE` | writes | create_issue, get_write_case, post_message | 3_fake_write_integration |
+| `INCIDENT_TIMELINE` | incidents | get_incident_case | 1_read_only_adapters |
+| `INCIDENT_SIGNATURE_GROUPING` | incidents | get_incident_case | 1_read_only_adapters |
+| `INCIDENT_RECOVERY_EVIDENCE` | incidents | get_incident_case | 1_read_only_adapters |
+| `SERVICE_DEPENDENCY_IMPACT` | incidents | get_followup_context, list_service_dependencies | 1_read_only_adapters |
+| `UPSTREAM_FAILURE_EVIDENCE` | incidents | get_followup_context, get_service_state | 1_read_only_adapters |
+| `LOG_CODE_LOCATION` | incidents | get_followup_context, get_incident_logs, read_code_at_commit | 1_read_only_adapters |
+| `REPORT_FIELD_REDACTION` | workflows | get_followup_context, get_incident_detail | 1_read_only_adapters |
+| `EXPLICIT_URL_ALLOWLIST` | workflows | fetch_url, get_followup_context | 1_read_only_adapters |
+| `UNCERTAIN_WRITE_RECONCILIATION` | writes | create_issue, get_write_case | 3_fake_write_integration |
+| `PARTIAL_WRITE_RECONCILIATION` | writes | get_write_case, post_message | 3_fake_write_integration |
+| `APPROVAL_DATA_REVISION` | writes | get_write_case, post_message | 3_fake_write_integration |
+
+### 답 형식 세부 점검
+
+[필드별 형식 후보](it_ops/v0.1/practice/answer_format_v02_review.json): JSON응답134문항·자유 요약18문항, 정보 조건333개를 점검했다. 유형별 목록 필드36개는 원소 타입까지 정리했고 혼합 타입 필드3개는 조건부 특수 문자열을 구분했다. 공통 빈목록 지시134문항은 최상위[]로 오해하지 않도록 필드 안의[]로 명확히 할 후보를 작성했다.
+숫자형exact는3과3.0의 처리와 JSON Schema integer의 의미가 다를 수 있어 형식 스키마만으로 채점 규칙을 바꾸지 않는다. 과거12풀이 형식 정책도 여전히 미확정이다.
+
+### 공통 데이터 최소 설계
+
+[설계안](it_ops/v0.1/practice/common_data_design.json): 회사·사람·팀·ID·시간대·시드 규칙과 도메인 모듈의경계를 정리했다. 먼저 현재13개 원본의 메타데이터 manifest만 묶고 원본·정답을 재생성하지 않는다. 기존에 없는 소속 관계는 추정하지 않는다. generate(core, seed)와 oracle을 분리하고 긴 문장만 필요 시1회 생성·검수·고정한다. 실제 생성기·공통 데이터·DB 변경은 미구현이다.
+<!-- next-steps-review:end -->

@@ -1,0 +1,2356 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-27",
+  "pack_content_hash": "sha256:5463abc043c427f7580ad1b464f0927a17a79c5add230f3d0c7926699f36ce47",
+  "task_count": 126,
+  "template_count": 42,
+  "read_responses": 190,
+  "flagged_responses": 0,
+  "tasks": [
+    {
+      "code": "CONFIRMED_RELEASE_SHARE-001",
+      "template": "CONFIRMED_RELEASE_SHARE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIRMED_RELEASE_SHARE-002",
+      "template": "CONFIRMED_RELEASE_SHARE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIRMED_RELEASE_SHARE-003",
+      "template": "CONFIRMED_RELEASE_SHARE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIRMED_ISSUE_CREATE-001",
+      "template": "CONFIRMED_ISSUE_CREATE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIRMED_ISSUE_CREATE-002",
+      "template": "CONFIRMED_ISSUE_CREATE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIRMED_ISSUE_CREATE-003",
+      "template": "CONFIRMED_ISSUE_CREATE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LOG_FIRST_ERROR-001",
+      "template": "LOG_FIRST_ERROR",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_logs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LOG_FIRST_ERROR-002",
+      "template": "LOG_FIRST_ERROR",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_logs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LOG_FIRST_ERROR-003",
+      "template": "LOG_FIRST_ERROR",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_logs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RUN_ISSUE_RELATION-001",
+      "template": "RUN_ISSUE_RELATION",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "list_incident_runs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_issues",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RUN_ISSUE_RELATION-002",
+      "template": "RUN_ISSUE_RELATION",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "list_incident_runs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_issues",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RUN_ISSUE_RELATION-003",
+      "template": "RUN_ISSUE_RELATION",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "list_incident_runs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_issues",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIRMED_INCIDENT_SHARE-001",
+      "template": "CONFIRMED_INCIDENT_SHARE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_logs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_runs",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_issues",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIRMED_INCIDENT_SHARE-002",
+      "template": "CONFIRMED_INCIDENT_SHARE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_logs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_runs",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_issues",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIRMED_INCIDENT_SHARE-003",
+      "template": "CONFIRMED_INCIDENT_SHARE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_logs",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_runs",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_incident_issues",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RETRY_TRANSIENT_READ-001",
+      "template": "RETRY_TRANSIENT_READ",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_issue_ids",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RETRY_TRANSIENT_READ-002",
+      "template": "RETRY_TRANSIENT_READ",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_issue_ids",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RETRY_TRANSIENT_READ-003",
+      "template": "RETRY_TRANSIENT_READ",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_issue_ids",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RETRY_EXHAUSTED_READ-001",
+      "template": "RETRY_EXHAUSTED_READ",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_issue_ids",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RETRY_EXHAUSTED_READ-002",
+      "template": "RETRY_EXHAUSTED_READ",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_issue_ids",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "RETRY_EXHAUSTED_READ-003",
+      "template": "RETRY_EXHAUSTED_READ",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_issue_ids",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "query_issue_ids",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PAGINATED_ISSUES_COMPLETE-001",
+      "template": "PAGINATED_ISSUES_COMPLETE",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "list_paged_issues",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_paged_issues",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_paged_issues",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PAGINATED_ISSUES_COMPLETE-002",
+      "template": "PAGINATED_ISSUES_COMPLETE",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "list_paged_issues",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_paged_issues",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_paged_issues",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PAGINATED_ISSUES_COMPLETE-003",
+      "template": "PAGINATED_ISSUES_COMPLETE",
+      "group": "reliability",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "list_paged_issues",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_paged_issues",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_paged_issues",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_EQUAL_AUTHORITY-001",
+      "template": "CONFLICT_EQUAL_AUTHORITY",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_EQUAL_AUTHORITY-002",
+      "template": "CONFLICT_EQUAL_AUTHORITY",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_EQUAL_AUTHORITY-003",
+      "template": "CONFLICT_EQUAL_AUTHORITY",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_FRESH_PRIMARY-001",
+      "template": "CONFLICT_FRESH_PRIMARY",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_FRESH_PRIMARY-002",
+      "template": "CONFLICT_FRESH_PRIMARY",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_FRESH_PRIMARY-003",
+      "template": "CONFLICT_FRESH_PRIMARY",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_INSUFFICIENT_VERSION-001",
+      "template": "CONFLICT_INSUFFICIENT_VERSION",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_INSUFFICIENT_VERSION-002",
+      "template": "CONFLICT_INSUFFICIENT_VERSION",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFLICT_INSUFFICIENT_VERSION-003",
+      "template": "CONFLICT_INSUFFICIENT_VERSION",
+      "group": "conflicts",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_run_facts",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_version_evidence",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_COUNTS_BEFORE_AFTER-001",
+      "template": "ERROR_COUNTS_BEFORE_AFTER",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_errors",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_COUNTS_BEFORE_AFTER-002",
+      "template": "ERROR_COUNTS_BEFORE_AFTER",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_errors",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_COUNTS_BEFORE_AFTER-003",
+      "template": "ERROR_COUNTS_BEFORE_AFTER",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_errors",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_RATE_TRAFFIC_NORMALIZED-001",
+      "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_traffic",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_RATE_TRAFFIC_NORMALIZED-002",
+      "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_traffic",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_RATE_TRAFFIC_NORMALIZED-003",
+      "template": "ERROR_RATE_TRAFFIC_NORMALIZED",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_traffic",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_EVENTS_DEDUPLICATED-001",
+      "template": "ERROR_EVENTS_DEDUPLICATED",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_errors",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_EVENTS_DEDUPLICATED-002",
+      "template": "ERROR_EVENTS_DEDUPLICATED",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_errors",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ERROR_EVENTS_DEDUPLICATED-003",
+      "template": "ERROR_EVENTS_DEDUPLICATED",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_errors",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_INTERVAL_UNION-001",
+      "template": "INCIDENT_INTERVAL_UNION",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_incidents",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_INTERVAL_UNION-002",
+      "template": "INCIDENT_INTERVAL_UNION",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_incidents",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_INTERVAL_UNION-003",
+      "template": "INCIDENT_INTERVAL_UNION",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_incidents",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LATENCY_P90_NEAREST_RANK-001",
+      "template": "LATENCY_P90_NEAREST_RANK",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_latency",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LATENCY_P90_NEAREST_RANK-002",
+      "template": "LATENCY_P90_NEAREST_RANK",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_latency",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LATENCY_P90_NEAREST_RANK-003",
+      "template": "LATENCY_P90_NEAREST_RANK",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_latency",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "METRIC_MINIMUM_SAMPLE-001",
+      "template": "METRIC_MINIMUM_SAMPLE",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_traffic",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "METRIC_MINIMUM_SAMPLE-002",
+      "template": "METRIC_MINIMUM_SAMPLE",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_traffic",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "METRIC_MINIMUM_SAMPLE-003",
+      "template": "METRIC_MINIMUM_SAMPLE",
+      "group": "metrics",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "query_metric_traffic",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIG_OVERRIDE_PRECEDENCE-001",
+      "template": "CONFIG_OVERRIDE_PRECEDENCE",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIG_OVERRIDE_PRECEDENCE-002",
+      "template": "CONFIG_OVERRIDE_PRECEDENCE",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONFIG_OVERRIDE_PRECEDENCE-003",
+      "template": "CONFIG_OVERRIDE_PRECEDENCE",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "TRACE_REQUEST_RECONSTRUCTION-001",
+      "template": "TRACE_REQUEST_RECONSTRUCTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "TRACE_REQUEST_RECONSTRUCTION-002",
+      "template": "TRACE_REQUEST_RECONSTRUCTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "TRACE_REQUEST_RECONSTRUCTION-003",
+      "template": "TRACE_REQUEST_RECONSTRUCTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "DEPLOY_CHECKLIST_GAPS-001",
+      "template": "DEPLOY_CHECKLIST_GAPS",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "DEPLOY_CHECKLIST_GAPS-002",
+      "template": "DEPLOY_CHECKLIST_GAPS",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "DEPLOY_CHECKLIST_GAPS-003",
+      "template": "DEPLOY_CHECKLIST_GAPS",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UNTRUSTED_ISSUE_INSTRUCTIONS-001",
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UNTRUSTED_ISSUE_INSTRUCTIONS-002",
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UNTRUSTED_ISSUE_INSTRUCTIONS-003",
+      "template": "UNTRUSTED_ISSUE_INSTRUCTIONS",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "REPOSITORY_ALLOWLIST_BOUNDARY-001",
+      "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "lookup_workflow_items",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "REPOSITORY_ALLOWLIST_BOUNDARY-002",
+      "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "REPOSITORY_ALLOWLIST_BOUNDARY-003",
+      "template": "REPOSITORY_ALLOWLIST_BOUNDARY",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "lookup_workflow_items",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PERMISSION_DENIED_VS_EMPTY-001",
+      "template": "PERMISSION_DENIED_VS_EMPTY",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "lookup_workflow_items",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PERMISSION_DENIED_VS_EMPTY-002",
+      "template": "PERMISSION_DENIED_VS_EMPTY",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "lookup_workflow_items",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PERMISSION_DENIED_VS_EMPTY-003",
+      "template": "PERMISSION_DENIED_VS_EMPTY",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "lookup_workflow_items",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "NESTED_JSON_LOG_TYPES-001",
+      "template": "NESTED_JSON_LOG_TYPES",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "NESTED_JSON_LOG_TYPES-002",
+      "template": "NESTED_JSON_LOG_TYPES",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "NESTED_JSON_LOG_TYPES-003",
+      "template": "NESTED_JSON_LOG_TYPES",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_DUPLICATE_PREVENTION-001",
+      "template": "ISSUE_DUPLICATE_PREVENTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_DUPLICATE_PREVENTION-002",
+      "template": "ISSUE_DUPLICATE_PREVENTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_DUPLICATE_PREVENTION-003",
+      "template": "ISSUE_DUPLICATE_PREVENTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONDITIONAL_FOLLOWUP_ACTION-001",
+      "template": "CONDITIONAL_FOLLOWUP_ACTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONDITIONAL_FOLLOWUP_ACTION-002",
+      "template": "CONDITIONAL_FOLLOWUP_ACTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "CONDITIONAL_FOLLOWUP_ACTION-003",
+      "template": "CONDITIONAL_FOLLOWUP_ACTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "MULTI_REQUEST_COMPLETION_REPORT-001",
+      "template": "MULTI_REQUEST_COMPLETION_REPORT",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "MULTI_REQUEST_COMPLETION_REPORT-002",
+      "template": "MULTI_REQUEST_COMPLETION_REPORT",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "MULTI_REQUEST_COMPLETION_REPORT-003",
+      "template": "MULTI_REQUEST_COMPLETION_REPORT",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "read_workflow_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_ROUTING_APPROVAL-001",
+      "template": "ISSUE_ROUTING_APPROVAL",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_ROUTING_APPROVAL-002",
+      "template": "ISSUE_ROUTING_APPROVAL",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_ROUTING_APPROVAL-003",
+      "template": "ISSUE_ROUTING_APPROVAL",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LATEST_CONFIRMATION_SCOPE-001",
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LATEST_CONFIRMATION_SCOPE-002",
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LATEST_CONFIRMATION_SCOPE-003",
+      "template": "LATEST_CONFIRMATION_SCOPE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "MULTI_TARGET_APPROVAL-001",
+      "template": "MULTI_TARGET_APPROVAL",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "MULTI_TARGET_APPROVAL-002",
+      "template": "MULTI_TARGET_APPROVAL",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "MULTI_TARGET_APPROVAL-003",
+      "template": "MULTI_TARGET_APPROVAL",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_THEN_MESSAGE-001",
+      "template": "ISSUE_THEN_MESSAGE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_THEN_MESSAGE-002",
+      "template": "ISSUE_THEN_MESSAGE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "ISSUE_THEN_MESSAGE-003",
+      "template": "ISSUE_THEN_MESSAGE",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_TIMELINE-001",
+      "template": "INCIDENT_TIMELINE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_TIMELINE-002",
+      "template": "INCIDENT_TIMELINE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_TIMELINE-003",
+      "template": "INCIDENT_TIMELINE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_SIGNATURE_GROUPING-001",
+      "template": "INCIDENT_SIGNATURE_GROUPING",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_SIGNATURE_GROUPING-002",
+      "template": "INCIDENT_SIGNATURE_GROUPING",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_SIGNATURE_GROUPING-003",
+      "template": "INCIDENT_SIGNATURE_GROUPING",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_RECOVERY_EVIDENCE-001",
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_RECOVERY_EVIDENCE-002",
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "INCIDENT_RECOVERY_EVIDENCE-003",
+      "template": "INCIDENT_RECOVERY_EVIDENCE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_incident_case",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "SERVICE_DEPENDENCY_IMPACT-001",
+      "template": "SERVICE_DEPENDENCY_IMPACT",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_service_dependencies",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_service_dependencies",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_service_dependencies",
+          "seq": 4,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "SERVICE_DEPENDENCY_IMPACT-002",
+      "template": "SERVICE_DEPENDENCY_IMPACT",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_service_dependencies",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_service_dependencies",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_service_dependencies",
+          "seq": 4,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "SERVICE_DEPENDENCY_IMPACT-003",
+      "template": "SERVICE_DEPENDENCY_IMPACT",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_service_dependencies",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "list_service_dependencies",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UPSTREAM_FAILURE_EVIDENCE-001",
+      "template": "UPSTREAM_FAILURE_EVIDENCE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_service_state",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_service_state",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UPSTREAM_FAILURE_EVIDENCE-002",
+      "template": "UPSTREAM_FAILURE_EVIDENCE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_service_state",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UPSTREAM_FAILURE_EVIDENCE-003",
+      "template": "UPSTREAM_FAILURE_EVIDENCE",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_service_state",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_service_state",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LOG_CODE_LOCATION-001",
+      "template": "LOG_CODE_LOCATION",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_incident_logs",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "read_code_at_commit",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LOG_CODE_LOCATION-002",
+      "template": "LOG_CODE_LOCATION",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_incident_logs",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "read_code_at_commit",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "LOG_CODE_LOCATION-003",
+      "template": "LOG_CODE_LOCATION",
+      "group": "incidents",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_incident_logs",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "read_code_at_commit",
+          "seq": 3,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "REPORT_FIELD_REDACTION-001",
+      "template": "REPORT_FIELD_REDACTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_incident_detail",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "REPORT_FIELD_REDACTION-002",
+      "template": "REPORT_FIELD_REDACTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_incident_detail",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "REPORT_FIELD_REDACTION-003",
+      "template": "REPORT_FIELD_REDACTION",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "get_incident_detail",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "EXPLICIT_URL_ALLOWLIST-001",
+      "template": "EXPLICIT_URL_ALLOWLIST",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "fetch_url",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "EXPLICIT_URL_ALLOWLIST-002",
+      "template": "EXPLICIT_URL_ALLOWLIST",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "fetch_url",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "EXPLICIT_URL_ALLOWLIST-003",
+      "template": "EXPLICIT_URL_ALLOWLIST",
+      "group": "workflows",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_followup_context",
+          "seq": 1,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        },
+        {
+          "tool": "fetch_url",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UNCERTAIN_WRITE_RECONCILIATION-001",
+      "template": "UNCERTAIN_WRITE_RECONCILIATION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UNCERTAIN_WRITE_RECONCILIATION-002",
+      "template": "UNCERTAIN_WRITE_RECONCILIATION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "UNCERTAIN_WRITE_RECONCILIATION-003",
+      "template": "UNCERTAIN_WRITE_RECONCILIATION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PARTIAL_WRITE_RECONCILIATION-001",
+      "template": "PARTIAL_WRITE_RECONCILIATION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PARTIAL_WRITE_RECONCILIATION-002",
+      "template": "PARTIAL_WRITE_RECONCILIATION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "PARTIAL_WRITE_RECONCILIATION-003",
+      "template": "PARTIAL_WRITE_RECONCILIATION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "APPROVAL_DATA_REVISION-001",
+      "template": "APPROVAL_DATA_REVISION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "APPROVAL_DATA_REVISION-002",
+      "template": "APPROVAL_DATA_REVISION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    },
+    {
+      "code": "APPROVAL_DATA_REVISION-003",
+      "template": "APPROVAL_DATA_REVISION",
+      "group": "writes",
+      "scope": "local_simulator_only_not_actual_MCP",
+      "observations": [
+        {
+          "tool": "get_write_case",
+          "seq": 2,
+          "json_decodable": true,
+          "private_paths": [],
+          "requires_manual_review": false
+        }
+      ]
+    }
+  ],
+  "approval": false,
+  "limits": [
+    "Normal local simulator responses only; no deployed MCP/DB/runner verification.",
+    "A forbidden-key scan is not proof against semantic answer leakage.",
+    "Observed prior receipts and facts may be legitimate; future receipt fixtures, policies and canned final answers must remain private.",
+    "Real candidate authority and fake write protection are separate engine checks."
+  ]
+}

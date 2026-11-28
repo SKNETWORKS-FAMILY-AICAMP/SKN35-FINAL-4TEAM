@@ -32,19 +32,19 @@ def test_nine_tasks_sixty_nine_runs_and_goldens(tmp_path):
 
 def test_oracle_independent_expectations():
     selected = task("CONFLICT_EQUAL_AUTHORITY-001")
-    case = module.load_case("conflict-1")
+    case = module.load_case("case-49af03a2")
     assert module.oracle(selected["slot_values"], case["facts"], case["evidence"]) == {
         "status": "conflict", "selected_version": "UNRESOLVED", "known_status": "success",
         "primary_versions": ["v1.1.0", "v1.2.0"], "evidence_ids": ["payment-primary", "payment-replica"],
         "missing_fields": ["version"], "next_action": "reconcile_primary_sources"}
     selected = task("CONFLICT_FRESH_PRIMARY-001")
-    case = module.load_case("fresh-1")
+    case = module.load_case("case-44ec3989")
     assert module.oracle(selected["slot_values"], case["facts"], list(reversed(case["evidence"]))) == {
         "status": "resolved", "selected_version": "v1.3.0", "known_status": "success",
         "primary_versions": ["v1.3.0"], "evidence_ids": ["payment-live"],
         "missing_fields": [], "next_action": "none"}
     selected = task("CONFLICT_INSUFFICIENT_VERSION-001")
-    case = module.load_case("insufficient-1")
+    case = module.load_case("case-152e9771")
     answer = module.oracle(selected["slot_values"], case["facts"], case["evidence"])
     assert answer["known_status"] == "success" and answer["status"] == "insufficient"
     assert answer["selected_version"] == "UNRESOLVED" and answer["evidence_ids"] == []
@@ -52,7 +52,7 @@ def test_oracle_independent_expectations():
 
 def test_freshness_inclusive_boundaries_and_future_exclusion():
     selected = task("CONFLICT_FRESH_PRIMARY-001")
-    case = module.load_case("fresh-1")
+    case = module.load_case("case-44ec3989")
     evidence = [case["evidence"][0]]
     boundary = copy.deepcopy(evidence[0])
     boundary.update(evidence_id="boundary", value="v0.0.0", observed_at="2026-11-23T12:00:00+09:00")
@@ -68,7 +68,7 @@ def test_freshness_inclusive_boundaries_and_future_exclusion():
 @pytest.mark.parametrize("field,value", [("repo", "acme/other"), ("environment", "staging"), ("run_id", "other")])
 def test_other_execution_does_not_resolve_conflict(field, value):
     selected = task("CONFLICT_EQUAL_AUTHORITY-001")
-    case = module.load_case("conflict-1")
+    case = module.load_case("case-49af03a2")
     case["evidence"][1][field] = value
     assert module.oracle(selected["slot_values"], case["facts"], case["evidence"])["selected_version"] == "v1.1.0"
 

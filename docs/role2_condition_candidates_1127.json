@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-27",
+  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "applied": false,
+  "purpose": "Validated necessary-condition candidates, not complete evidence enforcement",
+  "candidates": [
+    {
+      "task_code": "CONFIRMED_RELEASE_SHARE-002",
+      "conditions": [
+        {
+          "seq": 3,
+          "kind": "uses",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "call": {
+              "tool": "request_user_confirmation"
+            }
+          }
+        },
+        {
+          "seq": 4,
+          "kind": "order",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "before": {
+              "access": "read"
+            },
+            "after": {
+              "tool": "request_user_confirmation"
+            }
+          }
+        }
+      ],
+      "test_results": {
+        "normal": {
+          "3": true,
+          "4": true
+        },
+        "alternate": {
+          "3": true,
+          "4": true
+        },
+        "no_action": {
+          "3": false,
+          "4": false
+        },
+        "wrong_confirmation_payload": {
+          "3": true,
+          "4": true
+        },
+        "repeated_read": {
+          "3": true,
+          "4": "repeated_order_policy_missing"
+        }
+      },
+      "known_limits": [
+        "Generic read-before-confirmation does not prove correct scope/content.",
+        "Confirmation call existence does not validate its action payload.",
+        "Repeated reads make current order undecidable.",
+        "Temporary writes grader must expose appended conditions before activation."
+      ],
+      "ready_to_activate": false
+    },
+    {
+      "task_code": "CONFIRMED_RELEASE_SHARE-003",
+      "conditions": [
+        {
+          "seq": 3,
+          "kind": "uses",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "call": {
+              "tool": "request_user_confirmation"
+            }
+          }
+        },
+        {
+          "seq": 4,
+          "kind": "order",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "before": {
+              "access": "read"
+            },
+            "after": {
+              "tool": "request_user_confirmation"
+            }
+          }
+        }
+      ],
+      "test_results": {
+        "normal": {
+          "3": true,
+          "4": true
+        },
+        "alternate": {
+          "3": true,
+          "4": true
+        },
+        "no_action": {
+          "3": false,
+          "4": false
+        },
+        "wrong_confirmation_payload": {
+          "3": true,
+          "4": true
+        },
+        "repeated_read": {
+          "3": true,
+          "4": "repeated_order_policy_missing"
+        }
+      },
+      "known_limits": [
+        "Generic read-before-confirmation does not prove correct scope/content.",
+        "Confirmation call existence does not validate its action payload.",
+        "Repeated reads make current order undecidable.",
+        "Temporary writes grader must expose appended conditions before activation."
+      ],
+      "ready_to_activate": false
+    },
+    {
+      "task_code": "CONFIRMED_ISSUE_CREATE-002",
+      "conditions": [
+        {
+          "seq": 3,
+          "kind": "uses",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "call": {
+              "tool": "request_user_confirmation"
+            }
+          }
+        },
+        {
+          "seq": 4,
+          "kind": "order",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "before": {
+              "access": "read"
+            },
+            "after": {
+              "tool": "request_user_confirmation"
+            }
+          }
+        }
+      ],
+      "test_results": {
+        "normal": {
+          "3": true,
+          "4": true
+        },
+        "alternate": {
+          "3": true,
+          "4": true
+        },
+        "no_action": {
+          "3": false,
+          "4": false
+        },
+        "wrong_confirmation_payload": {
+          "3": true,
+          "4": true
+        },
+        "repeated_read": {
+          "3": true,
+          "4": "repeated_order_policy_missing"
+        }
+      },
+      "known_limits": [
+        "Generic read-before-confirmation does not prove correct scope/content.",
+        "Confirmation call existence does not validate its action payload.",
+        "Repeated reads make current order undecidable.",
+        "Temporary writes grader must expose appended conditions before activation."
+      ],
+      "ready_to_activate": false
+    },
+    {
+      "task_code": "CONFIRMED_ISSUE_CREATE-003",
+      "conditions": [
+        {
+          "seq": 3,
+          "kind": "uses",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "call": {
+              "tool": "request_user_confirmation"
+            }
+          }
+        },
+        {
+          "seq": 4,
+          "kind": "order",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "before": {
+              "access": "read"
+            },
+            "after": {
+              "tool": "request_user_confirmation"
+            }
+          }
+        }
+      ],
+      "test_results": {
+        "normal": {
+          "3": true,
+          "4": true
+        },
+        "alternate": {
+          "3": true,
+          "4": true
+        },
+        "no_action": {
+          "3": false,
+          "4": false
+        },
+        "wrong_confirmation_payload": {
+          "3": true,
+          "4": true
+        },
+        "repeated_read": {
+          "3": true,
+          "4": "repeated_order_policy_missing"
+        }
+      },
+      "known_limits": [
+        "Generic read-before-confirmation does not prove correct scope/content.",
+        "Confirmation call existence does not validate its action payload.",
+        "Repeated reads make current order undecidable.",
+        "Temporary writes grader must expose appended conditions before activation."
+      ],
+      "ready_to_activate": false
+    },
+    {
+      "task_code": "NESTED_JSON_LOG_TYPES-001",
+      "conditions": [
+        {
+          "seq": 7,
+          "kind": "uses",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "call": {
+              "capability": "github.actions.logs.read"
+            }
+          }
+        }
+      ],
+      "test_results": {
+        "normal": {
+          "7": true
+        },
+        "alternate": {
+          "7": true
+        },
+        "no_action": {
+          "7": false
+        },
+        "wrong_log_scope": {
+          "7": true
+        }
+      },
+      "known_limits": [
+        "Capability call proves lookup only, not the correct raw log or field types.",
+        "Current official development mapping resolves JSON calls; another JSON scenario still passes this capability-only candidate.",
+        "Need scoped raw or typed-summary evidence alternatives before activation."
+      ],
+      "ready_to_activate": false
+    },
+    {
+      "task_code": "NESTED_JSON_LOG_TYPES-002",
+      "conditions": [
+        {
+          "seq": 7,
+          "kind": "uses",
+          "spec": {
+            "schema_version": 1,
+            "gate": true,
+            "call": {
+              "capability": "github.actions.logs.read"
+            }
+          }
+        }
+      ],
+      "test_results": {
+        "normal": {
+          "7": true
+        },
+        "alternate": {
+          "7": true
+        },
+        "no_action": {
+          "7": false
+        },
+        "wrong_log_scope": {
+          "7": true
+        }
+      },
+      "known_limits": [
+        "Capability call proves lookup only, not the correct raw log or field types.",
+        "Current official development mapping resolves JSON calls; another JSON scenario still passes this capability-only candidate.",
+        "Need scoped raw or typed-summary evidence alternatives before activation."
+      ],
+      "ready_to_activate": false
+    }
+  ],
+  "active_pack_unchanged": true,
+  "required_engine_features": [
+    "Structured scoped tool-result matching and raw-or-summary alternatives.",
+    "Read-result timestamp before confirmation without fixed tool name.",
+    "Confirmation action matching across candidate argument names.",
+    "Repeated-read order policy."
+  ]
+}

@@ -83,6 +83,29 @@ def test_llm_cannot_override_rule_failure(monkeypatch):
     assert classify(None, item).result_class != "correct"
 
 
+@pytest.mark.parametrize("kind", ["info", "link", "order"])
+def test_rule_unknown_is_not_reported_as_confirmed_wrong(monkeypatch, kind):
+    from slotagent.grading.eng_pipeline import Verdict
+
+    monkeypatch.setattr("slotagent.grading.pack_classify.judge", lambda *_: Verdict("correct"))
+    item = GradeItem(1, 1, "test", {"spans": []}, "completed",
+                     (ConditionResult(1, 1, kind, None),), False, False, "mini", {"votes":3})
+    verdict = classify(None, item)
+    assert verdict.result_class == "ask_or_giveup"
+    assert verdict.judge_status == "undecidable"
+    assert verdict.fail_tags == ("rule_undecidable",)
+
+
+def test_definite_rule_failure_still_wins_over_unknown(monkeypatch):
+    from slotagent.grading.eng_pipeline import Verdict
+
+    monkeypatch.setattr("slotagent.grading.pack_classify.judge", lambda *_: Verdict("correct"))
+    item = GradeItem(1, 1, "test", {"spans": []}, "completed",
+                     (ConditionResult(1, 1, "info", None), ConditionResult(2, 2, "link", False)),
+                     False, False, "mini", {"votes":3})
+    assert classify(None,item).fail_tags == ("rule_conflict",)
+
+
 def test_real_classifier_pipeline_and_resume(experiment, monkeypatch):
     conn, data, run_id = prepare(experiment)
     settings = {

@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-27",
+  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "bundle_kind": "review_evidence_not_standalone_deployment",
+  "completed": [
+    "100 human annotations completed; final correct49/wrong51, 99/100 agreement; original and corrections preserved.",
+    "Practice server0.1.1 shared lookup coverage; 38 actual Docker MCP calls verified.",
+    "18 outcome-cue prompts corrected; conditions and 200 goldens unchanged by that revision; 882 simulated runs and 200 golden product-rule checks passed.",
+    "13 source design records and 152 prompts checked; 42 unserved templates/126 local normal traces/190 read responses boundary-checked.",
+    "44 evidence requirements rebased to latest opaque IDs/current scope.",
+    "10 necessary-condition candidates on6 tasks contract-checked; success/no-action and known counterexamples recorded without activation.",
+    "Rule unknown vs definite wrong classification corrected; 21 local registration/judge DB tests passed."
+  ],
+  "requests_to_role1": [
+    {
+      "item": "historical16_and12_format_cases",
+      "need": "real_pilot raw traces, prompts/final answers, per-condition undecided reason, pack/grader hashes; optionally result_serve.json"
+    },
+    {
+      "item": "structured_evidence",
+      "need": "tool_args plus structured result matching; scoped raw/summary alternatives; cross-call evidence; exact IDs/time equivalence"
+    },
+    {
+      "item": "confirmation4",
+      "need": "validate scoped preceding context and action tool/target/content without hardcoded candidate tool/argument names; repeated-read order semantics"
+    },
+    {
+      "item": "json_logs2",
+      "need": "per-call capability mapping for read_workflow_context and scoped raw/typed-result evidence; current selector is ambiguous"
+    },
+    {
+      "item": "format_policy",
+      "need": "agree forward strict JSON vs semantic fallback and versioned historical regrade; current code keeps unknown unresolved"
+    },
+    {
+      "item": "deployment",
+      "need": "use pinned image0.1.1 for real16 replay; connect classifier to worker and registration in a real-model end-to-end run"
+    }
+  ],
+  "not_completed": [
+    "No active evidence/confirmation conditions added to pack.",
+    "No actual external model/judge API call or historical16 rerun.",
+    "No full42-template MCP deployment, independent28 review, DB env approval, pack lock, judge kappa/false-success validation or held split.",
+    "21 tests verify registration/draft and classifier pipeline in separate fixtures, not a single real-model chain."
+  ],
+  "tests": {
+    "count": 21,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "external_model": "FakeModel"
+  },
+  "files": [
+    {
+      "path": "docs/role2_evidence_review_1127.json",
+      "sha256": "fac9c09e28737847e7486938735a0d6fb01cce491e601dab9410fd58270bb4a0"
+    },
+    {
+      "path": "docs/role2_condition_candidates_1127.json",
+      "sha256": "257085e3f4b6267587ddd389c7fc4a511a72388359e8f5f965ec84f7b2349054"
+    },
+    {
+      "path": "docs/role2_answer_format_review_1127.json",
+      "sha256": "1ffd39a2461492f05e9aaff9ae510b1b12b2e33ea01792d7cb9dd96008ff45fa"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/prompt_revision_1127.json",
+      "sha256": "a48b730090c9374b0617f76efb1e7bf8b954c12ec144d55610f5f40487bbce89"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/environment_review.json",
+      "sha256": "291f7a24a089b62a0f0657047c410905707f4de696b48d9644be78759c9e60a9"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/local_boundary_review.json",
+      "sha256": "f5860968fe230f1e47edf3a653841561e2f34576f5a1122656b727243282c130"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/servers.json",
+      "sha256": "6965b25739a6a3f7d35525950640dc8d374e2aaf149fac4db9e7ee1e6bca18ff"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/verification.json",
+      "sha256": "f02dd999d133de4bb56a34d1362bfbd7b6759d6748062c23b88111863e596e96"
+    },
+    {
+      "path": "backend/src/slotagent/grading/pack_classify.py",
+      "sha256": "16f37778f4337e88419038b8899fab87eab657411e250d7ad316fdc348e41313"
+    },
+    {
+      "path": "backend/tests/test_pack_classify.py",
+      "sha256": "b0af6fa71d979192a79ac3c5160275da9e590317d2fa1ecbef476ebe3546477e"
+    },
+    {
+      "path": "tmp/role2-local-integration-1127.xml",
+      "sha256": "2dd654d39eea209462fab5bb8dac3dab6cade662eb83e2cbe4e928d651e36a03"
+    }
+  ]
+}

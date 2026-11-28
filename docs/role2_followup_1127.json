@@ -1,0 +1,104 @@
+{
+  "date": "2026-11-27",
+  "kind": "followup_review_bundle_not_standalone_deployment",
+  "replaces": "role2_delivery_1127.zip as the latest review bundle; older archive remains historical",
+  "completed": [
+    "Reliability/workflows now accept tool_error only on exactly replayed expected temporary_unavailable/permission_denied reads.",
+    "Success-with-error, environment errors, forged results and retry after permanent denial remain rejected.",
+    "read_workflow_context has5 trusted development call mappings covering30 known scenarios;34 mapping tests passed.",
+    "A/B5-vs3 tools prepared for8 supported templates/26 tasks, equal normalized records and capabilities, same runtime and image.",
+    "Worker Docker config deserializes with no duplicate entrypoint command.",
+    "71 focused tests passed;200 goldens match temporary and product rules;882 simulated runs match."
+  ],
+  "resolved_since_previous_bundle": [
+    "JSON log capability ambiguity for known development scenarios; correct raw scope/types are still not enforced by capability-only candidates."
+  ],
+  "pending": [
+    "Historical16 traces and12 format-undecidable cases from role1.",
+    "Forward format policy and explicit versioned historical regrade.",
+    "Structured/scoped evidence, repeated-read order and confirmation payload matching.",
+    "Target-argument/detail-capability mapping and formal contract acknowledgements; do not fabricate targets from result-only fields.",
+    "Real A/B and judge calls, environment DB approvals, remaining42 deployed services, independent reviews and held split."
+  ],
+  "tests": {
+    "focused": 71,
+    "goldens": 200,
+    "simulation_runs": 882,
+    "actual_model_calls": 0
+  },
+  "pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "files": [
+    {
+      "path": "docs/role2_delivery_1127.json",
+      "sha256": "d6fa811a9dcc880388208907a0a367daad462217ae70542bb13ef2224187a333"
+    },
+    {
+      "path": "docs/role2_evidence_review_1127.json",
+      "sha256": "fac9c09e28737847e7486938735a0d6fb01cce491e601dab9410fd58270bb4a0"
+    },
+    {
+      "path": "docs/role2_condition_candidates_1127.json",
+      "sha256": "ef2787213fad887b2a99f7401f977f03349f6c9e6cd4f76ee483856314230ffd"
+    },
+    {
+      "path": "docs/role2_answer_format_review_1127.json",
+      "sha256": "1ffd39a2461492f05e9aaff9ae510b1b12b2e33ea01792d7cb9dd96008ff45fa"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/ab_plan.json",
+      "sha256": "2ee9a3889aa1ae84c286ca67de52ba4f7a73e3063f7733a1f781919dc4de000b"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/tool_permissions.json",
+      "sha256": "49f67729c1744c4e6ad68b9b339e06092667b31f69a19dcd36ab2236d79bc06f"
+    },
+    {
+      "path": "packs/it_ops/v0.1/reference/tool_errors.py",
+      "sha256": "7e938528084ea17b3dae01caf8f144b15712a2744490bb61db2aeff335d4e1f6"
+    },
+    {
+      "path": "packs/it_ops/v0.1/reference/evaluators/reliability.py",
+      "sha256": "b37b1722ac88803b49dec886cfd74cb6ebe9efae60c5637bb3f23ee7a32e5e48"
+    },
+    {
+      "path": "packs/it_ops/v0.1/reference/evaluators/workflows.py",
+      "sha256": "4b0995a34a553c83353e4e491c70484b52fb822bc1cb7d8e5ef467c855268b6c"
+    },
+    {
+      "path": "scripts/prepare_practice_ab.py",
+      "sha256": "88d6a7999042dd8c8bbd2f05c6518ecf74b72909e5cdb70af8a720fe5d86d78e"
+    },
+    {
+      "path": "backend/tests/test_practice_ab_plan.py",
+      "sha256": "da40f30e8f4305b7b459a57a8f99ef3388c88d1e4eb0b5d7b453a4b6c5af2e1d"
+    },
+    {
+      "path": "backend/tests/test_practice_call_capabilities.py",
+      "sha256": "723fe432bdce7531dbbf73e7c9bf305d637b2610b29c38f6b6540b209e9f7603"
+    },
+    {
+      "path": "backend/tests/test_pack_reliability.py",
+      "sha256": "c17b48ae16ed8a577154377f9afd38e12f33a29a2254bc2fea0088b944fafe8a"
+    },
+    {
+      "path": "backend/tests/test_pack_workflows.py",
+      "sha256": "6f7cce606886bd056770087ae1fcf19075610c85eec7caababa98da4344b3510"
+    },
+    {
+      "path": "tmp/role2-ab-error-process-1127.xml",
+      "sha256": "306d44c33cd9316f49a3e42694fce75f38c2f1944dc4f5eaa6af3a0c92e918d2"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/prompt_revision_1127.json",
+      "sha256": "a48b730090c9374b0617f76efb1e7bf8b954c12ec144d55610f5f40487bbce89"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/environment_review.json",
+      "sha256": "291f7a24a089b62a0f0657047c410905707f4de696b48d9644be78759c9e60a9"
+    },
+    {
+      "path": "packs/it_ops/v0.1/practice/local_boundary_review.json",
+      "sha256": "f5860968fe230f1e47edf3a653841561e2f34576f5a1122656b727243282c130"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "date": "2026-11-27",
+  "status": "policy_proposal_pending_user_decision_and_original_trial_review",
+  "historical_evidence": {
+    "source": "docs/handoff.md, 2026-11-26 actual pilot entry",
+    "reported_trials": 16,
+    "reported_info_undecidable_trials": 12,
+    "reported_format_causes": [
+      "prose_before_or_after_JSON",
+      "JSON_code_fences",
+      "top_level_array"
+    ],
+    "reported_correct_but_wrong_format": [
+      "DEPLOY_RECOVERY-001, A/B, answer 102"
+    ],
+    "original_record_location_on_owner_PC": "D:/final_test/real_pilot",
+    "original_trials_available_locally": false,
+    "cause_counts_by_trial": null,
+    "warning": "Historical pilot predates practice server 0.1.1 and prompt-ID revision; do not treat as new-pack results."
+  },
+  "current_code": {
+    "pack_judge_implemented": true,
+    "pack_classify_implemented": true,
+    "note": "Current pack_classify prevents correct when any gate condition is not True, including None. Sending format-unknown to LLM alone cannot make it successful. Integration/policy changes require explicit eligible-condition handling.",
+    "sha256": {
+      "backend/src/slotagent/grading/eng_rules.py": "9862bd62fc2b06eb3117dc861b31017c316450b0617fd4a9a2c6745fee399657",
+      "backend/src/slotagent/grading/pack_classify.py": "16f37778f4337e88419038b8899fab87eab657411e250d7ad316fdc348e41313",
+      "backend/src/slotagent/grading/pack_judge.py": "f1ea9ab931b1a39ff13e099eddbc6d80d07d9f32e10d3069821edc8d33e04270",
+      "backend/src/slotagent/grading/eng_pipeline.py": "39a93d4a42df8391e912b62681f11b46cd32b4865fb15ada94ca9b328090eff4"
+    },
+    "local_integration_validation": "21 passing tests including FakeModel votes/cost/resume and separate real registration/draft persistence checks; not one real-model registration-to-grade run.",
+    "unknown_guard_behavior": "Success remains blocked for gate=None, but the revised classifier records ask_or_giveup/undecidable with rule_undecidable rather than asserting wrong facts."
+  },
+  "reproductions": [
+    {
+      "case": "strict_object",
+      "answer": "{\"run_id\":\"102\"}",
+      "result": true,
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    },
+    {
+      "case": "code_fence",
+      "answer": "```json\n{\"run_id\":\"102\"}\n```",
+      "result": "answer_not_json_object",
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    },
+    {
+      "case": "prose_and_json",
+      "answer": "확인 결과입니다.\n{\"run_id\":\"102\"}",
+      "result": "answer_not_json_object",
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    },
+    {
+      "case": "top_level_array",
+      "answer": "[]",
+      "result": "answer_not_json_object",
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    },
+    {
+      "case": "missing_key",
+      "answer": "{\"id\":\"102\"}",
+      "result": "answer_key_missing",
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    },
+    {
+      "case": "wrong_value",
+      "answer": "{\"run_id\":\"999\"}",
+      "result": false,
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    },
+    {
+      "case": "wrong_type",
+      "answer": "{\"run_id\":102}",
+      "result": false,
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    },
+    {
+      "case": "duplicate_key",
+      "answer": "{\"run_id\":\"999\",\"run_id\":\"102\"}",
+      "result": "answer_duplicate_key",
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    },
+    {
+      "case": "nonfinite",
+      "answer": "{\"run_id\":NaN}",
+      "result": "answer_nonfinite_number",
+      "source": "synthetic_engine_reproduction_not_real_trial"
+    }
+  ],
+  "proposed_policy": {
+    "future_trials": "When task requires structured JSON, explicitly demand exactly one top-level object, required keys/types, no prose/code fences, empty result inside its named field. Treat unambiguous violation as format failure only after this policy is fixed before execution.",
+    "historical_trials": "Preserve original prompt/trace/grade. Do not retroactively relabel all 12 as failures. Regrade separately under an explicit versioned policy after raw records are received.",
+    "LLM_scope": [
+      "Semantic adequacy/grounding/appropriate completion and result classification/first-failure stage where rules cannot decide.",
+      "No override of definite numeric/set/value failures, forbidden writes, approval rules, exact write counts or missing trusted runtime context."
+    ],
+    "not_automatic_wrong": [
+      "tool_access_missing",
+      "confirmation_policy_context_missing",
+      "timezone_context_missing",
+      "answer_number_limit",
+      "answer_nesting_limit"
+    ],
+    "no_silent_normalization": "Do not strip prose/fences, coerce number/string, guess missing fields or wrap [] into a guessed key without a declared policy.",
+    "format_vs_result_class": "A format violation prevents task success, but does not by itself prove a wrong factual assertion. Keep fact correctness, format and result-class/undecidable diagnosis distinct."
+  },
+  "next_inputs": [
+    "16 raw traces (or the 12 flagged ones) including final_answer, prompts, task/candidate/trial IDs and pack version/hash.",
+    "Per-condition seq/key and undecided reason codes, original rule/grade version and actual tool configuration.",
+    "If available result_serve.json for the 6-trial 11/27 reproduction."
+  ],
+  "changed_engine_or_pack": false,
+  "real_model_calls": 0
+}

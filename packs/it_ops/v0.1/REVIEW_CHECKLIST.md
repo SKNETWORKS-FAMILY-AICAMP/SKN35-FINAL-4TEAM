@@ -1,5 +1,50 @@
 # IT 운영 평가팩 검수 기록
 
+## 2026-11-27 연습 환경·문항 노출 점검
+
+v0.2 분할 준비:50유형별 모델 실행 기록·문항 수정·근거 설계·실제 MCP 지원을 [분할 검토 JSON](practice/split_review_v02.json)과 기존 packs/README의 분할 후보 표에 정리했다. 제안은 dev15유형47문항/held후보35유형105문항이며, 확인 완료 held는0이다. 노출 DB·팀 사용 이력은 미확인이고 held후보의 실제 MCP 지원도0유형이다. v0.1은 그대로 두고 새 버전도 생성하지 않았다. 버전을 바꿔도 동일 유형의 노출 기록은 승계해야 한다.
+
+대상은 현재50유형·152문항과 고정 데이터13개다. 실제 MCP 검증 범위는 GitHub5도구·8유형·26문항에 한정한다. [기계 판독용 점검 결과](practice/environment_review.json)는 `scripts/check_practice_environment.py`로 재생성한다. Codex 작성 지원 점검이며 독립 사람 승인·DB 환경 승인·팩 잠금은 아니다. 아래11/25 기록은 당시 이력이다.
+
+| 환경 점검 | 이번 확인 | 완료하지 않은 범위 |
+|---|---|---|
+| 도구 응답 모양 | 서버0.1.1의 Docker stdio38호출 증거·고정 이미지·스냅샷 해시 대조. JSON 배열, 입력/응답 스키마, 저장소 필터·빈 결과·잘못된 인자 확인. 반환 레코드에 조건·골든·승인 정책 키 없음 | 나머지42유형의 실제 MCP/쓰기/오류·페이지 응답과 실제 모델16풀이 재검증 |
+| 데이터 설계 기록 | 13개 데이터 파일 존재·파싱·설계 notes·canonical hash 확인. 현재 서버에는3개 파일만 읽기 전용 마운트 | 설계 기록의 독립 타당성 승인·연습 DB 읽기 전용 계정·제품 환경별 기록 및 DB fingerprint 연결 |
+| 문항의 정답 노출 | 152문항의 입력/응답 규격과 기대값 문자열 겹침·결과 암시 이름·성공 보장을 구분 점검. 발견18문항 수정 후 해당 두 패턴0건 | 표현의 자연스러움·과잉 절차 힌트·대체 경로 독립 검수, 실제 모델의 무조회 정답 통과 문제 |
+
+발견18문항 및11/27 수정 처리:
+
+- `RETRY_TRANSIENT_READ-001~003`, `RETRY_EXHAUSTED_READ-001~003`, `CONFLICT_EQUAL_AUTHORITY-001~003`, `CONFLICT_FRESH_PRIMARY-001~003`, `CONFLICT_INSUFFICIENT_VERSION-001~003`: 공개 scenario_id의 transient/persistent/conflict/fresh/insufficient가 조회 전 결과를 암시했다. 중립 case-8자리hex ID로 변경하고 slot_values·prompt·실제 데이터 case ID·테스트 참조를 함께 맞췄다. 기존 어댑터는 정확한 ID 조회를 사용하므로 새 ID를 그대로 해석하며 별도 호환 별칭을 노출하지 않는다. scenarios/evidence 데이터 버전은v0.2로 갱신했다. 정답 계산용 내부 kind·조회 내용은 유지했다.
+- `MULTI_TARGET_APPROVAL-001~003`: “응답은 성공하는 고정 fake 환경”이라는 보장 문구를 현재 prompt와 생성 원본에서 제거했다. fake 실행·대상별 승인 요구는 유지했다.
+
+[수정·해시·검증 기록](practice/prompt_revision_1127.json)에15개 ID의 전후 대응, 변경18문항, 팩·데이터 해시, 골든 원본 해시와 재생 결과를 보존했다. 골든200개 파일과 정답 조건·골든 기대값은 바꾸지 않았다. 전체 문항 목록과 파일럿 명세의 팩 해시도 갱신했다. 이전 pack_sha256를 가진 독립 검수 묶음·근거 조건 초안은 과거 버전 자료이므로 현재 팩 결과로 사용하지 않는다. 기존 검수 라벨을 덮어쓰거나 현재 버전으로 조용히 승격하지 않았다.
+
+현재 서버 지원26문항에는 위 두 패턴이 없었다. 이를 의미적 정답 누출 없음의 보증으로 읽지 않는다. 문자열 겹침 후보29문항에는 UNRESOLVED/UNDEFINED, enum, 마스킹 토큰, 업무 대상 채널 등 정상 규격·입력도 포함된다. 단순 겹침으로 누출 판정을 내리지 않았다. LATEST_CONFIRMATION_SCOPE·reconciliation·URL 정책의 단계별 풀이 안내는 기존 아래 검토안과 함께 조정할 필요가 있다. 원자료 조회 능력 대신 절차를 그대로 따라가는지를 평가할 위험과, 정당한 업무 제약의 필요성을 함께 검토한다.
+
+`data/reconciliation.json`은 context 외 재생 calls/answer를 포함한다. 현재 Docker 이미지에는 마운트되지 않으며, 향후 연결에서도 전체 파일을 모델에게 반환하지 않고 context만 공개해야 한다. 현재3개 마운트 파일과 실제 반환 레코드의 경계를 점검한 결과를 전체13개 서비스로 확대 해석하지 않는다.
+
+최초 점검에서는 원본을 변경하지 않았으며 이후 사용자 요청으로 위18문항과 두 데이터의 ID를 수정했다. `sa_env_checks`의 pack 대상 pass는 최신 DB fingerprint와 독립 확인자가 필요하므로 기록하지 않았고, 전체 환경 확인 체크도 미완료로 유지한다. 사전 실험100건 사람 라벨 감사는 이 독립 환경 검수와 별개다.
+
+### 11/27 추가 점검 — 나머지42유형의 로컬 공개 경계
+
+18문항 수정 후 결과 암시ID·미래 성공 보장 패턴은 재검사에서도0건이다. 추가로 GitHub MCP가 없는42유형·126문항을 기존 로컬 시뮬레이터의 정상 경로로 실행해 조회 응답190개를 확인했다. JSON 해석 오류 및 정답/기대값·골든·승인 정책·시나리오·예시 호출·미래 receipt fixture 키 검출은0건이다. reconciliation의 get_write_case는 context만, 확장 쓰기의 get_write_case는 receipt를 제외한 자료를 반환했다. 이미 수행된 작업의 receipts와 쓰기 이후 실제 도구 영수증은 정당한 업무 근거이며 미리 주는 fixture receipt와 구분한다.
+
+[로컬 경계 점검 결과](practice/local_boundary_review.json)는 `scripts/check_local_practice_boundaries.py`로 재생성한다. 각 문항별 조회 도구·span 번호·JSON 해석·비공개 키 검출 결과를 기록한다. 이 검사는 정상 로컬 경로의 필드 수준 점검이며 악성 입력·모든 실패 경로·의미적 누출·실제 MCP/연습 DB/runner 연결을 검증한 것은 아니다. 특히 “42유형의 실제 환경 완료”로 표시하지 않는다.
+
+정답 문자열 겹침29문항은 원문을 대조해 fallback/오류 표기, 계층·타입 정의, 이벤트 범주, 조건별 업무 규칙, 마스킹 치환값, 요청 채널로 분류해 environment_review.json의 literal_roles에 기록했다. 같은 글자가 있다는 이유만으로 실제 조회 결과를 알려준 누출로 판정하지 않았다. 스캐너가 모르는 값은 needs_semantic_review로 남기며 자동 면제하지 않는다.
+
+다음5유형15문항은 **독립 검토할 절차 안내**로 구분했다: LATEST_CONFIRMATION_SCOPE, UNCERTAIN_WRITE_RECONCILIATION, PARTIAL_WRITE_RECONCILIATION, APPROVAL_DATA_REVISION, EXPLICIT_URL_ALLOWLIST. 승인 후 변경·미반영 확인 뒤 재시도·리다이렉트 금지 등은 필요한 업무/안전 기준이다. 다만 단계 수·고정 순서·내부 상태 전이 설명이 풀이 방법까지 알려주는지는 별도 판단이 필요하다. 확정된 정답 누출15건이 아니므로 검사 요청만으로 문항·채점 기준을 변경하지 않았다.
+
+현재 남은 승인은 작성 지원 도구로 대체하지 않는다: 작성자 외28건 검수, 실제16풀이 대조,42유형 실제 도구 연결, 연습 DB 읽기 전용 계정, 최신 DB fingerprint의 sa_env_checks 기록. 이 단계에서도 팩·정답·골든은 변경하지 않았다.
+
+### 11/27 오류 계약·과정 매핑·A/B 준비
+
+`docs/eng_trace_recovery_1124.json`과 `docs/eng_trace_permission_1124.json`은 엔진이 원문을 tool_result에 두고 error="tool_error"로 표시함을 보여 준다. 이 예시는 문항·출력 형식이 다른 과거 예시이므로 현재 문항의 정답 trace로 재사용하지 않았다. 대신 같은 표시를 현재 고정 응답에 적용한 경계 테스트로 정합성을 검증했다. reliability/workflows 임시 채점기는 인자·응답·호출 순서의 재생 일치를 먼저 확인하고, 고정 응답 자체가 temporary_unavailable 또는 permission_denied일 때만 tool_error를 허용한다. 문자열 원문을 임의로 JSON 오류로 변환하지 않으며 성공 응답 오류·환경 장애·오류 위조·권한 거절 뒤 재시도는 거절한다. 제품 link의 오류 처리 정책은 ① 계약을 그대로 유지한다.
+
+tool_permissions.json의 read_workflow_context에5개 call_capabilities 규칙을 추가했다. config/trace/checklist/json/completion/injection/scope/permission/dedup/conditional의 기존30개 시나리오만 기능이 결정되며 미등록ID는 call_capability_unknown이다. 개발용 도구의 실제 고정 context 제공 동작을 근거로 한 매핑이며 실제 후보에 자동 복사하지 않는다. 이로써 JSON로그 기능의 모호성은 해소됐으나 조회 대상·raw 타입 근거 자체를 증명한 것은 아니다. 반환 context의 repo를 호출 인자 repo로 꾸미거나 scenario_id를 target_id로 오인하지 않도록 target_args는 임의 추가하지 않았다. 상세 조회 이름표 및 생성 쓰기의 중복 확인 정책도 미확정 상태를 유지한다.
+
+[A/B 준비안](practice/ab_plan.json)은 공통 모델 gpt-4.1-mini·temperature0, 동일 고정 instructions/runtime/이미지를 사용하는 두 agent_spec과 worker Docker 설정이다. A는5도구, B는 list_deployments/list_issues/list_operation_releases의3도구다. ID 형식을 정규화하면 대응 조회 기록은 같고 두 후보의 기능 범위도 같다. Docker 설정은 이미지 ENTRYPOINT를 사용하므로 arguments=[]로 이중 명령을 피한다. 이3개 도구는 문항별로 바꾸지 않고26문항 전체에 동일하게 제공한다. 계획 문항코드·정답·조건·골든은 에이전트 입력이 아니다. 실제 모델 버전·예산·가격·반복 수·사전등록·형식 정책을 고정한 뒤 실행하며, 현재 준비안 자체는 미실행이다.
+
 ## 현재 검수 상태 — 2026-11-25
 
 현재 활성 구성은 **50유형·152문항·200골든**, 모두 dev다. 조회8·쓰기9·장애9·오류복구3·정보충돌3·운영계산6·운영절차12유형이다. 최초 대기3유형9문항은 활성화했으며 과거 초안은 보관한다. [50유형 상세 표](../../README.md)와 [전체 문항 목록](../../QUESTIONS.md)을 기준으로 본다.
