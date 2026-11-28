@@ -114,11 +114,11 @@ def review_material(pack_dir=PACK, all_templates=False, seed=1124):
                         "kind": entry["kind"], "expected": entry["expected"],
                         "conditions": task["conditions"], "confirmation": task.get("confirmation"),
                         "trace_source": entry["trace"]})
-    fingerprint = hashlib.sha256((pack_dir / "pack.json").read_bytes()).hexdigest()
-    return ({"schema_version": 1, "pack_sha256": fingerprint,
+    fingerprint = hashlib.sha256((pack_dir / "pack.json").read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+    return ({"schema_version": 1, "pack_sha256": fingerprint, "file_hash_policy": "sha256_crlf_to_lf_v1",
              "notice": "Synthetic golden review, not a held set or LLM calibration dataset. Unobservable policy: request adjudication.",
              "cases": public},
-            {"schema_version": 1, "pack_sha256": fingerprint, "seed": seed,
+            {"schema_version": 1, "pack_sha256": fingerprint, "file_hash_policy": "sha256_crlf_to_lf_v1", "seed": seed,
              "notice": "Private answer key. Do not give to reviewers before independent annotation.", "cases": private})
 
 
