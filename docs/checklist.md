@@ -68,15 +68,18 @@
 - [x] 도구 검색 후보 실행 `engine/tool_search.py` (BM25)
 - [ ] SlotAgent MCP 서버 (조회 함수부터) 🔗 ← ④ chatbot 함수 5개 모양
   - [x] stdio 서버·도구 5개, `get_results`·`write_report` 저장값 조회, `start_run` 확인 뒤 실행 (`docs/eng_mcp_server.md`). `calc_sample_size`·`create_experiment` 는 ③④ 뒤쪽 구현 대기, Claude Desktop 실제 연결 확인 전
-- [ ] API (FastAPI) + plan-proposal 🔗 → ④ 등록·실험 저장 함수가 여기 붙음
+- [x] API (FastAPI) + plan-proposal 🔗 → ④ 등록·실험 저장 함수가 여기 붙음
   - [x] plan-proposal 본체 `common/proposal.propose` (settings + ② 문항 고르기, as_of 재현). ③ `sample_size` 대기 (11/27)
   - [x] HTTP `POST /api/experiments/plan-proposal` 등록 (계약 밖 요청 422, `sample_size` 없으면 501) (11/27)
+  - [x] HTTP `POST /api/agents`·`/api/slots/{id}/candidates`·`/api/experiments` 에 ④ 저장 함수 연결 (`api/eng_intake.py`, 만든 사람 = `SLOTAGENT_USER_ID`, 없으면 501) (11/27)
 - [ ] 화면 1차 (Next.js) — 등록 질문 4개, 실험 설계, 진행 상태, 결과 🔗 ← ④ 등록 API
+  - [x] `/live` 화면: 계약 모양 JSON 으로 등록 → 후보 → plan-proposal → 초안 저장 → 진행 화면(`?experiment=번호` 는 바로 진행 단계로) (11/27). 기존 체험 화면의 등록·설계는 아직 모의
   - [x] 진행 상태를 실제 API 로: `?experiment=번호` 면 시험 단계가 run → status 2초 조회 → stop (`components/live-run.tsx`, `/api` 프록시) (11/27)
 - [x] 화면 타입 생성 (스키마 → `frontend/src/types/contracts.ts`) — 11/27 최신 계약으로 재생성, 계약 바뀌면 `npm run generate:types` 다시
 
 **W6~W8 — 고도화**
 - [ ] 오케스트레이터 (LangGraph: 후보 찾기 → 설계 → 승인 → 감시 → 추천)
+  - [x] 설계 `docs/eng_orchestrator_design_1127.md`, 1차 그래프·승인·Postgres 체크포인트·구동기를 가짜 Backend 로 (`orchestrator/`, `tests/test_eng_orchestrator.py`), 실제 run·status·plan-proposal HTTP 연결 (`orchestrator/http.py`) (11/27). `final_analysis_id`·`complete_analysis_ids` 분리(게이트도 사용) (11/27). 최종 결과 HTTP 읽는 길(계약), 초안 저장 중복 방지 키(계약), 후보 목록 API 남음
 - [ ] 진단·개선 (GEPA) → 고친 후보를 held 문항으로 재판정 🔗 ← ② dev/held 나누기
 - [ ] 시연·README
 

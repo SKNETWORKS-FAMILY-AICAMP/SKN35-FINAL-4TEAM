@@ -52,7 +52,7 @@ export function SlotAgentApp() {
     const saved = readDemo();
     if (saved) { setAgents(saved.agents); setHistory(saved.history); setDailyCalls(saved.dailyCalls); setTheme(saved.theme); }
     const id = Number(new URLSearchParams(window.location.search).get("experiment"));
-    if (Number.isSafeInteger(id) && id > 0) setLiveId(id);
+    if (Number.isSafeInteger(id) && id > 0) { setLiveId(id); setView("test"); setStep(3); setReached(3); }
     setReady(true);
   }, []);
   useEffect(() => {

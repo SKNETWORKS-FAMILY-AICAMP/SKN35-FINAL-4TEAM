@@ -11,13 +11,15 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from psycopg.conninfo import conninfo_to_dict
 from psycopg.types.json import Jsonb
+from test_eng_advance_idempotency import analysis
 from test_eng_api import draft as draft
-from test_eng_completion import ready, report
+from test_eng_completion import grading, ready, report
 from test_eng_worker import engine_db as engine_db
 from test_eng_worker import experiment as experiment
 
 from slotagent.common import contracts
 from slotagent.common.checks import CheckError
+from slotagent.engine import advance
 from slotagent.mcp_server import server
 
 SRC = pathlib.Path(__file__).resolve().parents[1] / "src"
@@ -59,6 +61,17 @@ def test_get_results_returns_stored_values(experiment):
     assert sorted(r["kind"] for r in out["reports"]) == ["detail", "one_pager"]
     rep = server.call(conn, "write_report", {"report_id": out["reports"][0]["report_id"]})
     assert (rep["experiment_id"], rep["audience"], rep["content"]) == (exp, "manager", {})
+
+
+def test_done_experiment_reads_final_analysis_not_latest(experiment):
+    """끝난 실험에 리포트 없는 재채점 분석이 더 최신이어도 리포트 2종이 있는 최종 분석을 보여 줌."""
+    conn, exp, an = finished(experiment)
+    ids = experiment[1]
+    assert advance.on_reports_done(conn, exp) == []
+    newer = analysis(conn, ids, grading(conn, ids, regrade=True))
+    out = server.call(conn, "get_results", {"experiment_id": exp})
+    assert out["status"]["status"] == "done" and out["status"]["latest_analysis_id"] == newer > an
+    assert out["analysis"]["analysis_id"] == an and sorted(r["kind"] for r in out["reports"]) == ["detail", "one_pager"]
 
 
 @pytest.mark.parametrize(

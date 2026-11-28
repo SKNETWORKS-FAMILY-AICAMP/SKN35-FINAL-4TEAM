@@ -27,6 +27,7 @@ from slotagent.api.eng_app import GENERIC, MESSAGES
 from slotagent.common import contracts, db
 from slotagent.common.checks import CheckError
 from slotagent.common.hashing import canonical_hash
+from slotagent.engine.advance import final_analysis_id
 from slotagent.engine.lock import lock_and_enqueue
 from slotagent.intake import service
 
@@ -101,7 +102,8 @@ def _all(conn, sql, params):
 def get_results(conn, args: dict) -> dict:
     exp = args["experiment_id"]
     state = eng_experiments.status(conn, exp)
-    analysis_id = state["latest_analysis_id"]
+    # 끝난 실험은 종료 게이트와 같은 최종 분석(리포트 2종 있음). latest(max)는 리포트 없는 재채점일 수 있음
+    analysis_id = final_analysis_id(conn, exp) if state["status"] == "done" else state["latest_analysis_id"]
     analysis = None
     if analysis_id is not None:
         analysis = _one(
