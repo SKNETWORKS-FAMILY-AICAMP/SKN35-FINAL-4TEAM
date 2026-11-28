@@ -2,7 +2,7 @@
   "schema_version": 1,
   "artifact_kind": "review_requirements_not_executable_conditions",
   "date": "2026-11-27",
-  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "base_pack_sha256": "736fd2252975620129180dd0673248ece72bdfef11b44055fc94219d88f80593",
   "applied": false,
   "decision_status": {
     "evidence_required": "user_agreed",
@@ -1152,5 +1152,7 @@
     "NESTED_JSON_LOG_TYPES-001/002 도구 없는 답 실패; scope-2 범위 밖 조회 실패",
     "적용 후 golden expected.conditions·임시 채점기·pack_sha256·검증 기록 갱신"
   ],
-  "previous_base_pack_sha256": "d8072fcc9efa595622c7d3920cb1186cf61bbe79e9d7826b0a76354d8007dd49"
+  "previous_base_pack_sha256": "d8072fcc9efa595622c7d3920cb1186cf61bbe79e9d7826b0a76354d8007dd49",
+  "legacy_raw_base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "file_hash_policy": "sha256_crlf_to_lf_v1"
 }

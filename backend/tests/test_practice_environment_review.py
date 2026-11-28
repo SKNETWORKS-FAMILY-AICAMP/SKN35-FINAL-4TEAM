@@ -1,5 +1,5 @@
-import importlib.util
 import hashlib
+import importlib.util
 import json
 import re
 from pathlib import Path
@@ -53,7 +53,7 @@ def test_prompt_revision_preserves_conditions_and_golden_files():
     pack = json.loads((pack_dir / 'pack.json').read_text(encoding='utf-8'))
     assert len(revision['changed_prompt_tasks']) == 18
     assert len(revision['scenario_id_changes']) == 15
-    assert hashlib.sha256((pack_dir / 'pack.json').read_bytes()).hexdigest() == revision['pack_sha256_after']
+    assert hashlib.sha256((pack_dir / 'pack.json').read_bytes().replace(b'\r\n', b'\n')).hexdigest() == revision['lf_normalized']['pack_sha256_after']
     tasks = {t['code']:t for t in pack['tasks']}
     cases = {c['id'] for name in ['scenarios.json','evidence.json']
              for c in json.loads((pack_dir / 'data' / name).read_text(encoding='utf-8'))['cases']}
@@ -63,5 +63,5 @@ def test_prompt_revision_preserves_conditions_and_golden_files():
         assert task['slot_values']['scenario_id'] == change['new_id']
         assert change['new_id'] in task['prompt'] and change['new_id'] in cases
         assert change['old_id'] not in task['prompt'] and change['old_id'] not in cases
-    for filename, expected_hash in revision['golden_file_sha256'].items():
-        assert hashlib.sha256((pack_dir / filename).read_bytes()).hexdigest() == expected_hash
+    for filename, expected_hash in revision['lf_normalized']['golden_file_sha256'].items():
+        assert hashlib.sha256((pack_dir / filename).read_bytes().replace(b'\r\n', b'\n')).hexdigest() == expected_hash

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-11-27",
-  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "base_pack_sha256": "736fd2252975620129180dd0673248ece72bdfef11b44055fc94219d88f80593",
   "applied": false,
   "purpose": "Validated necessary-condition candidates, not complete evidence enforcement",
   "candidates": [
@@ -320,5 +320,7 @@
     "Read-result timestamp before confirmation without fixed tool name.",
     "Confirmation action matching across candidate argument names.",
     "Repeated-read order policy."
-  ]
+  ],
+  "legacy_raw_base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "file_hash_policy": "sha256_crlf_to_lf_v1"
 }

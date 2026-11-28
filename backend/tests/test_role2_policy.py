@@ -1,6 +1,9 @@
 import hashlib
 import importlib.util
+import shutil
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location('role2_policy', ROOT / 'scripts/prepare_role2_policy.py')
@@ -36,3 +39,28 @@ def test_build_does_not_modify_pack_data_or_goldens():
     before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
     review.build()
     assert before == {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+
+
+@pytest.mark.parametrize('newline', [b'\n', b'\r\n'])
+def test_all_review_builders_accept_either_checkout_newline(tmp_path, monkeypatch, newline):
+    copied_pack = tmp_path / 'packs/it_ops/v0.1'
+    shutil.copytree(review.PACK, copied_pack, ignore=shutil.ignore_patterns('reference', '__pycache__'))
+    (tmp_path / 'docs').mkdir()
+    shutil.copy2(ROOT / 'docs/role2_evidence_review_1127.json', tmp_path / 'docs')
+    for path in tmp_path.rglob('*.json'):
+        path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', newline))
+    original = (copied_pack / 'pack.json').read_bytes()
+    for name in ['prepare_pack_split_review', 'prepare_pack_next_steps', 'prepare_role2_policy']:
+        module_spec = importlib.util.spec_from_file_location(name, ROOT / 'scripts' / (name + '.py'))
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        expected = module.build()
+        monkeypatch.setattr(module, 'ROOT', tmp_path)
+        monkeypatch.setattr(module, 'PACK', copied_pack)
+        assert module.build() == expected
+        if name == 'prepare_role2_policy':
+            (copied_pack / 'pack.json').write_bytes(original.replace(b'production', b'wrongscope', 1))
+            with pytest.raises(AssertionError):
+                module.build()
+            (copied_pack / 'pack.json').write_bytes(original)
+    assert (copied_pack / 'pack.json').read_bytes() == original

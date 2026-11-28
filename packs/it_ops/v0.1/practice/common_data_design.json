@@ -2,7 +2,8 @@
   "schema_version": 1,
   "date": "2026-11-27",
   "status": "design_only_no_generator_or_data_migration",
-  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "base_pack_sha256": "736fd2252975620129180dd0673248ece72bdfef11b44055fc94219d88f80593",
+  "file_hash_policy": "sha256_crlf_to_lf_v1",
   "core": {
     "entities": [
       "synthetic_company",
@@ -82,12 +83,12 @@
     },
     {
       "location": "data/scenarios.json",
-      "sha256": "7aed883e6b1813bfecf70703b932565a69f6d4d55ee2958f98e06e8111fd0b64",
+      "sha256": "86aed6a874878576c9565fdd56e8b44eaefdeaba18cb068b3c4fb9f11a5c0e52",
       "snapshot_version": "it-ops-reliability-v0.2"
     },
     {
       "location": "data/evidence.json",
-      "sha256": "f8ae068bd9901c4104cd6fd683994a40d69cf542fb520829c61bde99a221664d",
+      "sha256": "3bdecaaf30f52c7b9d8eca4ecf2ced97830fe12571c4c5f38122cd6888ab3e15",
       "snapshot_version": "it-ops-conflicts-v0.2"
     },
     {

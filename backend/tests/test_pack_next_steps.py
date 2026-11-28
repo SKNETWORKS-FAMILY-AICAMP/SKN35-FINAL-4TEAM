@@ -55,6 +55,6 @@ def test_common_design_and_all_outputs_preserve_legacy_data():
     _,_,design=review.build()
     assert len(design['current_sources'])==13
     assert design['status']=='design_only_no_generator_or_data_migration'
-    assert all(s['sha256']==hashlib.sha256((review.PACK/s['location']).read_bytes()).hexdigest() for s in design['current_sources'])
+    assert all(s['sha256']==hashlib.sha256((review.PACK/s['location']).read_bytes().replace(b'\r\n', b'\n')).hexdigest() for s in design['current_sources'])
     assert before=={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     assert 'no v0.2 pack created' in design['not_done'][0]

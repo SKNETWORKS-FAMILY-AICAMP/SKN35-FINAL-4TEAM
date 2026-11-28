@@ -14,7 +14,7 @@ def read(path):
 
 def build():
     source = PACK / 'pack.json'
-    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    digest = hashlib.sha256(source.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
     pack = read(source)
     formats = read(PACK / 'practice/answer_format_v02_review.json')
     evidence = read(ROOT / 'docs/role2_evidence_review_1127.json')
@@ -49,7 +49,7 @@ def build():
                      'original_prompt_sha256': hashlib.sha256(task['prompt'].encode()).hexdigest(),
                      'before': task['prompt'], 'after': proposed, 'proposed_output_schema': schema})
     policy = {
-        'date': '2026-11-28', 'base_pack_sha256': digest,
+        'date': '2026-11-28', 'base_pack_sha256': digest, 'file_hash_policy': 'sha256_crlf_to_lf_v1',
         'status': 'role2_policy_baseline_for_review_not_shared_contract_approval',
         'applied': False, 'new_pack_created': False,
         'scope': 'Future version only; no historical grade changes or active pack mutation.',
@@ -87,6 +87,7 @@ def build():
                          '별도 v0.2 생성·등록·잠금 절차; held 자격은 별도 확인'],
     }
     overlay = {'date': policy['date'], 'base_pack_sha256': digest, 'applied': False,
+               'file_hash_policy': 'sha256_crlf_to_lf_v1',
                'kind': 'review_only_prompt_overlay_not_loadable_pack', 'rows': rows}
     assert len(rows) == 134
     assert len(set(policy['evidence']['reviewed_task_codes'])) == 44
@@ -99,7 +100,7 @@ def build():
         Draft202012Validator(row['proposed_output_schema']).validate(expected)
         assert '목록 결과가 없으면[]' not in row['after']
         assert all('expected' not in field for field in row['proposed_output_schema']['properties'].values())
-    assert hashlib.sha256(source.read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(source.read_bytes().replace(b'\r\n', b'\n')).hexdigest() == digest
     return policy, overlay
 
 

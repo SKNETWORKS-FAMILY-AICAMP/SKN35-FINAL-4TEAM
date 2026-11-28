@@ -28,7 +28,7 @@ def type_of(value):
 
 def build():
     pack = read(PACK / 'pack.json')
-    digest = hashlib.sha256((PACK / 'pack.json').read_bytes()).hexdigest()
+    digest = hashlib.sha256((PACK / 'pack.json').read_bytes().replace(b'\r\n', b'\n')).hexdigest()
     split = read(PACK / 'practice/split_review_v02.json')
     assert split['source_pack_sha256'] == digest
     groups = read(PACK / 'groups.json')['groups']
@@ -70,6 +70,7 @@ def build():
     assert len(adapter_rows) == 35 and sum(r['task_count'] for r in adapter_rows) == 105
     adapter = {'schema_version': 1, 'date': '2026-11-27', 'base_pack_sha256': digest,
                'status': 'implementation_inventory_not_connected_not_held_approval',
+               'file_hash_policy': 'sha256_crlf_to_lf_v1',
                'summary': {'templates': 35, 'tasks': 105, 'actual_mcp_ready': 0,
                            'waves': dict(Counter(r['suggested_wave'] for r in adapter_rows))},
                'evidence_limit': 'Success/alternate representative goldens identify example paths, not every valid tool or every variant path.',
@@ -125,6 +126,7 @@ def build():
     info_tasks = [t for t in pack['tasks'] if any(c['kind'] == 'info' for c in t['conditions'])]
     format_review = {'schema_version': 1, 'date': '2026-11-27', 'base_pack_sha256': digest, 'applied': False,
                      'status': 'v02_wording_and_type_proposal_not_new_grading_policy',
+                     'file_hash_policy': 'sha256_crlf_to_lf_v1',
                      'summary': {'structured_tasks': len(info_tasks), 'free_text_tasks': len(pack['tasks']) - len(info_tasks),
                                  'info_conditions': sum(c['kind'] == 'info' for t in pack['tasks'] for c in t['conditions']),
                                  'list_fields': sum('array' in (f['proposed_json_schema']['type'] if isinstance(f['proposed_json_schema']['type'], list) else [f['proposed_json_schema']['type']]) for t in templates for f in t['fields']),
@@ -139,7 +141,7 @@ def build():
                      'templates': templates}
 
     design = {'schema_version': 1, 'date': '2026-11-27', 'status': 'design_only_no_generator_or_data_migration',
-              'base_pack_sha256': digest,
+              'base_pack_sha256': digest, 'file_hash_policy': 'sha256_crlf_to_lf_v1',
               'core': {'entities': ['synthetic_company', 'synthetic_person', 'team', 'membership'],
                        'shared_rules': ['Namespaced stable IDs; preserve source IDs and explicit composite keys.',
                                         'Timezone-aware instants plus Asia/Seoul business-date rules. Preserve historical raw timestamps.',
@@ -162,7 +164,7 @@ def build():
                          '2: core and one IT module on a separate development dataset with deterministic checks.',
                          '3: validate relationships, answer/negative cases and public projections before a new pack version.',
                          '4: add analytics module only when its evaluation tasks exist.'],
-              'current_sources': [{'location': s['location'], 'sha256': hashlib.sha256((PACK/s['location']).read_bytes()).hexdigest(),
+              'current_sources': [{'location': s['location'], 'sha256': hashlib.sha256((PACK/s['location']).read_bytes().replace(b'\r\n', b'\n')).hexdigest(),
                                    'snapshot_version': read(PACK/s['location']).get('snapshot_version')} for s in pack['data_snapshots']],
               'not_done': ['No shared-core data generated, no new relations fabricated, no v0.2 pack created, no DB or API changes.']}
     return adapter, format_review, design

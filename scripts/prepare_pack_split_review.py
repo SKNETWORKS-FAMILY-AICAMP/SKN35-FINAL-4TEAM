@@ -89,7 +89,8 @@ def build():
                'held_candidate_actual_mcp_supported':sum(r['proposed_split']=='held_candidate' and r['actual_mcp_supported'] for r in rows)}
     return {'schema_version':1,'date':'2026-11-27','status':'proposal_not_applied_not_independent_approval',
             'source_pack':'it_ops/v0.1','proposed_destination':'it_ops/v0.2',
-            'source_pack_sha256':hashlib.sha256((PACK/'pack.json').read_bytes()).hexdigest(),
+            'source_pack_sha256':hashlib.sha256((PACK/'pack.json').read_bytes().replace(b'\r\n', b'\n')).hexdigest(),
+            'file_hash_policy':'sha256_crlf_to_lf_v1',
             'summary':summary,
             'groups':{name:dict(Counter(r['proposed_split'] for r in rows if r['group']==name)) for name in groups},
             'rules':['Split whole templates, never task variants of the same template across dev/held.',

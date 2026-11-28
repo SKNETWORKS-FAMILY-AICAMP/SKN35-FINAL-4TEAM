@@ -1,7 +1,8 @@
 {
   "date": "2026-11-28",
-  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "base_pack_sha256": "736fd2252975620129180dd0673248ece72bdfef11b44055fc94219d88f80593",
   "applied": false,
+  "file_hash_policy": "sha256_crlf_to_lf_v1",
   "kind": "review_only_prompt_overlay_not_loadable_pack",
   "rows": [
     {

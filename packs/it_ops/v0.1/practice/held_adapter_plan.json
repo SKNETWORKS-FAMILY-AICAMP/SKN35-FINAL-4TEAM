@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
   "date": "2026-11-27",
-  "base_pack_sha256": "724a4480c1a3da4ee4efa065a069a847b66000118014466dce8e3064cc2c6e18",
+  "base_pack_sha256": "736fd2252975620129180dd0673248ece72bdfef11b44055fc94219d88f80593",
   "status": "implementation_inventory_not_connected_not_held_approval",
+  "file_hash_policy": "sha256_crlf_to_lf_v1",
   "summary": {
     "templates": 35,
     "tasks": 105,
